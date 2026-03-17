@@ -3,1806 +3,41 @@ info:
   title: RoomieMatch API
   description: API сервиса для поиска соседей по общежитию и совместной аренде жилья
   version: 1.0.0
-
 servers:
-  - url: http://localhost:8000
-    description: Local development server
-
+- url: http://localhost:8000
+  description: Local development server
 tags:
-  - name: Auth
-    description: Аутентификация и авторизация
-  - name: Users
-    description: Пользователи
-  - name: Profiles
-    description: Профили пользователей
-  - name: Deals
-    description: Предложения о совместном проживании
-  - name: Likes
-    description: Лайки предложений
-  - name: Chats
-    description: Чаты
-  - name: Messages
-    description: Сообщения в чатах
-  - name: Complaints
-    description: Жалобы
-  - name: Universities
-    description: Университеты
-  - name: Faculties
-    description: Факультеты
-  - name: Dorms
-    description: Общежития
-  - name: Neighbourhoods
-    description: Районы
-  - name: Tags
-    description: Теги привычек и предпочтений
-
+- name: Auth
+  description: Аутентификация и авторизация
+- name: Users
+  description: Пользователи
+- name: Profiles
+  description: Профили пользователей
+- name: Deals
+  description: Предложения о совместном проживании
+- name: Reactions
+  description: 'Реакции на предложения: лайки и дизлайки'
+- name: Chats
+  description: Чаты
+- name: Messages
+  description: Сообщения в чатах
+- name: Complaints
+  description: Жалобы
+- name: Universities
+  description: Университеты
+- name: Faculties
+  description: Факультеты
+- name: Dorms
+  description: Общежития
+- name: Neighbourhoods
+  description: Районы
+- name: Tags
+  description: Теги привычек и предпочтений
 paths:
-  /deals:
-    get:
-      tags:
-        - Deals
-      summary: Получить список предложений о жилье
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: city
-          in: query
-          description: Фильтр по городу
-          schema:
-            type: string
-        - name: deal_type
-          in: query
-          description: Тип предложения
-          schema:
-            type: string
-            enum: [rent, dorm]
-        - name: budget_min
-          in: query
-          schema:
-            type: integer
-        - name: budget_max
-          in: query
-          schema:
-            type: integer
-        - name: people_amount
-          in: query
-          schema:
-            type: integer
-        - name: neighbourhood_id
-          in: query
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Список предложений успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DealListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Deals
-      summary: Создать предложение о жилье
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DealCreate'
-      responses:
-        '201':
-          description: Предложение успешно создано
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DealResponse'
-        '404':
-          description: Профиль владельца не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /profiles:
-    get:
-      tags:
-        - Profiles
-      summary: Получить список профилей
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: sex
-          in: query
-          description: Фильтр по полу
-          schema:
-            type: string
-            enum: [ male, female ]
-        - name: age_min
-          in: query
-          description: Минимальный возраст
-          schema:
-            type: integer
-        - name: age_max
-          in: query
-          description: Максимальный возраст
-          schema:
-            type: integer
-        - name: uni_id
-          in: query
-          description: Фильтр по университету
-          schema:
-            type: integer
-        - name: faculty_id
-          in: query
-          description: Фильтр по факультету
-          schema:
-            type: integer
-        - name: city
-          in: query
-          description: Фильтр по городу
-          schema:
-            type: string
-        - name: neighbourhood_id
-          in: query
-          description: Фильтр по району
-          schema:
-            type: integer
-        - name: tag_id
-          in: query
-          description: Фильтр по тегу
-          schema:
-            type: integer
-        - name: course
-          in: query
-          description: Фильтр по курсу
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Список профилей успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfileListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Profiles
-      summary: Создать профиль пользователя
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProfileCreate'
-      responses:
-        '201':
-          description: Профиль успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfileResponse'
-        '404':
-          description: Пользователь, университет или факультет не найдены
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Профиль для данного пользователя уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /profiles/{profile_id}:
-    get:
-      tags:
-        - Profiles
-      summary: Получить профиль по ID
-      parameters:
-        - name: profile_id
-          in: path
-          required: true
-          description: Идентификатор профиля
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Профиль найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfileResponse'
-        '404':
-          description: Профиль не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Profiles
-      summary: Обновить профиль пользователя
-      parameters:
-        - name: profile_id
-          in: path
-          required: true
-          description: Идентификатор профиля
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProfileUpdate'
-      responses:
-        '200':
-          description: Профиль успешно обновлён
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfileResponse'
-        '404':
-          description: Профиль не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для редактирования профиля
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Profiles
-      summary: Удалить профиль пользователя
-      parameters:
-        - name: profile_id
-          in: path
-          required: true
-          description: Идентификатор профиля
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Профиль успешно удалён
-        '404':
-          description: Профиль не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для удаления профиля
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /likes:
-    get:
-      tags:
-        - Likes
-      summary: Получить список лайков
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: profile_id
-          in: query
-          description: Фильтр по профилю, который поставил лайк
-          schema:
-            type: integer
-        - name: deal_id
-          in: query
-          description: Фильтр по предложению, которому поставлен лайк
-          schema:
-            type: integer
-        - name: created_from
-          in: query
-          description: Начальная дата создания лайка
-          schema:
-            type: string
-            format: date-time
-        - name: created_to
-          in: query
-          description: Конечная дата создания лайка
-          schema:
-            type: string
-            format: date-time
-      responses:
-        '200':
-          description: Список лайков успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LikeListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Likes
-      summary: Поставить лайк предложению
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LikeCreate'
-      responses:
-        '201':
-          description: Лайк успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LikeResponse'
-        '404':
-          description: Профиль или предложение не найдены
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Лайк уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /likes/{like_id}:
-    get:
-      tags:
-        - Likes
-      summary: Получить лайк по ID
-      parameters:
-        - name: like_id
-          in: path
-          required: true
-          description: Идентификатор лайка
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Лайк найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LikeResponse'
-        '404':
-          description: Лайк не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Likes
-      summary: Удалить лайк
-      parameters:
-        - name: like_id
-          in: path
-          required: true
-          description: Идентификатор лайка
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Лайк успешно удалён
-        '404':
-          description: Лайк не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для удаления лайка
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /chats:
-    get:
-      tags:
-        - Chats
-      summary: Получить список чатов
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: profile_id
-          in: query
-          description: Фильтр по участнику чата
-          schema:
-            type: integer
-        - name: deal_id
-          in: query
-          description: Фильтр по предложению о проживании
-          schema:
-            type: integer
-        - name: created_from
-          in: query
-          description: Начальная дата создания чата
-          schema:
-            type: string
-            format: date-time
-        - name: created_to
-          in: query
-          description: Конечная дата создания чата
-          schema:
-            type: string
-            format: date-time
-      responses:
-        '200':
-          description: Список чатов успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Chats
-      summary: Создать чат по предложению
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChatCreate'
-      responses:
-        '201':
-          description: Чат успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatResponse'
-        '404':
-          description: Профиль или предложение не найдены
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Чат для данного профиля и предложения уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /chats/{chat_id}:
-    get:
-      tags:
-        - Chats
-      summary: Получить чат по ID
-      parameters:
-        - name: chat_id
-          in: path
-          required: true
-          description: Идентификатор чата
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Чат найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChatResponse'
-        '404':
-          description: Чат не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    delete:
-      tags:
-        - Chats
-      summary: Удалить чат
-      parameters:
-        - name: chat_id
-          in: path
-          required: true
-          description: Идентификатор чата
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Чат успешно удалён
-        '404':
-          description: Чат не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для удаления чата
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /messages:
-    get:
-      tags:
-        - Messages
-      summary: Получить список сообщений
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: chat_id
-          in: query
-          description: Фильтр по чату
-          schema:
-            type: integer
-        - name: profile_id
-          in: query
-          description: Фильтр по отправителю
-          schema:
-            type: integer
-        - name: sent_from
-          in: query
-          description: Начальная дата отправки
-          schema:
-            type: string
-            format: date-time
-        - name: sent_to
-          in: query
-          description: Конечная дата отправки
-          schema:
-            type: string
-            format: date-time
-        - name: is_read
-          in: query
-          description: Фильтр по статусу прочтения
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: Список сообщений успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Messages
-      summary: Отправить сообщение в чат
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MessageCreate'
-      responses:
-        '201':
-          description: Сообщение успешно отправлено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '404':
-          description: Чат или профиль не найдены
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Профиль не является участником чата
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /messages/{message_id}:
-    get:
-      tags:
-        - Messages
-      summary: Получить сообщение по ID
-      parameters:
-        - name: message_id
-          in: path
-          required: true
-          description: Идентификатор сообщения
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Сообщение найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '404':
-          description: Сообщение не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Messages
-      summary: Обновить сообщение
-      parameters:
-        - name: message_id
-          in: path
-          required: true
-          description: Идентификатор сообщения
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MessageUpdate'
-      responses:
-        '200':
-          description: Сообщение успешно обновлено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '404':
-          description: Сообщение не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для изменения сообщения
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Messages
-      summary: Удалить сообщение
-      parameters:
-        - name: message_id
-          in: path
-          required: true
-          description: Идентификатор сообщения
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Сообщение успешно удалено
-        '404':
-          description: Сообщение не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для удаления сообщения
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /complaints:
-    get:
-      tags:
-        - Complaints
-      summary: Получить список жалоб
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: complainant_id
-          in: query
-          description: Фильтр по пользователю, подавшему жалобу
-          schema:
-            type: integer
-        - name: reported_user_id
-          in: query
-          description: Фильтр по пользователю, на которого подана жалоба
-          schema:
-            type: integer
-        - name: status
-          in: query
-          description: Фильтр по статусу жалобы
-          schema:
-            type: string
-            enum: [ new, in_progress, resolved, rejected ]
-        - name: created_from
-          in: query
-          description: Начальная дата создания жалобы
-          schema:
-            type: string
-            format: date-time
-        - name: created_to
-          in: query
-          description: Конечная дата создания жалобы
-          schema:
-            type: string
-            format: date-time
-      responses:
-        '200':
-          description: Список жалоб успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComplaintListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Complaints
-      summary: Создать жалобу
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ComplaintCreate'
-      responses:
-        '201':
-          description: Жалоба успешно создана
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComplaintResponse'
-        '404':
-          description: Пользователь не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Жалоба уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /complaints/{complaint_id}:
-    get:
-      tags:
-        - Complaints
-      summary: Получить жалобу по ID
-      parameters:
-        - name: complaint_id
-          in: path
-          required: true
-          description: Идентификатор жалобы
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Жалоба найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComplaintResponse'
-        '404':
-          description: Жалоба не найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Complaints
-      summary: Обновить статус жалобы
-      parameters:
-        - name: complaint_id
-          in: path
-          required: true
-          description: Идентификатор жалобы
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ComplaintUpdate'
-      responses:
-        '200':
-          description: Жалоба успешно обновлена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComplaintResponse'
-        '404':
-          description: Жалоба не найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для изменения жалобы
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Complaints
-      summary: Удалить жалобу
-      parameters:
-        - name: complaint_id
-          in: path
-          required: true
-          description: Идентификатор жалобы
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Жалоба успешно удалена
-        '404':
-          description: Жалоба не найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Недостаточно прав для удаления жалобы
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /tags:
-    get:
-      tags:
-        - Tags
-      summary: Получить список тегов
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: category
-          in: query
-          description: Фильтр по категории тега
-          schema:
-            type: string
-        - name: value
-          in: query
-          description: Фильтр по значению тега
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Список тегов успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Tags
-      summary: Создать новый тег
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TagCreate'
-      responses:
-        '201':
-          description: Тег успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagResponse'
-        '409':
-          description: Тег с такими параметрами уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /tags/{tag_id}:
-    get:
-      tags:
-        - Tags
-      summary: Получить тег по ID
-      parameters:
-        - name: tag_id
-          in: path
-          required: true
-          description: Идентификатор тега
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Тег найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagResponse'
-        '404':
-          description: Тег не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Tags
-      summary: Обновить тег
-      parameters:
-        - name: tag_id
-          in: path
-          required: true
-          description: Идентификатор тега
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TagUpdate'
-      responses:
-        '200':
-          description: Тег успешно обновлён
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagResponse'
-        '404':
-          description: Тег не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Tags
-      summary: Удалить тег
-      parameters:
-        - name: tag_id
-          in: path
-          required: true
-          description: Идентификатор тега
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Тег успешно удалён
-        '404':
-          description: Тег не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /universities:
-    get:
-      tags:
-        - Universities
-      summary: Получить список университетов
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: name
-          in: query
-          description: Фильтр по названию университета
-          schema:
-            type: string
-        - name: city
-          in: query
-          description: Фильтр по городу
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Список университетов успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UniversityListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Universities
-      summary: Создать университет
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UniversityCreate'
-      responses:
-        '201':
-          description: Университет успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UniversityResponse'
-        '409':
-          description: Университет с таким названием уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /universities/{university_id}:
-    get:
-      tags:
-        - Universities
-      summary: Получить университет по ID
-      parameters:
-        - name: university_id
-          in: path
-          required: true
-          description: Идентификатор университета
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Университет найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UniversityResponse'
-        '404':
-          description: Университет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Universities
-      summary: Обновить университет
-      parameters:
-        - name: university_id
-          in: path
-          required: true
-          description: Идентификатор университета
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UniversityUpdate'
-      responses:
-        '200':
-          description: Университет успешно обновлён
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UniversityResponse'
-        '404':
-          description: Университет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Universities
-      summary: Удалить университет
-      parameters:
-        - name: university_id
-          in: path
-          required: true
-          description: Идентификатор университета
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Университет успешно удалён
-        '404':
-          description: Университет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /faculties:
-    get:
-      tags:
-        - Faculties
-      summary: Получить список факультетов
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: uni_id
-          in: query
-          description: Фильтр по университету
-          schema:
-            type: integer
-        - name: name
-          in: query
-          description: Фильтр по названию факультета
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Список факультетов успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FacultyListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Faculties
-      summary: Создать факультет
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FacultyCreate'
-      responses:
-        '201':
-          description: Факультет успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FacultyResponse'
-        '404':
-          description: Университет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Факультет с таким названием уже существует в университете
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /faculties/{faculty_id}:
-    get:
-      tags:
-        - Faculties
-      summary: Получить факультет по ID
-      parameters:
-        - name: faculty_id
-          in: path
-          required: true
-          description: Идентификатор факультета
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Факультет найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FacultyResponse'
-        '404':
-          description: Факультет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Faculties
-      summary: Обновить факультет
-      parameters:
-        - name: faculty_id
-          in: path
-          required: true
-          description: Идентификатор факультета
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FacultyUpdate'
-      responses:
-        '200':
-          description: Факультет успешно обновлён
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FacultyResponse'
-        '404':
-          description: Факультет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Faculties
-      summary: Удалить факультет
-      parameters:
-        - name: faculty_id
-          in: path
-          required: true
-          description: Идентификатор факультета
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Факультет успешно удалён
-        '404':
-          description: Факультет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /dorms:
-    get:
-      tags:
-        - Dorms
-      summary: Получить список общежитий
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: uni_id
-          in: query
-          description: Фильтр по университету
-          schema:
-            type: integer
-        - name: name
-          in: query
-          description: Фильтр по названию общежития
-          schema:
-            type: string
-        - name: city
-          in: query
-          description: Фильтр по городу
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Список общежитий успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DormListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Dorms
-      summary: Создать общежитие
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DormCreate'
-      responses:
-        '201':
-          description: Общежитие успешно создано
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DormResponse'
-        '404':
-          description: Университет не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Общежитие с таким названием уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /dorms/{dorm_id}:
-    get:
-      tags:
-        - Dorms
-      summary: Получить общежитие по ID
-      parameters:
-        - name: dorm_id
-          in: path
-          required: true
-          description: Идентификатор общежития
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Общежитие найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DormResponse'
-        '404':
-          description: Общежитие не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Dorms
-      summary: Обновить общежитие
-      parameters:
-        - name: dorm_id
-          in: path
-          required: true
-          description: Идентификатор общежития
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DormUpdate'
-      responses:
-        '200':
-          description: Общежитие успешно обновлено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DormResponse'
-        '404':
-          description: Общежитие не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Dorms
-      summary: Удалить общежитие
-      parameters:
-        - name: dorm_id
-          in: path
-          required: true
-          description: Идентификатор общежития
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Общежитие успешно удалено
-        '404':
-          description: Общежитие не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /neighbourhoods:
-    get:
-      tags:
-        - Neighbourhoods
-      summary: Получить список районов
-      parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: district_name
-          in: query
-          description: Фильтр по названию района
-          schema:
-            type: string
-        - name: city
-          in: query
-          description: Фильтр по городу
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Список районов успешно получен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NeighbourhoodListResponse'
-        '400':
-          description: Некорректные query-параметры
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags:
-        - Neighbourhoods
-      summary: Создать район
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NeighbourhoodCreate'
-      responses:
-        '201':
-          description: Район успешно создан
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NeighbourhoodResponse'
-        '409':
-          description: Район с такими параметрами уже существует
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /neighbourhoods/{neighbourhood_id}:
-    get:
-      tags:
-        - Neighbourhoods
-      summary: Получить район по ID
-      parameters:
-        - name: neighbourhood_id
-          in: path
-          required: true
-          description: Идентификатор района
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Район найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NeighbourhoodResponse'
-        '404':
-          description: Район не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - Neighbourhoods
-      summary: Обновить район
-      parameters:
-        - name: neighbourhood_id
-          in: path
-          required: true
-          description: Идентификатор района
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NeighbourhoodUpdate'
-      responses:
-        '200':
-          description: Район успешно обновлён
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NeighbourhoodResponse'
-        '404':
-          description: Район не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Ошибка валидации тела запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags:
-        - Neighbourhoods
-      summary: Удалить район
-      parameters:
-        - name: neighbourhood_id
-          in: path
-          required: true
-          description: Идентификатор района
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Район успешно удалён
-        '404':
-          description: Район не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /auth/register:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Зарегистрировать нового пользователя
       requestBody:
         required: true
@@ -1829,11 +64,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /auth/login:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Авторизовать пользователя
       requestBody:
         required: true
@@ -1860,11 +94,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /auth/me:
     get:
       tags:
-        - Auth
+      - Auth
       summary: Получить данные текущего пользователя
       responses:
         '200':
@@ -1879,36 +112,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer: []
   /users:
     get:
       tags:
-        - Users
+      - Users
       summary: Получить список пользователей
       parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          description: Размер страницы
-          schema:
-            type: integer
-            default: 20
-        - name: email
-          in: query
-          description: Фильтр по email
-          schema:
-            type: string
-        - name: role
-          in: query
-          description: Фильтр по роли
-          schema:
-            type: string
-            enum: [ user, admin ]
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: email
+        in: query
+        description: Фильтр по email
+        schema:
+          type: string
+      - name: role
+        in: query
+        description: Фильтр по роли
+        schema:
+          type: string
+          enum:
+          - user
+          - admin
       responses:
         '200':
           description: Список пользователей успешно получен
@@ -1928,19 +164,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer:
+        - user:read
   /users/{user_id}:
     get:
       tags:
-        - Users
+      - Users
       summary: Получить пользователя по ID
       parameters:
-        - name: user_id
-          in: path
-          required: true
-          description: Идентификатор пользователя
-          schema:
-            type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
       responses:
         '200':
           description: Пользователь найден
@@ -1954,18 +192,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer:
+        - user:read
     put:
       tags:
-        - Users
+      - Users
       summary: Обновить пользователя
       parameters:
-        - name: user_id
-          in: path
-          required: true
-          description: Идентификатор пользователя
-          schema:
-            type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -2003,18 +243,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer:
+        - user:manage
     delete:
       tags:
-        - Users
+      - Users
       summary: Удалить пользователя
       parameters:
-        - name: user_id
-          in: path
-          required: true
-          description: Идентификатор пользователя
-          schema:
-            type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
       responses:
         '204':
           description: Пользователь успешно удалён
@@ -2030,19 +272,345 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer:
+        - user:manage
+  /users/{user_id}/profile:
+    get:
+      tags:
+      - Profiles
+      summary: Получить профиль пользователя
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Профиль найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '404':
+          description: Пользователь или профиль не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - profile:read
+    post:
+      tags:
+      - Profiles
+      summary: Создать профиль пользователя
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreate'
+      responses:
+        '201':
+          description: Профиль успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '404':
+          description: Пользователь, университет или факультет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Профиль для данного пользователя уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - profile:write
+    put:
+      tags:
+      - Profiles
+      summary: Обновить профиль пользователя
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Профиль успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '404':
+          description: Пользователь или профиль не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для редактирования профиля
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - profile:write
+    delete:
+      tags:
+      - Profiles
+      summary: Удалить профиль пользователя
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Профиль успешно удалён
+        '404':
+          description: Пользователь или профиль не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для удаления профиля
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - profile:write
+  /profiles:
+    get:
+      tags:
+      - Profiles
+      summary: Получить список профилей
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: sex
+        in: query
+        description: Фильтр по полу
+        schema:
+          type: string
+          enum:
+          - male
+          - female
+      - name: age_min
+        in: query
+        description: Минимальный возраст
+        schema:
+          type: integer
+      - name: age_max
+        in: query
+        description: Максимальный возраст
+        schema:
+          type: integer
+      - name: uni_id
+        in: query
+        description: Фильтр по университету
+        schema:
+          type: integer
+      - name: faculty_id
+        in: query
+        description: Фильтр по факультету
+        schema:
+          type: integer
+      - name: city
+        in: query
+        description: Фильтр по городу
+        schema:
+          type: string
+      - name: neighbourhood_id
+        in: query
+        description: Фильтр по району
+        schema:
+          type: integer
+      - name: tag_id
+        in: query
+        description: Фильтр по тегу
+        schema:
+          type: integer
+      - name: course
+        in: query
+        description: Фильтр по курсу
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Список профилей успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - profile:read
+  /deals:
+    get:
+      tags:
+      - Deals
+      summary: Получить список предложений о жилье
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: city
+        in: query
+        description: Фильтр по городу
+        schema:
+          type: string
+      - name: deal_type
+        in: query
+        description: Тип предложения
+        schema:
+          type: string
+          enum:
+          - rent
+          - dorm
+      - name: budget_min
+        in: query
+        schema:
+          type: integer
+      - name: budget_max
+        in: query
+        schema:
+          type: integer
+      - name: people_amount
+        in: query
+        schema:
+          type: integer
+      - name: neighbourhood_id
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Список предложений успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DealListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - deal:read
+    post:
+      tags:
+      - Deals
+      summary: Создать предложение о жилье
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DealCreate'
+      responses:
+        '201':
+          description: Предложение успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DealResponse'
+        '404':
+          description: Профиль владельца не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - deal:write
   /deals/{deal_id}:
     get:
       tags:
-        - Deals
+      - Deals
       summary: Получить предложение по ID
       parameters:
-        - name: deal_id
-          in: path
-          required: true
-          description: Идентификатор предложения
-          schema:
-            type: integer
+      - name: deal_id
+        in: path
+        required: true
+        description: Идентификатор предложения
+        schema:
+          type: integer
       responses:
         '200':
           description: Предложение найдено
@@ -2056,15 +624,1703 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+      security:
+      - OAuth2PasswordBearer:
+        - deal:read
+  /deals/{deal_id}/reactions:
+    get:
+      tags:
+      - Reactions
+      summary: Получить список реакций на предложение
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        description: Идентификатор предложения
+        schema:
+          type: integer
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: reaction_type
+        in: query
+        description: Фильтр по типу реакции
+        schema:
+          type: string
+          enum:
+          - like
+          - dislike
+      - name: profile_id
+        in: query
+        description: Фильтр по профилю, оставившему реакцию
+        schema:
+          type: integer
+      - name: created_from
+        in: query
+        description: Начальная дата создания реакции
+        schema:
+          type: string
+          format: date-time
+      - name: created_to
+        in: query
+        description: Конечная дата создания реакции
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Список реакций успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Предложение не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - reaction:read
+    post:
+      tags:
+      - Reactions
+      summary: Создать реакцию на предложение
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        description: Идентификатор предложения
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionCreate'
+      responses:
+        '201':
+          description: Реакция успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionResponse'
+        '404':
+          description: Профиль или предложение не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Реакция уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - reaction:write
+  /deals/{deal_id}/reactions/{reaction_id}:
+    get:
+      tags:
+      - Reactions
+      summary: Получить реакцию по ID в рамках предложения
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        description: Идентификатор предложения
+        schema:
+          type: integer
+      - name: reaction_id
+        in: path
+        required: true
+        description: Идентификатор реакции
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Реакция найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionResponse'
+        '404':
+          description: Реакция или предложение не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - reaction:read
+    delete:
+      tags:
+      - Reactions
+      summary: Удалить реакцию на предложение
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        description: Идентификатор предложения
+        schema:
+          type: integer
+      - name: reaction_id
+        in: path
+        required: true
+        description: Идентификатор реакции
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Реакция успешно удалена
+        '404':
+          description: Реакция или предложение не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для удаления реакции
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - reaction:write
+  /chats:
+    get:
+      tags:
+      - Chats
+      summary: Получить список чатов
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: profile_id
+        in: query
+        description: Фильтр по участнику чата
+        schema:
+          type: integer
+      - name: deal_id
+        in: query
+        description: Фильтр по предложению о проживании
+        schema:
+          type: integer
+      - name: created_from
+        in: query
+        description: Начальная дата создания чата
+        schema:
+          type: string
+          format: date-time
+      - name: created_to
+        in: query
+        description: Конечная дата создания чата
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Список чатов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - chat:read
+    post:
+      tags:
+      - Chats
+      summary: Создать чат по предложению
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCreate'
+      responses:
+        '201':
+          description: Чат успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '404':
+          description: Профиль или предложение не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Чат для данного профиля и предложения уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - chat:write
+  /chats/{chat_id}:
+    get:
+      tags:
+      - Chats
+      summary: Получить чат по ID
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Чат найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '404':
+          description: Чат не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - chat:read
+    delete:
+      tags:
+      - Chats
+      summary: Удалить чат
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Чат успешно удалён
+        '404':
+          description: Чат не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для удаления чата
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - chat:write
+  /chats/{chat_id}/messages:
+    get:
+      tags:
+      - Messages
+      summary: Получить список сообщений чата
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: profile_id
+        in: query
+        description: Фильтр по отправителю
+        schema:
+          type: integer
+      - name: sent_from
+        in: query
+        description: Начальная дата отправки
+        schema:
+          type: string
+          format: date-time
+      - name: sent_to
+        in: query
+        description: Конечная дата отправки
+        schema:
+          type: string
+          format: date-time
+      - name: is_read
+        in: query
+        description: Фильтр по статусу прочтения
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Список сообщений успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Чат не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - message:read
+    post:
+      tags:
+      - Messages
+      summary: Отправить сообщение в чат
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Сообщение успешно отправлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Чат или профиль не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Профиль не является участником чата
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - message:write
+  /chats/{chat_id}/messages/{message_id}:
+    get:
+      tags:
+      - Messages
+      summary: Получить сообщение по ID в рамках чата
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      - name: message_id
+        in: path
+        required: true
+        description: Идентификатор сообщения
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Сообщение найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Сообщение или чат не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - message:read
+    put:
+      tags:
+      - Messages
+      summary: Обновить сообщение в чате
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      - name: message_id
+        in: path
+        required: true
+        description: Идентификатор сообщения
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageUpdate'
+      responses:
+        '200':
+          description: Сообщение успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Сообщение или чат не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для изменения сообщения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - message:write
+    delete:
+      tags:
+      - Messages
+      summary: Удалить сообщение из чата
+      parameters:
+      - name: chat_id
+        in: path
+        required: true
+        description: Идентификатор чата
+        schema:
+          type: integer
+      - name: message_id
+        in: path
+        required: true
+        description: Идентификатор сообщения
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Сообщение успешно удалено
+        '404':
+          description: Сообщение или чат не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для удаления сообщения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - message:write
+  /complaints:
+    get:
+      tags:
+      - Complaints
+      summary: Получить список жалоб
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: complainant_id
+        in: query
+        description: Фильтр по пользователю, подавшему жалобу
+        schema:
+          type: integer
+      - name: reported_user_id
+        in: query
+        description: Фильтр по пользователю, на которого подана жалоба
+        schema:
+          type: integer
+      - name: status
+        in: query
+        description: Фильтр по статусу жалобы
+        schema:
+          type: string
+          enum:
+          - new
+          - in_progress
+          - resolved
+          - rejected
+      - name: created_from
+        in: query
+        description: Начальная дата создания жалобы
+        schema:
+          type: string
+          format: date-time
+      - name: created_to
+        in: query
+        description: Конечная дата создания жалобы
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Список жалоб успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - complaint:read
+    post:
+      tags:
+      - Complaints
+      summary: Создать жалобу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintCreate'
+      responses:
+        '201':
+          description: Жалоба успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Жалоба уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - complaint:create
+  /complaints/{complaint_id}:
+    get:
+      tags:
+      - Complaints
+      summary: Получить жалобу по ID
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        description: Идентификатор жалобы
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Жалоба найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintResponse'
+        '404':
+          description: Жалоба не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - complaint:read
+    put:
+      tags:
+      - Complaints
+      summary: Обновить статус жалобы
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        description: Идентификатор жалобы
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplaintUpdate'
+      responses:
+        '200':
+          description: Жалоба успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplaintResponse'
+        '404':
+          description: Жалоба не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для изменения жалобы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - complaint:manage
+    delete:
+      tags:
+      - Complaints
+      summary: Удалить жалобу
+      parameters:
+      - name: complaint_id
+        in: path
+        required: true
+        description: Идентификатор жалобы
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Жалоба успешно удалена
+        '404':
+          description: Жалоба не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Недостаточно прав для удаления жалобы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - complaint:manage
+  /tags:
+    get:
+      tags:
+      - Tags
+      summary: Получить список тегов
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: category
+        in: query
+        description: Фильтр по категории тега
+        schema:
+          type: string
+      - name: value
+        in: query
+        description: Фильтр по значению тега
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список тегов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    post:
+      tags:
+      - Tags
+      summary: Создать новый тег
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '201':
+          description: Тег успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponse'
+        '409':
+          description: Тег с такими параметрами уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /tags/{tag_id}:
+    get:
+      tags:
+      - Tags
+      summary: Получить тег по ID
+      parameters:
+      - name: tag_id
+        in: path
+        required: true
+        description: Идентификатор тега
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Тег найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponse'
+        '404':
+          description: Тег не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    put:
+      tags:
+      - Tags
+      summary: Обновить тег
+      parameters:
+      - name: tag_id
+        in: path
+        required: true
+        description: Идентификатор тега
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagUpdate'
+      responses:
+        '200':
+          description: Тег успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponse'
+        '404':
+          description: Тег не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+    delete:
+      tags:
+      - Tags
+      summary: Удалить тег
+      parameters:
+      - name: tag_id
+        in: path
+        required: true
+        description: Идентификатор тега
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Тег успешно удалён
+        '404':
+          description: Тег не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities:
+    get:
+      tags:
+      - Universities
+      summary: Получить список университетов
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: name
+        in: query
+        description: Фильтр по названию университета
+        schema:
+          type: string
+      - name: city
+        in: query
+        description: Фильтр по городу
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список университетов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniversityListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    post:
+      tags:
+      - Universities
+      summary: Создать университет
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UniversityCreate'
+      responses:
+        '201':
+          description: Университет успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniversityResponse'
+        '409':
+          description: Университет с таким названием уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities/{university_id}:
+    get:
+      tags:
+      - Universities
+      summary: Получить университет по ID
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Университет найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniversityResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    put:
+      tags:
+      - Universities
+      summary: Обновить университет
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UniversityUpdate'
+      responses:
+        '200':
+          description: Университет успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UniversityResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+    delete:
+      tags:
+      - Universities
+      summary: Удалить университет
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Университет успешно удалён
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities/{university_id}/faculties:
+    get:
+      tags:
+      - Faculties
+      summary: Получить список факультетов университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: name
+        in: query
+        description: Фильтр по названию факультета
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список факультетов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    post:
+      tags:
+      - Faculties
+      summary: Создать факультет в университете
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultyCreate'
+      responses:
+        '201':
+          description: Факультет успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Факультет с таким названием уже существует в университете
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities/{university_id}/faculties/{faculty_id}:
+    get:
+      tags:
+      - Faculties
+      summary: Получить факультет университета по ID
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: faculty_id
+        in: path
+        required: true
+        description: Идентификатор факультета
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Факультет найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyResponse'
+        '404':
+          description: Факультет или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    put:
+      tags:
+      - Faculties
+      summary: Обновить факультет университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: faculty_id
+        in: path
+        required: true
+        description: Идентификатор факультета
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultyUpdate'
+      responses:
+        '200':
+          description: Факультет успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyResponse'
+        '404':
+          description: Факультет или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+    delete:
+      tags:
+      - Faculties
+      summary: Удалить факультет университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: faculty_id
+        in: path
+        required: true
+        description: Идентификатор факультета
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Факультет успешно удалён
+        '404':
+          description: Факультет или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities/{university_id}/dorms:
+    get:
+      tags:
+      - Dorms
+      summary: Получить список общежитий университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: name
+        in: query
+        description: Фильтр по названию общежития
+        schema:
+          type: string
+      - name: city
+        in: query
+        description: Фильтр по городу
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список общежитий успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DormListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    post:
+      tags:
+      - Dorms
+      summary: Создать общежитие университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DormCreate'
+      responses:
+        '201':
+          description: Общежитие успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DormResponse'
+        '404':
+          description: Университет не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Общежитие с таким названием уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /universities/{university_id}/dorms/{dorm_id}:
+    get:
+      tags:
+      - Dorms
+      summary: Получить общежитие университета по ID
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: dorm_id
+        in: path
+        required: true
+        description: Идентификатор общежития
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Общежитие найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DormResponse'
+        '404':
+          description: Общежитие или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    put:
+      tags:
+      - Dorms
+      summary: Обновить общежитие университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: dorm_id
+        in: path
+        required: true
+        description: Идентификатор общежития
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DormUpdate'
+      responses:
+        '200':
+          description: Общежитие успешно обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DormResponse'
+        '404':
+          description: Общежитие или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+    delete:
+      tags:
+      - Dorms
+      summary: Удалить общежитие университета
+      parameters:
+      - name: university_id
+        in: path
+        required: true
+        description: Идентификатор университета
+        schema:
+          type: integer
+      - name: dorm_id
+        in: path
+        required: true
+        description: Идентификатор общежития
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Общежитие успешно удалено
+        '404':
+          description: Общежитие или университет не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /neighbourhoods:
+    get:
+      tags:
+      - Neighbourhoods
+      summary: Получить список районов
+      parameters:
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          default: 1
+      - name: page_size
+        in: query
+        description: Размер страницы
+        schema:
+          type: integer
+          default: 20
+      - name: district_name
+        in: query
+        description: Фильтр по названию района
+        schema:
+          type: string
+      - name: city
+        in: query
+        description: Фильтр по городу
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список районов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeighbourhoodListResponse'
+        '400':
+          description: Некорректные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    post:
+      tags:
+      - Neighbourhoods
+      summary: Создать район
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NeighbourhoodCreate'
+      responses:
+        '201':
+          description: Район успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeighbourhoodResponse'
+        '409':
+          description: Район с такими параметрами уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+  /neighbourhoods/{neighbourhood_id}:
+    get:
+      tags:
+      - Neighbourhoods
+      summary: Получить район по ID
+      parameters:
+      - name: neighbourhood_id
+        in: path
+        required: true
+        description: Идентификатор района
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Район найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeighbourhoodResponse'
+        '404':
+          description: Район не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:read
+    put:
+      tags:
+      - Neighbourhoods
+      summary: Обновить район
+      parameters:
+      - name: neighbourhood_id
+        in: path
+        required: true
+        description: Идентификатор района
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NeighbourhoodUpdate'
+      responses:
+        '200':
+          description: Район успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeighbourhoodResponse'
+        '404':
+          description: Район не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Ошибка валидации тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
+    delete:
+      tags:
+      - Neighbourhoods
+      summary: Удалить район
+      parameters:
+      - name: neighbourhood_id
+        in: path
+        required: true
+        description: Идентификатор района
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Район успешно удалён
+        '404':
+          description: Район не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - OAuth2PasswordBearer:
+        - dictionary:write
 components:
   schemas:
     ErrorResponse:
       type: object
       required:
-        - error
-        - message
-        - status_code
+      - error
+      - message
+      - status_code
       properties:
         error:
           type: string
@@ -2080,7 +2336,6 @@ components:
           nullable: true
           items:
             type: object
-
     ProfileResponse:
       type: object
       properties:
@@ -2120,25 +2375,23 @@ components:
         created_at:
           type: string
           format: date-time
-
     ProfileCreate:
       type: object
       required:
-        - user_id
-        - name
-        - sex
-        - age
-        - uni_id
-        - faculty_id
-        - city
+      - name
+      - sex
+      - age
+      - uni_id
+      - faculty_id
+      - city
       properties:
-        user_id:
-          type: integer
         name:
           type: string
         sex:
           type: string
-          enum: [male, female]
+          enum:
+          - male
+          - female
         age:
           type: integer
           minimum: 16
@@ -2162,7 +2415,9 @@ components:
           type: string
         sex:
           type: string
-          enum: [ male, female ]
+          enum:
+          - male
+          - female
         age:
           type: integer
           minimum: 16
@@ -2179,7 +2434,6 @@ components:
           type: string
         neighbourhood_id:
           type: integer
-
     ProfileListResponse:
       type: object
       properties:
@@ -2196,16 +2450,15 @@ components:
         page_size:
           type: integer
           example: 20
-
     DealCreate:
       type: object
       required:
-        - owner_profile_id
-        - title
-        - deal_type
-        - city
-        - budget_max
-        - people_amount
+      - owner_profile_id
+      - title
+      - deal_type
+      - city
+      - budget_max
+      - people_amount
       properties:
         owner_profile_id:
           type: integer
@@ -2216,7 +2469,9 @@ components:
           example: Ищем 2 соседей в трёшку
         deal_type:
           type: string
-          enum: [rent, dorm]
+          enum:
+          - rent
+          - dorm
         city:
           type: string
           example: Казань
@@ -2236,7 +2491,6 @@ components:
         dorm_id:
           type: integer
           nullable: true
-
     DealResponse:
       type: object
       properties:
@@ -2266,7 +2520,6 @@ components:
         created_at:
           type: string
           format: date-time
-
     DealListResponse:
       type: object
       properties:
@@ -2283,55 +2536,11 @@ components:
         page_size:
           type: integer
           example: 20
-
-    LikeCreate:
-      type: object
-      required:
-        - profile_id
-        - deal_id
-      properties:
-        profile_id:
-          type: integer
-          example: 3
-        deal_id:
-          type: integer
-          example: 12
-
-    LikeResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-        profile_id:
-          type: integer
-        deal_id:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-
-    LikeListResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/LikeResponse'
-        total:
-          type: integer
-          example: 100
-        page:
-          type: integer
-          example: 1
-        page_size:
-          type: integer
-          example: 20
-
     ChatCreate:
       type: object
       required:
-        - profile_id
-        - deal_id
+      - profile_id
+      - deal_id
       properties:
         profile_id:
           type: integer
@@ -2339,7 +2548,6 @@ components:
         deal_id:
           type: integer
           example: 12
-
     ChatResponse:
       type: object
       properties:
@@ -2355,7 +2563,6 @@ components:
         created_at:
           type: string
           format: date-time
-
     ChatListResponse:
       type: object
       properties:
@@ -2372,13 +2579,12 @@ components:
         page_size:
           type: integer
           example: 20
-
     MessageCreate:
       type: object
       required:
-        - chat_id
-        - profile_id
-        - content
+      - chat_id
+      - profile_id
+      - content
       properties:
         chat_id:
           type: integer
@@ -2390,7 +2596,6 @@ components:
           type: string
           maxLength: 1000
           example: Привет! Актуально ли ещё предложение?
-
     MessageUpdate:
       type: object
       properties:
@@ -2401,7 +2606,6 @@ components:
         is_read:
           type: boolean
           example: true
-
     MessageResponse:
       type: object
       properties:
@@ -2423,7 +2627,6 @@ components:
         sent_at:
           type: string
           format: date-time
-
     MessageListResponse:
       type: object
       properties:
@@ -2440,13 +2643,12 @@ components:
         page_size:
           type: integer
           example: 20
-
     ComplaintCreate:
       type: object
       required:
-        - complainant_id
-        - reported_user_id
-        - reason
+      - complainant_id
+      - reported_user_id
+      - reason
       properties:
         complainant_id:
           type: integer
@@ -2462,15 +2664,17 @@ components:
           type: string
           nullable: true
           example: https://example.com/screenshot.png
-
     ComplaintUpdate:
       type: object
       properties:
         status:
           type: string
-          enum: [ new, in_progress, resolved, rejected ]
+          enum:
+          - new
+          - in_progress
+          - resolved
+          - rejected
           example: resolved
-
     ComplaintResponse:
       type: object
       properties:
@@ -2496,7 +2700,6 @@ components:
         created_at:
           type: string
           format: date-time
-
     ComplaintListResponse:
       type: object
       properties:
@@ -2513,12 +2716,11 @@ components:
         page_size:
           type: integer
           example: 20
-
     TagCreate:
       type: object
       required:
-        - category
-        - value
+      - category
+      - value
       properties:
         category:
           type: string
@@ -2526,7 +2728,6 @@ components:
         value:
           type: string
           example: owl
-
     TagUpdate:
       type: object
       properties:
@@ -2536,7 +2737,6 @@ components:
         value:
           type: string
           example: early_bird
-
     TagResponse:
       type: object
       properties:
@@ -2549,7 +2749,6 @@ components:
         value:
           type: string
           example: owl
-
     TagListResponse:
       type: object
       properties:
@@ -2566,12 +2765,11 @@ components:
         page_size:
           type: integer
           example: 20
-
     UniversityCreate:
       type: object
       required:
-        - name
-        - city
+      - name
+      - city
       properties:
         name:
           type: string
@@ -2579,7 +2777,6 @@ components:
         city:
           type: string
           example: Казань
-
     UniversityUpdate:
       type: object
       properties:
@@ -2589,7 +2786,6 @@ components:
         city:
           type: string
           example: Казань
-
     UniversityResponse:
       type: object
       properties:
@@ -2602,7 +2798,6 @@ components:
         city:
           type: string
           example: Казань
-
     UniversityListResponse:
       type: object
       properties:
@@ -2619,12 +2814,11 @@ components:
         page_size:
           type: integer
           example: 20
-
     FacultyCreate:
       type: object
       required:
-        - uni_id
-        - name
+      - uni_id
+      - name
       properties:
         uni_id:
           type: integer
@@ -2632,7 +2826,6 @@ components:
         name:
           type: string
           example: Институт информационных технологий и интеллектуальных систем
-
     FacultyUpdate:
       type: object
       properties:
@@ -2642,7 +2835,6 @@ components:
         name:
           type: string
           example: Институт информационных технологий и интеллектуальных систем
-
     FacultyResponse:
       type: object
       properties:
@@ -2655,7 +2847,6 @@ components:
         name:
           type: string
           example: Институт информационных технологий и интеллектуальных систем
-
     FacultyListResponse:
       type: object
       properties:
@@ -2672,14 +2863,13 @@ components:
         page_size:
           type: integer
           example: 20
-
     DormCreate:
       type: object
       required:
-        - uni_id
-        - name
-        - city
-        - address
+      - uni_id
+      - name
+      - city
+      - address
       properties:
         uni_id:
           type: integer
@@ -2693,7 +2883,6 @@ components:
         address:
           type: string
           example: ул. Пушкина, д. 10
-
     DormUpdate:
       type: object
       properties:
@@ -2709,7 +2898,6 @@ components:
         address:
           type: string
           example: ул. Пушкина, д. 10
-
     DormResponse:
       type: object
       properties:
@@ -2728,7 +2916,6 @@ components:
         address:
           type: string
           example: ул. Пушкина, д. 10
-
     DormListResponse:
       type: object
       properties:
@@ -2745,12 +2932,11 @@ components:
         page_size:
           type: integer
           example: 20
-
     NeighbourhoodCreate:
       type: object
       required:
-        - district_name
-        - city
+      - district_name
+      - city
       properties:
         district_name:
           type: string
@@ -2758,7 +2944,6 @@ components:
         city:
           type: string
           example: Казань
-
     NeighbourhoodUpdate:
       type: object
       properties:
@@ -2768,7 +2953,6 @@ components:
         city:
           type: string
           example: Казань
-
     NeighbourhoodResponse:
       type: object
       properties:
@@ -2781,7 +2965,6 @@ components:
         city:
           type: string
           example: Казань
-
     NeighbourhoodListResponse:
       type: object
       properties:
@@ -2798,14 +2981,13 @@ components:
         page_size:
           type: integer
           example: 20
-
     RegisterRequest:
       type: object
       required:
-        - first_name
-        - last_name
-        - email
-        - password
+      - first_name
+      - last_name
+      - email
+      - password
       properties:
         first_name:
           type: string
@@ -2821,12 +3003,11 @@ components:
           type: string
           minLength: 8
           example: StrongPass123
-
     LoginRequest:
       type: object
       required:
-        - email
-        - password
+      - email
+      - password
       properties:
         email:
           type: string
@@ -2835,7 +3016,6 @@ components:
         password:
           type: string
           example: StrongPass123
-
     AuthResponse:
       type: object
       properties:
@@ -2847,7 +3027,6 @@ components:
           example: bearer
         user:
           $ref: '#/components/schemas/UserResponse'
-
     UserResponse:
       type: object
       properties:
@@ -2870,7 +3049,6 @@ components:
         created_at:
           type: string
           format: date-time
-
     UserUpdate:
       type: object
       properties:
@@ -2886,13 +3064,14 @@ components:
           example: vera@example.com
         role:
           type: string
-          enum: [ user, admin ]
+          enum:
+          - user
+          - admin
           example: user
         password:
           type: string
           minLength: 8
           example: NewStrongPass123
-
     UserListResponse:
       type: object
       properties:
@@ -2909,3 +3088,79 @@ components:
         page_size:
           type: integer
           example: 20
+    ReactionCreate:
+      type: object
+      required:
+      - profile_id
+      - reaction_type
+      properties:
+        profile_id:
+          type: integer
+          example: 3
+        reaction_type:
+          type: string
+          enum:
+          - like
+          - dislike
+          example: like
+    ReactionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 21
+        deal_id:
+          type: integer
+          example: 12
+        profile_id:
+          type: integer
+          example: 3
+        reaction_type:
+          type: string
+          enum:
+          - like
+          - dislike
+          example: dislike
+        created_at:
+          type: string
+          format: date-time
+    ReactionListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionResponse'
+        total:
+          type: integer
+          example: 100
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /auth/login
+          scopes:
+            profile:read: Просмотр профилей
+            profile:write: Создание и редактирование профилей
+            deal:read: Просмотр предложений
+            deal:write: Создание и редактирование предложений
+            reaction:read: Просмотр реакций на предложения
+            reaction:write: Создание и удаление реакций на предложения
+            chat:read: Просмотр чатов
+            chat:write: Создание и удаление чатов
+            message:read: Просмотр сообщений в чатах
+            message:write: Отправка, изменение и удаление сообщений
+            complaint:create: Создание жалоб
+            complaint:read: Просмотр жалоб
+            complaint:manage: Модерация жалоб
+            dictionary:read: Просмотр справочников
+            dictionary:write: Изменение справочников
+            user:read: Просмотр пользователей
+            user:manage: Управление пользователями
