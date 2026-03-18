@@ -1,7 +1,6 @@
-from enum import Enum
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
 
@@ -10,6 +9,11 @@ if TYPE_CHECKING:
 
 
 class DormModel(BaseModel, table=True):
-    uni_id: int = Field(foreign_key='UniversityModel.id')
+    __tablename__ = 'dorms'
 
-    university: Optional['UniversityModel'] = Relationship(back_populates="dorms")
+    uni_id: int = Field(foreign_key='universities.id')
+
+    name: str
+    address: str
+
+    university: Optional['UniversityModel'] = Relationship(back_populates='dorms')
