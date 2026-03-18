@@ -1,0 +1,25 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="flake8" />
+          <option value="flake8-docstrings" />
+          <option value="pep8-naming" />
+          <option value="pycodestyle" />
+          <option value="pygame" />
+          <option value="pytest" />
+          <option value="pytest-timeout" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="django_sprint1.blogicum.blogicum.urls.*" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
