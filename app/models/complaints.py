@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
 
@@ -25,18 +25,20 @@ class ComplaintReason(str, Enum):
 
 
 class ComplaintModel(BaseModel, table=True):
-    complainant_id: int = Field(foreign_key="UserModel.id")
-    reported_user_id: int = Field(foreign_key="UserModel.id")
+    __tablename__ = 'complaints'
+
+    complainant_id: int = Field(foreign_key='users.id')
+    reported_user_id: int = Field(foreign_key='users.id')
 
     reason: ComplaintReason
-    status: ComplaintStatus
+    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
     screenshot_url_for_report: Optional[str] = Field(default=None)
 
-    complainant: "UserModel" = Relationship(
-        back_populates="sent_complaints",
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'}
+    complainant: 'UserModel' = Relationship(
+        back_populates='sent_complaints',
+        sa_relationship_kwargs={'foreign_keys': 'ComplaintModel.complainant_id'},
     )
-    reported_user: "UserModel" = Relationship(
-        back_populates="received_complaints",
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'}
+    reported_user: 'UserModel' = Relationship(
+        back_populates='received_complaints',
+        sa_relationship_kwargs={'foreign_keys': 'ComplaintModel.reported_user_id'},
     )

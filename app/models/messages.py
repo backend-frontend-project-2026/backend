@@ -1,10 +1,11 @@
-from enum import Enum
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
 from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
+
+from datetime import datetime, timezone
 
 if TYPE_CHECKING:
     from app.models.chats import ChatModel
@@ -12,12 +13,15 @@ if TYPE_CHECKING:
 
 
 class MessageModel(BaseModel, table=True):
-    chat_id: int = Field(foreign_key='ChatModel.id')
-    profile_id: int = Field(foreign_key='ProfileModel.id')
+    __tablename__ = 'messages'
+
+    chat_id: int = Field(foreign_key='chats.id')
+    profile_id: int = Field(foreign_key='profiles.id')
     content: str
-    # sent_at не добавил, потому что то же самое, что и created_at
-    opened_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False,
-        sa_type=TIMESTAMP(timezone=True), # type: ignore
+    opened_at: Optional[datetime] = Field(
+        default=None,
+        sa_type=TIMESTAMP(timezone=True),
     )
+
+    chat: 'ChatModel' = Relationship(back_populates='messages')
+    author: 'ProfileModel' = Relationship()
