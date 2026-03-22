@@ -64,6 +64,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': &id001
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /auth/login:
     post:
       tags:
@@ -94,6 +100,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
   /auth/me:
     get:
       tags:
@@ -112,8 +119,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
-      - OAuth2PasswordBearer: []
+      - OAuth2PasswordBearer:
+        - auth:me
   /users:
     get:
       tags:
@@ -164,9 +173,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - user:read
+        - users:read
   /users/{user_id}:
     get:
       tags:
@@ -192,9 +202,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - user:read
+        - users:read
     put:
       tags:
       - Users
@@ -243,9 +254,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - user:manage
+        - users:update
     delete:
       tags:
       - Users
@@ -272,9 +284,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - user:manage
+        - users:delete
   /users/{user_id}/profile:
     get:
       tags:
@@ -300,9 +313,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - profile:read
+        - profiles:read
     post:
       tags:
       - Profiles
@@ -345,9 +359,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - profile:write
+        - profiles:create
     put:
       tags:
       - Profiles
@@ -390,9 +405,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - profile:write
+        - profiles:update
     delete:
       tags:
       - Profiles
@@ -419,9 +435,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - profile:write
+        - profiles:delete
   /profiles:
     get:
       tags:
@@ -501,9 +518,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - profile:read
+        - profiles:read
   /deals:
     get:
       tags:
@@ -564,9 +582,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - deal:read
+        - deals:read
     post:
       tags:
       - Deals
@@ -596,9 +615,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - deal:write
+        - deals:create
   /deals/{deal_id}:
     get:
       tags:
@@ -624,9 +644,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - deal:read
+        - deals:read
   /deals/{deal_id}/reactions:
     get:
       tags:
@@ -695,9 +716,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - reaction:read
+        - reactions:read
     post:
       tags:
       - Reactions
@@ -740,9 +762,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - reaction:write
+        - reactions:create
   /deals/{deal_id}/reactions/{reaction_id}:
     get:
       tags:
@@ -774,9 +797,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - reaction:read
+        - reactions:read
     delete:
       tags:
       - Reactions
@@ -809,9 +833,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - reaction:write
+        - reactions:delete
   /chats:
     get:
       tags:
@@ -865,9 +890,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - chat:read
+        - chats:read
     post:
       tags:
       - Chats
@@ -903,9 +929,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - chat:write
+        - chats:create
   /chats/{chat_id}:
     get:
       tags:
@@ -931,9 +958,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - chat:read
+        - chats:read
     delete:
       tags:
       - Chats
@@ -960,9 +988,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - chat:write
+        - chats:delete
   /chats/{chat_id}/messages:
     get:
       tags:
@@ -1028,9 +1057,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - message:read
+        - messages:read
     post:
       tags:
       - Messages
@@ -1073,9 +1103,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - message:write
+        - messages:create
   /chats/{chat_id}/messages/{message_id}:
     get:
       tags:
@@ -1107,9 +1138,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - message:read
+        - messages:read
     put:
       tags:
       - Messages
@@ -1158,9 +1190,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - message:write
+        - messages:update
     delete:
       tags:
       - Messages
@@ -1193,9 +1226,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - message:write
+        - messages:delete
   /complaints:
     get:
       tags:
@@ -1259,9 +1293,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - complaint:read
+        - complaints:read
     post:
       tags:
       - Complaints
@@ -1297,9 +1332,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - complaint:create
+        - complaints:create
   /complaints/{complaint_id}:
     get:
       tags:
@@ -1325,9 +1361,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - complaint:read
+        - complaints:read
     put:
       tags:
       - Complaints
@@ -1370,9 +1407,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - complaint:manage
+        - complaints:update
     delete:
       tags:
       - Complaints
@@ -1399,9 +1437,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - complaint:manage
+        - complaints:delete
   /tags:
     get:
       tags:
@@ -1443,9 +1482,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - tags:read
     post:
       tags:
       - Tags
@@ -1475,9 +1515,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - tags:create
   /tags/{tag_id}:
     get:
       tags:
@@ -1503,9 +1544,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - tags:read
     put:
       tags:
       - Tags
@@ -1542,9 +1584,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - tags:update
     delete:
       tags:
       - Tags
@@ -1565,9 +1608,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - tags:delete
   /universities:
     get:
       tags:
@@ -1609,9 +1653,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - universities:read
     post:
       tags:
       - Universities
@@ -1641,9 +1686,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - universities:create
   /universities/{university_id}:
     get:
       tags:
@@ -1669,9 +1715,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - universities:read
     put:
       tags:
       - Universities
@@ -1708,9 +1755,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - universities:update
     delete:
       tags:
       - Universities
@@ -1731,9 +1779,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - universities:delete
   /universities/{university_id}/faculties:
     get:
       tags:
@@ -1782,9 +1831,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - faculties:read
     post:
       tags:
       - Faculties
@@ -1827,9 +1877,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - faculties:create
   /universities/{university_id}/faculties/{faculty_id}:
     get:
       tags:
@@ -1861,9 +1912,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - faculties:read
     put:
       tags:
       - Faculties
@@ -1906,9 +1958,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - faculties:update
     delete:
       tags:
       - Faculties
@@ -1935,9 +1988,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - faculties:delete
   /universities/{university_id}/dorms:
     get:
       tags:
@@ -1991,9 +2045,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - dorms:read
     post:
       tags:
       - Dorms
@@ -2036,9 +2091,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - dorms:create
   /universities/{university_id}/dorms/{dorm_id}:
     get:
       tags:
@@ -2070,9 +2126,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - dorms:read
     put:
       tags:
       - Dorms
@@ -2115,9 +2172,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - dorms:update
     delete:
       tags:
       - Dorms
@@ -2144,9 +2202,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - dorms:delete
   /neighbourhoods:
     get:
       tags:
@@ -2188,9 +2247,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - neighbourhoods:read
     post:
       tags:
       - Neighbourhoods
@@ -2220,9 +2280,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - neighbourhoods:create
   /neighbourhoods/{neighbourhood_id}:
     get:
       tags:
@@ -2248,9 +2309,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:read
+        - neighbourhoods:read
     put:
       tags:
       - Neighbourhoods
@@ -2287,9 +2349,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - neighbourhoods:update
     delete:
       tags:
       - Neighbourhoods
@@ -2310,9 +2373,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500': *id001
       security:
       - OAuth2PasswordBearer:
-        - dictionary:write
+        - neighbourhoods:delete
 components:
   schemas:
     ErrorResponse:
@@ -3147,20 +3211,47 @@ components:
         password:
           tokenUrl: /auth/login
           scopes:
-            profile:read: Просмотр профилей
-            profile:write: Создание и редактирование профилей
-            deal:read: Просмотр предложений
-            deal:write: Создание и редактирование предложений
-            reaction:read: Просмотр реакций на предложения
-            reaction:write: Создание и удаление реакций на предложения
-            chat:read: Просмотр чатов
-            chat:write: Создание и удаление чатов
-            message:read: Просмотр сообщений в чатах
-            message:write: Отправка, изменение и удаление сообщений
-            complaint:create: Создание жалоб
-            complaint:read: Просмотр жалоб
-            complaint:manage: Модерация жалоб
-            dictionary:read: Просмотр справочников
-            dictionary:write: Изменение справочников
-            user:read: Просмотр пользователей
-            user:manage: Управление пользователями
+            auth:me: Получение данных текущего пользователя
+            users:read: Просмотр пользователей
+            users:update: Обновление пользователей
+            users:delete: Удаление пользователей
+            profiles:read: Просмотр профилей
+            profiles:create: Создание профилей
+            profiles:update: Обновление профилей
+            profiles:delete: Удаление профилей
+            deals:read: Просмотр предложений
+            deals:create: Создание предложений
+            reactions:read: Просмотр реакций на предложения
+            reactions:create: Создание реакций на предложения
+            reactions:delete: Удаление реакций на предложения
+            chats:read: Просмотр чатов
+            chats:create: Создание чатов
+            chats:delete: Удаление чатов
+            messages:read: Просмотр сообщений
+            messages:create: Создание сообщений
+            messages:update: Обновление сообщений
+            messages:delete: Удаление сообщений
+            complaints:read: Просмотр жалоб
+            complaints:create: Создание жалоб
+            complaints:update: Обновление жалоб
+            complaints:delete: Удаление жалоб
+            tags:read: Просмотр тегов
+            tags:create: Создание тегов
+            tags:update: Обновление тегов
+            tags:delete: Удаление тегов
+            universities:read: Просмотр университетов
+            universities:create: Создание университетов
+            universities:update: Обновление университетов
+            universities:delete: Удаление университетов
+            faculties:read: Просмотр факультетов
+            faculties:create: Создание факультетов
+            faculties:update: Обновление факультетов
+            faculties:delete: Удаление факультетов
+            dorms:read: Просмотр общежитий
+            dorms:create: Создание общежитий
+            dorms:update: Обновление общежитий
+            dorms:delete: Удаление общежитий
+            neighbourhoods:read: Просмотр районов
+            neighbourhoods:create: Создание районов
+            neighbourhoods:update: Обновление районов
+            neighbourhoods:delete: Удаление районов
