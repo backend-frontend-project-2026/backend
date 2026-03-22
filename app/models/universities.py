@@ -11,21 +11,15 @@ if TYPE_CHECKING:
 
 class UniversityModel(BaseModel, table=True):
     __tablename__ = 'universities'
-    
+
     name: str = Field(unique=True)
 
     dorms: list['DormModel'] = Relationship(
         back_populates='university',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'cascade': 'all, delete-orphan'
-        },
+        sa_relationship_kwargs={'lazy': 'selectin', 'cascade': 'all, delete-orphan'},
     )
 
     faculties: list['FacultyModel'] = Relationship(
         back_populates='university',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'cascade': 'all, delete-orphan'
-        },
+        sa_relationship_kwargs={'lazy': 'selectin', 'cascade': 'all, delete-orphan'},
     )

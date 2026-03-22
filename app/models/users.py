@@ -24,7 +24,7 @@ class UserRole(str, Enum):
 
 class UserModel(BaseModel, table=True):
     __tablename__ = 'users'
-    
+
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     email: str = Field(unique=True, index=True)
@@ -36,7 +36,7 @@ class UserModel(BaseModel, table=True):
         back_populates='complainant',
         sa_relationship_kwargs={
             'lazy': 'selectin',
-            'primaryjoin': 'UserModel.id == ComplaintModel.complainant_id',
+            'foreign_keys': '[ComplaintModel.complainant_id]',
         },
     )
 
@@ -44,7 +44,7 @@ class UserModel(BaseModel, table=True):
         back_populates='reported_user',
         sa_relationship_kwargs={
             'lazy': 'selectin',
-            'primaryjoin': 'UserModel.id == ComplaintModel.reported_user_id',
+            'foreign_keys': '[ComplaintModel.reported_user_id]',
         },
     )
 

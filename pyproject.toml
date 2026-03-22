@@ -3,12 +3,15 @@ name = "app"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard,standart]>=0.135.1",
     "sqlmodel>=0.0.37",
     "uvicorn>=0.41.0",
 ]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
 
 [tool.ruff]
 line-length = 88
@@ -45,5 +48,6 @@ skip-magic-trailing-comma = false
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.5.1",
     "ruff>=0.15.6",
 ]
