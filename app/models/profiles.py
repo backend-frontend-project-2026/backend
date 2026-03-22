@@ -29,8 +29,7 @@ class ProfileModel(BaseModel, table=True):
     profile_picture_url: Optional[str] = Field(default=None)
 
     tags: list[TagModel] = Relationship(
-        back_populates="profiles",
-        link_model=ProfileTagLink 
+        back_populates='profiles', link_model=ProfileTagLink
     )
 
     uni_id: int = Field(foreign_key='universities.id')
