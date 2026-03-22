@@ -2,6 +2,7 @@ from sqlmodel import SQLModel, Field, Relationship
 
 from app.models.base import BaseModel
 
+
 class TagModel(BaseModel, table=True):
     __tablename__ = 'tags'
     name: str = Field(unique=True)

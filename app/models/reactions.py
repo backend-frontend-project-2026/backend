@@ -24,11 +24,11 @@ class ReactionModel(BaseModel, table=True):
 
     profile: 'ProfileModel' = Relationship(
         back_populates='reactions_sent',
-        sa_relationship_kwargs={'foreign_keys': 'ReactionModel.profile_id'},
+        sa_relationship_kwargs={'foreign_keys': '[ReactionModel.profile_id]'},
     )
     target_profile: 'ProfileModel' = Relationship(
         back_populates='reactions_received',
-        sa_relationship_kwargs={'foreign_keys': 'ReactionModel.target_profile_id'},
+        sa_relationship_kwargs={'foreign_keys': '[ReactionModel.target_profile_id]'},
     )
 
     __table_args__ = (
