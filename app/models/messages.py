@@ -24,4 +24,3 @@ class MessageModel(BaseModel, table=True):
     )
 
     chat: 'ChatModel' = Relationship(back_populates='messages')
-    author: 'ProfileModel' = Relationship()

@@ -5,6 +5,8 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import BaseModel
 
+from pydantic import EmailStr
+
 if TYPE_CHECKING:
     from app.models.complaints import ComplaintModel
     from app.models.profiles import ProfileModel
@@ -27,7 +29,7 @@ class UserModel(BaseModel, table=True):
 
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
-    email: str = Field(unique=True, index=True)
+    email: EmailStr = Field(unique=True, index=True)
     password_hash: str
     role: UserRole = Field(default=UserRole.STUDENT)
     status: UserStatus = Field(default=UserStatus.CREATED)

@@ -36,5 +36,10 @@ class ProfileModel(BaseModel, table=True):
     neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
 
     user: 'UserModel' = Relationship(back_populates='profile')
-    university: Optional['UniversityModel'] = Relationship()
-    neighbourhood: Optional['NeighbourhoodModel'] = Relationship()
+
+    sent_reactions: Optional[list['ReactionModel']] = Relationship(
+        sa_relationship_kwargs={'foreign_keys': '[ReactionModel.profile_id]'},
+    )
+    received_reactions: Optional[list['ReactionModel']] = Relationship(
+        sa_relationship_kwargs={'foreign_keys': '[ReactionModel.target_profile_id]'},
+    )
