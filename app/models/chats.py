@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from app.models.messages import MessageModel
     from app.models.profiles import ProfileModel
 
+if TYPE_CHECKING:
+    from app.models.messages import MessageModel
 
 class ChatBase(TimestampedModel):
     profile_id: int = Field(foreign_key='profiles.id')

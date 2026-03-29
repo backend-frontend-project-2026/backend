@@ -8,8 +8,6 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 
-from pydantic import EmailStr
-
 if TYPE_CHECKING:
     from app.models.complaints import ComplaintModel
     from app.models.profiles import ProfileModel

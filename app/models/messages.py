@@ -8,8 +8,6 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 
-from datetime import datetime, timezone
-
 if TYPE_CHECKING:
     from app.models.chats import ChatModel
 
