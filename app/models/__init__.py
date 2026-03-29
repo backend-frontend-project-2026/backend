@@ -1,13 +1,13 @@
-from .chats import ChatModel
-from .complaints import ComplaintModel
-from .deals import DealModel
-from .dorms import DormModel
-from .faculties import FacultyModel
-from .messages import MessageModel
-from .neighbourhoods import NeighbourhoodModel
-from .profiles import ProfileModel
-from .reactions import ReactionModel
-from .tags import TagModel
-from .tags import ProfileTagLink
-from .universities import UniversityModel
-from .users import UserModel
+from .chats import ChatModel as ChatModel
+from .complaints import ComplaintModel as ComplaintModel
+from .deals import DealModel as DealModel
+from .dorms import DormModel as DormModel
+from .faculties import FacultyModel as FacultyModel
+from .messages import MessageModel as MessageModel
+from .neighbourhoods import NeighbourhoodModel as NeighbourhoodModel
+from .profiles import ProfileModel as ProfileModel
+from .reactions import ReactionModel as ReactionModel
+from .tags import ProfileTagLink as ProfileTagLink
+from .tags import TagModel as TagModel
+from .universities import UniversityModel as UniversityModel
+from .users import UserModel as UserModel

@@ -6,8 +6,8 @@ from sqlmodel import Field, Relationship
 from app.models.base import BaseModel
 
 if TYPE_CHECKING:
-    from app.models.neighbourhoods import NeighbourhoodModel
     from app.models.dorms import DormModel
+    from app.models.neighbourhoods import NeighbourhoodModel
 
 
 class DealStatus(str, Enum):
@@ -30,9 +30,5 @@ class DealModel(BaseModel, table=True):
     budget_max: int
     people_amount: int
 
-    neighbourhood: Optional['NeighbourhoodModel'] = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "[DealModel.neighbourhood_id]"}
-    )
-    dorm: Optional['DormModel'] = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "[DealModel.dorm_id]"}
-    )
+    neighbourhood: Optional['NeighbourhoodModel'] = Relationship()
+    dorm: Optional['DormModel'] = Relationship()

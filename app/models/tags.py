@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Field, SQLModel
 
 from app.models.base import BaseModel
 

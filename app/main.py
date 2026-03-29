@@ -1,9 +1,8 @@
-from fastapi import FastAPI
-from app.db.engine import create_db_and_tables
-
-from app.db.engine import create_db_and_tables
-
 from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from app.db.engine import create_db_and_tables
 
 
 @asynccontextmanager
@@ -14,6 +13,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
 
 @app.get('/')
 def main_page():

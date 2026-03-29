@@ -1,11 +1,10 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import EmailStr
+from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
-
-from pydantic import EmailStr
 
 if TYPE_CHECKING:
     from app.models.complaints import ComplaintModel
@@ -34,23 +33,9 @@ class UserModel(BaseModel, table=True):
     role: UserRole = Field(default=UserRole.STUDENT)
     status: UserStatus = Field(default=UserStatus.CREATED)
 
-    sent_complaints: list['ComplaintModel'] = Relationship(
-        back_populates='complainant',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'foreign_keys': '[ComplaintModel.complainant_id]',
-        },
-    )
-
+    sent_complaints: list['ComplaintModel'] = Relationship(back_populates='complainant')
     received_complaints: list['ComplaintModel'] = Relationship(
-        back_populates='reported_user',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'foreign_keys': '[ComplaintModel.reported_user_id]',
-        },
+        back_populates='reported_user'
     )
 
-    profile: Optional['ProfileModel'] = Relationship(
-        back_populates='user',
-        sa_relationship_kwargs={'uselist': False, 'lazy': 'joined'},
-    )
+    profile: Optional['ProfileModel'] = Relationship(back_populates='user')
