@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseModel
+from app.models.base import IDModel, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.complaints import ComplaintModel
@@ -23,19 +25,45 @@ class UserRole(str, Enum):
     MODERATOR = 'moderator'
 
 
-class UserModel(BaseModel, table=True):
-    __tablename__ = 'users'
-
+class UserBase(TimestampedModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
-    email: EmailStr = Field(unique=True, index=True)
-    password_hash: str
+    email: EmailStr = Field(index=True)
     role: UserRole = Field(default=UserRole.STUDENT)
     status: UserStatus = Field(default=UserStatus.CREATED)
 
-    sent_complaints: list['ComplaintModel'] = Relationship(back_populates='complainant')
-    received_complaints: list['ComplaintModel'] = Relationship(
-        back_populates='reported_user'
-    )
 
+class UserCreate(SQLModel):
+    first_name: str = Field(max_length=50)
+    last_name: str = Field(max_length=50)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
+
+class UserUpdate(SQLModel):
+    first_name: Optional[str] = Field(default=None, max_length=50)
+    last_name: Optional[str] = Field(default=None, max_length=50)
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+    status: Optional[UserStatus] = None
+    password: Optional[str] = Field(default=None, min_length=8, max_length=128)
+
+
+class UserPublic(UserBase, IDModel):
+    pass
+
+
+class UserModel(UserBase, IDModel, table=True):
+    __tablename__ = 'users'
+
+    password_hash: str
+
+    sent_complaints: list['ComplaintModel'] = Relationship(
+        back_populates='complainant',
+        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'},
+    )
+    received_complaints: list['ComplaintModel'] = Relationship(
+        back_populates='reported_user',
+        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
+    )
     profile: Optional['ProfileModel'] = Relationship(back_populates='user')
