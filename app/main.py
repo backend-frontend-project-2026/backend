@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from app.db.engine import create_db_and_tables
 
 from app.db.engine import create_db_and_tables
 
@@ -14,6 +13,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
 
 @app.get('/')
 def main_page():

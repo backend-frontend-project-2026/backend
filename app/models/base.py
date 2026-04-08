@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlmodel import Field, SQLModel
-
-from typing import Optional
 
 
 class BaseModel(SQLModel):

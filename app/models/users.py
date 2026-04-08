@@ -1,7 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import EmailStr
+from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
 
@@ -24,31 +25,17 @@ class UserRole(str, Enum):
 
 class UserModel(BaseModel, table=True):
     __tablename__ = 'users'
-    
+
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
-    email: str = Field(unique=True, index=True)
+    email: EmailStr = Field(unique=True, index=True)
     password_hash: str
     role: UserRole = Field(default=UserRole.STUDENT)
     status: UserStatus = Field(default=UserStatus.CREATED)
 
-    sent_complaints: list['ComplaintModel'] = Relationship(
-        back_populates='complainant',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'primaryjoin': 'UserModel.id == ComplaintModel.complainant_id',
-        },
-    )
-
+    sent_complaints: list['ComplaintModel'] = Relationship(back_populates='complainant')
     received_complaints: list['ComplaintModel'] = Relationship(
-        back_populates='reported_user',
-        sa_relationship_kwargs={
-            'lazy': 'selectin',
-            'primaryjoin': 'UserModel.id == ComplaintModel.reported_user_id',
-        },
+        back_populates='reported_user'
     )
 
-    profile: Optional['ProfileModel'] = Relationship(
-        back_populates='user',
-        sa_relationship_kwargs={'uselist': False, 'lazy': 'joined'},
-    )
+    profile: Optional['ProfileModel'] = Relationship(back_populates='user')

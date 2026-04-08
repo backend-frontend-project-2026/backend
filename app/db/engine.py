@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, create_engine
 
 from app.models import *
 
-sqlite_file_name = 'database.db'
+sqlite_file_name = 'database.sqlite3'
 sqlite_url = f'sqlite:///{sqlite_file_name}'
 
 connect_args = {'check_same_thread': False}

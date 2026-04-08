@@ -1,3 +1,4 @@
+
 from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship
@@ -6,7 +7,6 @@ from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.messages import MessageModel
-
 
 class ChatModel(BaseModel, table=True):
     __tablename__ = 'chats'

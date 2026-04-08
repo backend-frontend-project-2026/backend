@@ -22,14 +22,8 @@ class ReactionModel(BaseModel, table=True):
     profile_id: int = Field(foreign_key='profiles.id')
     target_profile_id: int = Field(foreign_key='profiles.id')
 
-    profile: 'ProfileModel' = Relationship(
-        back_populates='reactions_sent',
-        sa_relationship_kwargs={'foreign_keys': 'ReactionModel.profile_id'},
-    )
-    target_profile: 'ProfileModel' = Relationship(
-        back_populates='reactions_received',
-        sa_relationship_kwargs={'foreign_keys': 'ReactionModel.target_profile_id'},
-    )
+    profile: 'ProfileModel' = Relationship(back_populates='sent_reactions')
+    target_profile: 'ProfileModel' = Relationship(back_populates='received_reactions')
 
     __table_args__ = (
         UniqueConstraint(

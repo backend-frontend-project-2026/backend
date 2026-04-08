@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy.dialects.postgresql import TIMESTAMP
@@ -5,11 +6,8 @@ from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
 
-from datetime import datetime, timezone
-
 if TYPE_CHECKING:
     from app.models.chats import ChatModel
-    from app.models.profiles import ProfileModel
 
 
 class MessageModel(BaseModel, table=True):
@@ -24,4 +22,3 @@ class MessageModel(BaseModel, table=True):
     )
 
     chat: 'ChatModel' = Relationship(back_populates='messages')
-    author: 'ProfileModel' = Relationship()

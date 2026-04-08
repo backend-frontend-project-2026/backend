@@ -36,9 +36,9 @@ class ComplaintModel(BaseModel, table=True):
 
     complainant: 'UserModel' = Relationship(
         back_populates='sent_complaints',
-        sa_relationship_kwargs={'foreign_keys': 'ComplaintModel.complainant_id'},
+        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'},
     )
     reported_user: 'UserModel' = Relationship(
         back_populates='received_complaints',
-        sa_relationship_kwargs={'foreign_keys': 'ComplaintModel.reported_user_id'},
+        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
     )

@@ -4,14 +4,11 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
-
 from app.models.tags import ProfileTagLink, TagModel
 
 if TYPE_CHECKING:
+    from app.models.reactions import ReactionModel
     from app.models.users import UserModel
-    from app.models.universities import UniversityModel
-    from app.models.neighbourhoods import NeighbourhoodModel
-    from app.models.tags import ProfileTagLink
 
 
 class ProfileSex(str, Enum):
@@ -29,13 +26,15 @@ class ProfileModel(BaseModel, table=True):
     profile_picture_url: Optional[str] = Field(default=None)
 
     tags: list[TagModel] = Relationship(
-        back_populates="profiles",
-        link_model=ProfileTagLink 
+        back_populates='profiles', link_model=ProfileTagLink
     )
 
     uni_id: int = Field(foreign_key='universities.id')
     neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
 
     user: 'UserModel' = Relationship(back_populates='profile')
-    university: Optional['UniversityModel'] = Relationship()
-    neighbourhood: Optional['NeighbourhoodModel'] = Relationship()
+
+    sent_reactions: list['ReactionModel'] = Relationship(back_populates='profile')
+    received_reactions: list['ReactionModel'] = Relationship(
+        back_populates='target_profile'
+    )
