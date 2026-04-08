@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.base import BaseModel
+from app.models.base import IDModel, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.users import UserModel
@@ -20,19 +22,37 @@ class ComplaintReason(str, Enum):
     SCAM = 'scam'
     FAKE = 'fake'
     INAPPROPRIATE_CONTENT = 'inappropriate_content'
-
     OTHER = 'other'
 
 
-class ComplaintModel(BaseModel, table=True):
+class ComplaintBase(TimestampedModel):
+    reason: ComplaintReason
+    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
+    screenshot_url_for_report: Optional[str] = None
+
+
+class ComplaintCreate(SQLModel):
+    complainant_id: int
+    reported_user_id: int
+    reason: ComplaintReason
+    screenshot_url_for_report: Optional[str] = None
+
+
+class ComplaintUpdate(SQLModel):
+    status: Optional[ComplaintStatus] = None
+    screenshot_url_for_report: Optional[str] = None
+
+
+class ComplaintPublic(ComplaintBase, IDModel):
+    complainant_id: int
+    reported_user_id: int
+
+
+class ComplaintModel(ComplaintBase, IDModel, table=True):
     __tablename__ = 'complaints'
 
     complainant_id: int = Field(foreign_key='users.id')
     reported_user_id: int = Field(foreign_key='users.id')
-
-    reason: ComplaintReason
-    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
-    screenshot_url_for_report: Optional[str] = Field(default=None)
 
     complainant: 'UserModel' = Relationship(
         back_populates='sent_complaints',

@@ -1,13 +1,28 @@
-from .chats import ChatModel as ChatModel
-from .complaints import ComplaintModel as ComplaintModel
-from .deals import DealModel as DealModel
-from .dorms import DormModel as DormModel
-from .faculties import FacultyModel as FacultyModel
-from .messages import MessageModel as MessageModel
-from .neighbourhoods import NeighbourhoodModel as NeighbourhoodModel
-from .profiles import ProfileModel as ProfileModel
-from .reactions import ReactionModel as ReactionModel
-from .tags import ProfileTagLink as ProfileTagLink
-from .tags import TagModel as TagModel
-from .universities import UniversityModel as UniversityModel
-from .users import UserModel as UserModel
+from app.models.chats import ChatModel
+from app.models.complaints import ComplaintModel
+from app.models.deals import DealModel
+from app.models.dorms import DormModel
+from app.models.faculties import FacultyModel
+from app.models.messages import MessageModel
+from app.models.neighbourhoods import NeighbourhoodModel
+from app.models.profiles import ProfileModel
+from app.models.reactions import ReactionModel
+from app.models.tags import ProfileTagLink, TagModel
+from app.models.universities import UniversityModel
+from app.models.users import UserModel
+
+__all__ = [
+    'UserModel',
+    'ProfileModel',
+    'UniversityModel',
+    'FacultyModel',
+    'DormModel',
+    'NeighbourhoodModel',
+    'TagModel',
+    'ProfileTagLink',
+    'DealModel',
+    'ReactionModel',
+    'ChatModel',
+    'MessageModel',
+    'ComplaintModel',
+]
