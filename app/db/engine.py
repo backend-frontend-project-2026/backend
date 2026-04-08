@@ -1,13 +1,18 @@
-from sqlmodel import SQLModel, create_engine
+from sqlalchemy.engine import URL
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from app.models import *
-
-sqlite_file_name = 'database.sqlite3'
-sqlite_url = f'sqlite:///{sqlite_file_name}'
-
-connect_args = {'check_same_thread': False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+from app.core.settings import settings
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+def form_db_url() -> str:
+    return URL.create(
+        drivername=settings.db_schema,
+        username=settings.db_user,
+        password=settings.db_password,
+        host=settings.db_host,
+        port=settings.db_port,
+        database=settings.db_name,
+    ).render_as_string(hide_password=False)
+
+
+engine = create_async_engine(form_db_url())
