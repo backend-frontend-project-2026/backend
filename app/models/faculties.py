@@ -11,12 +11,12 @@ if TYPE_CHECKING:
 
 
 class FacultyBase(TimestampedModel):
+    uni_id: int = Field(foreign_key='universities.id')
     name: str = Field(max_length=255)
 
 
-class FacultyCreate(SQLModel):
-    uni_id: int
-    name: str = Field(max_length=255)
+class FacultyCreate(FacultyBase):
+    pass
 
 
 class FacultyUpdate(SQLModel):
@@ -25,12 +25,10 @@ class FacultyUpdate(SQLModel):
 
 
 class FacultyPublic(FacultyBase, IDModel):
-    uni_id: int
+    pass
 
 
 class FacultyModel(FacultyBase, IDModel, table=True):
     __tablename__ = 'faculties'
-
-    uni_id: int = Field(foreign_key='universities.id')
 
     university: Optional['UniversityModel'] = Relationship(back_populates='faculties')

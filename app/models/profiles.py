@@ -23,20 +23,17 @@ class ProfileSex(str, Enum):
 
 
 class ProfileBase(TimestampedModel):
+    user_id: int = Field(foreign_key='users.id', unique=True)
+    uni_id: int = Field(foreign_key='universities.id')
+    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
     name: str = Field(max_length=50)
     sex: ProfileSex
     age: int
     profile_picture_url: Optional[str] = None
 
 
-class ProfileCreate(SQLModel):
-    user_id: int
-    uni_id: int
-    neighbourhood_id: int
-    name: str = Field(max_length=50)
-    sex: ProfileSex
-    age: int
-    profile_picture_url: Optional[str] = None
+class ProfileCreate(ProfileBase):
+    pass
 
 
 class ProfileUpdate(SQLModel):
@@ -49,17 +46,11 @@ class ProfileUpdate(SQLModel):
 
 
 class ProfilePublic(ProfileBase, IDModel):
-    user_id: int
-    uni_id: int
-    neighbourhood_id: int
+    pass
 
 
 class ProfileModel(ProfileBase, IDModel, table=True):
     __tablename__ = 'profiles'
-
-    user_id: int = Field(foreign_key='users.id', unique=True)
-    uni_id: int = Field(foreign_key='universities.id')
-    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
 
     user: 'UserModel' = Relationship(back_populates='profile')
     university: Optional['UniversityModel'] = Relationship(back_populates='profiles')

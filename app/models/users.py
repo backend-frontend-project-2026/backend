@@ -33,10 +33,7 @@ class UserBase(TimestampedModel):
     status: UserStatus = Field(default=UserStatus.CREATED)
 
 
-class UserCreate(SQLModel):
-    first_name: str = Field(max_length=50)
-    last_name: str = Field(max_length=50)
-    email: EmailStr
+class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
 
 

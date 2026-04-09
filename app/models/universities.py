@@ -16,8 +16,8 @@ class UniversityBase(TimestampedModel):
     name: str = Field(unique=True, max_length=255)
 
 
-class UniversityCreate(SQLModel):
-    name: str = Field(max_length=255)
+class UniversityCreate(UniversityBase):
+    pass
 
 
 class UniversityUpdate(SQLModel):

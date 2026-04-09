@@ -12,14 +12,13 @@ if TYPE_CHECKING:
 
 
 class DormBase(TimestampedModel):
+    uni_id: int = Field(foreign_key='universities.id')
     name: str = Field(max_length=255)
     address: str = Field(max_length=255)
 
 
-class DormCreate(SQLModel):
-    uni_id: int
-    name: str = Field(max_length=255)
-    address: str = Field(max_length=255)
+class DormCreate(DormBase):
+    pass
 
 
 class DormUpdate(SQLModel):
@@ -29,13 +28,11 @@ class DormUpdate(SQLModel):
 
 
 class DormPublic(DormBase, IDModel):
-    uni_id: int
+    pass
 
 
 class DormModel(DormBase, IDModel, table=True):
     __tablename__ = 'dorms'
-
-    uni_id: int = Field(foreign_key='universities.id')
 
     university: Optional['UniversityModel'] = Relationship(back_populates='dorms')
     deals: list['DealModel'] = Relationship(back_populates='dorm')

@@ -32,9 +32,8 @@ class TagBase(TimestampedModel):
     value: str = Field(max_length=100)
 
 
-class TagCreate(SQLModel):
-    category: TagCategory
-    value: str = Field(max_length=100)
+class TagCreate(TagBase):
+    pass
 
 
 class TagUpdate(SQLModel):

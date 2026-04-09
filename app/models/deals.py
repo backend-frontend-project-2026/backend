@@ -27,6 +27,9 @@ class DealType(str, Enum):
 
 
 class DealBase(TimestampedModel):
+    owner_profile_id: int = Field(foreign_key='profiles.id')
+    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
+    dorm_id: Optional[int] = Field(default=None, foreign_key='dorms.id')
     title: str = Field(max_length=100)
     deal_type: DealType
     status: DealStatus = Field(default=DealStatus.ACTIVE)
@@ -35,16 +38,8 @@ class DealBase(TimestampedModel):
     people_amount: int
 
 
-class DealCreate(SQLModel):
-    owner_profile_id: int
-    neighbourhood_id: int
-    dorm_id: Optional[int] = None
-    title: str = Field(max_length=100)
-    deal_type: DealType
-    budget_min: int
-    budget_max: int
-    people_amount: int
-    status: DealStatus = DealStatus.ACTIVE
+class DealCreate(DealBase):
+    pass
 
 
 class DealUpdate(SQLModel):
@@ -59,17 +54,11 @@ class DealUpdate(SQLModel):
 
 
 class DealPublic(DealBase, IDModel):
-    owner_profile_id: int
-    neighbourhood_id: int
-    dorm_id: Optional[int] = None
+    pass
 
 
 class DealModel(DealBase, IDModel, table=True):
     __tablename__ = 'deals'
-
-    owner_profile_id: int = Field(foreign_key='profiles.id')
-    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
-    dorm_id: Optional[int] = Field(default=None, foreign_key='dorms.id')
 
     owner_profile: 'ProfileModel' = Relationship(back_populates='deals')
     neighbourhood: Optional['NeighbourhoodModel'] = Relationship(back_populates='deals')

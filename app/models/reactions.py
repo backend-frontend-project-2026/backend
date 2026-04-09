@@ -19,13 +19,13 @@ class ReactionType(str, Enum):
 
 
 class ReactionBase(TimestampedModel):
+    profile_id: int = Field(foreign_key='profiles.id')
+    deal_id: int = Field(foreign_key='deals.id')
     reaction_type: ReactionType
 
 
-class ReactionCreate(SQLModel):
-    profile_id: int
-    deal_id: int
-    reaction_type: ReactionType
+class ReactionCreate(ReactionBase):
+    pass
 
 
 class ReactionUpdate(SQLModel):
@@ -33,8 +33,7 @@ class ReactionUpdate(SQLModel):
 
 
 class ReactionPublic(ReactionBase, IDModel):
-    profile_id: int
-    deal_id: int
+    pass
 
 
 class ReactionModel(ReactionBase, IDModel, table=True):
@@ -42,9 +41,6 @@ class ReactionModel(ReactionBase, IDModel, table=True):
     __table_args__ = (
         UniqueConstraint('profile_id', 'deal_id', name='unique_profile_deal_reaction'),
     )
-
-    profile_id: int = Field(foreign_key='profiles.id')
-    deal_id: int = Field(foreign_key='deals.id')
 
     profile: 'ProfileModel' = Relationship(back_populates='sent_reactions')
     deal: 'DealModel' = Relationship(back_populates='reactions')

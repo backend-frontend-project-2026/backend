@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -13,28 +13,25 @@ if TYPE_CHECKING:
 
 
 class ChatBase(TimestampedModel):
+    profile_id: int = Field(foreign_key='profiles.id')
+    deal_id: int = Field(foreign_key='deals.id')
+
+
+class ChatCreate(ChatBase):
     pass
-
-
-class ChatCreate(SQLModel):
-    profile_id: int
-    deal_id: int
 
 
 class ChatUpdate(SQLModel):
-    pass
+    profile_id: Optional[int] = None
+    deal_id: Optional[int] = None
 
 
 class ChatPublic(ChatBase, IDModel):
-    profile_id: int
-    deal_id: int
+    pass
 
 
 class ChatModel(ChatBase, IDModel, table=True):
     __tablename__ = 'chats'
-
-    profile_id: int = Field(foreign_key='profiles.id')
-    deal_id: int = Field(foreign_key='deals.id')
 
     profile: 'ProfileModel' = Relationship(back_populates='chats')
     deal: 'DealModel' = Relationship(back_populates='chats')
