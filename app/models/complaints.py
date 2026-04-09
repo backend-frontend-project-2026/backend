@@ -26,16 +26,15 @@ class ComplaintReason(str, Enum):
 
 
 class ComplaintBase(TimestampedModel):
+    complainant_id: int = Field(foreign_key='users.id')
+    reported_user_id: int = Field(foreign_key='users.id')
     reason: ComplaintReason
     status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
     screenshot_url_for_report: Optional[str] = None
 
 
-class ComplaintCreate(SQLModel):
-    complainant_id: int
-    reported_user_id: int
-    reason: ComplaintReason
-    screenshot_url_for_report: Optional[str] = None
+class ComplaintCreate(ComplaintBase):
+    pass
 
 
 class ComplaintUpdate(SQLModel):
@@ -44,15 +43,11 @@ class ComplaintUpdate(SQLModel):
 
 
 class ComplaintPublic(ComplaintBase, IDModel):
-    complainant_id: int
-    reported_user_id: int
+    pass
 
 
 class ComplaintModel(ComplaintBase, IDModel, table=True):
     __tablename__ = 'complaints'
-
-    complainant_id: int = Field(foreign_key='users.id')
-    reported_user_id: int = Field(foreign_key='users.id')
 
     complainant: 'UserModel' = Relationship(
         back_populates='sent_complaints',

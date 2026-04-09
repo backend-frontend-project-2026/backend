@@ -16,9 +16,8 @@ class NeighbourhoodBase(TimestampedModel):
     district_name: str = Field(max_length=100)
 
 
-class NeighbourhoodCreate(SQLModel):
-    city: str = Field(max_length=100)
-    district_name: str = Field(max_length=100)
+class NeighbourhoodCreate(NeighbourhoodBase):
+    pass
 
 
 class NeighbourhoodUpdate(SQLModel):

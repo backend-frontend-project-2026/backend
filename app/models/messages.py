@@ -10,17 +10,20 @@ from app.models.base import IDModel, TimestampedModel
 
 if TYPE_CHECKING:
     from app.models.chats import ChatModel
-    from app.models.profiles import ProfileModel
 
 
 class MessageBase(TimestampedModel):
+    chat_id: int = Field(foreign_key='chats.id')
+    profile_id: int = Field(foreign_key='profiles.id')
     content: str
+    opened_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )
 
 
-class MessageCreate(SQLModel):
-    chat_id: int
-    profile_id: int
-    content: str
+class MessageCreate(MessageBase):
+    pass
 
 
 class MessageUpdate(SQLModel):
@@ -29,19 +32,10 @@ class MessageUpdate(SQLModel):
 
 
 class MessagePublic(MessageBase, IDModel):
-    chat_id: int
-    profile_id: int
-    opened_at: Optional[datetime] = None
+    pass
 
 
 class MessageModel(MessageBase, IDModel, table=True):
     __tablename__ = 'messages'
-
-    chat_id: int = Field(foreign_key='chats.id')
-    profile_id: int = Field(foreign_key='profiles.id')
-    opened_at: Optional[datetime] = Field(
-        default=None,
-        sa_column=Column(DateTime(timezone=True), nullable=True),
-    )
 
     chat: 'ChatModel' = Relationship(back_populates='messages')
