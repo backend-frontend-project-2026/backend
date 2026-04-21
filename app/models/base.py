@@ -1,12 +1,11 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy import TIMESTAMP
 from sqlmodel import Field, SQLModel
 
 
-class BaseModel(SQLModel):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class TimestampedModel(SQLModel):
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         nullable=False,
@@ -20,3 +19,7 @@ class BaseModel(SQLModel):
             'onupdate': lambda: datetime.now(timezone.utc),
         },
     )
+
+
+class IDModel(SQLModel):
+    id: Optional[int] = Field(default=None, primary_key=True)
