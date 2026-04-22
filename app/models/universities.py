@@ -13,6 +13,7 @@ class UniversityModel(BaseModel, table=True):
     __tablename__ = 'universities'
 
     name: str = Field(unique=True)
+    city: str
 
     dorms: list['DormModel'] = Relationship(
         back_populates='university',

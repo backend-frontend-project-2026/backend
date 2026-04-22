@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlmodel import Field, Relationship
@@ -16,8 +16,9 @@ class MessageModel(BaseModel, table=True):
     chat_id: int = Field(foreign_key='chats.id')
     profile_id: int = Field(foreign_key='profiles.id')
     content: str
-    opened_at: Optional[datetime] = Field(
-        default=None,
+    is_read: bool = Field(default=False)
+    sent_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
         sa_type=TIMESTAMP(timezone=True),
     )
 

@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class ComplaintStatus(str, Enum):
-    CREATED = 'created'
+    NEW = 'new'
+    IN_PROGRESS = 'in_progress'
     RESOLVED = 'resolved'
     REJECTED = 'rejected'
 
@@ -30,15 +31,19 @@ class ComplaintModel(BaseModel, table=True):
     complainant_id: int = Field(foreign_key='users.id')
     reported_user_id: int = Field(foreign_key='users.id')
 
-    reason: ComplaintReason
-    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
-    screenshot_url_for_report: Optional[str] = Field(default=None)
+    reason: str = Field(max_length=1000)
+    status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
+    screenshots: Optional[str] = Field(default=None)
 
     complainant: 'UserModel' = Relationship(
         back_populates='sent_complaints',
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'},
+        sa_relationship_kwargs={
+            'foreign_keys': '[ComplaintModel.complainant_id]',
+        },
     )
     reported_user: 'UserModel' = Relationship(
         back_populates='received_complaints',
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
+        sa_relationship_kwargs={
+            'foreign_keys': '[ComplaintModel.reported_user_id]',
+        },
     )

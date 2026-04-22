@@ -15,6 +15,7 @@ class ChatModel(BaseModel, table=True):
     deal_id: int = Field(foreign_key='deals.id')
 
     messages: list['MessageModel'] = Relationship(
+        back_populates='chat',
         sa_relationship_kwargs={
             'lazy': 'selectin',
             'cascade': 'all, delete-orphan',

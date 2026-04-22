@@ -19,14 +19,11 @@ class ReactionModel(BaseModel, table=True):
 
     reaction_type: ReactionType
 
+    deal_id: int = Field(foreign_key='deals.id')
     profile_id: int = Field(foreign_key='profiles.id')
-    target_profile_id: int = Field(foreign_key='profiles.id')
 
-    profile: 'ProfileModel' = Relationship(back_populates='sent_reactions')
-    target_profile: 'ProfileModel' = Relationship(back_populates='received_reactions')
+    profile: 'ProfileModel' = Relationship()
 
     __table_args__ = (
-        UniqueConstraint(
-            'profile_id', 'target_profile_id', name='unique_reaction_pair'
-        ),
+        UniqueConstraint('deal_id', 'profile_id', name='unique_reaction_pair'),
     )

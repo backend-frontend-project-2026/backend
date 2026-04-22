@@ -5,7 +5,8 @@ from app.models.base import BaseModel
 
 class TagModel(BaseModel, table=True):
     __tablename__ = 'tags'
-    name: str = Field(unique=True)
+    category: str
+    value: str
 
 
 class ProfileTagLink(SQLModel, table=True):

@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship
 
 from app.models.base import BaseModel
-from app.models.tags import ProfileTagLink, TagModel
 
 if TYPE_CHECKING:
-    from app.models.reactions import ReactionModel
     from app.models.users import UserModel
 
 
@@ -23,18 +21,13 @@ class ProfileModel(BaseModel, table=True):
     name: str = Field(max_length=50)
     sex: ProfileSex
     age: int
-    profile_picture_url: Optional[str] = Field(default=None)
-
-    tags: list[TagModel] = Relationship(
-        back_populates='profiles', link_model=ProfileTagLink
-    )
-
+    profile_description: Optional[str] = Field(default=None)
     uni_id: int = Field(foreign_key='universities.id')
-    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
+    faculty_id: int = Field(foreign_key='faculties.id')
+    course: Optional[int] = Field(default=None)
+    city: str
+    neighbourhood_id: Optional[int] = Field(
+        default=None, foreign_key='neighbourhoods.id'
+    )
 
     user: 'UserModel' = Relationship(back_populates='profile')
-
-    sent_reactions: list['ReactionModel'] = Relationship(back_populates='profile')
-    received_reactions: list['ReactionModel'] = Relationship(
-        back_populates='target_profile'
-    )

@@ -14,6 +14,7 @@ class DormModel(BaseModel, table=True):
     uni_id: int = Field(foreign_key='universities.id')
 
     name: str
+    city: str
     address: str
 
     university: Optional['UniversityModel'] = Relationship(back_populates='dorms')
