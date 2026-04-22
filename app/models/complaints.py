@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 
 
 class ComplaintStatus(str, Enum):
-    CREATED = 'created'
+    NEW = 'new'
+    IN_PROGRESS = 'in_progress'
     RESOLVED = 'resolved'
     REJECTED = 'rejected'
 
@@ -51,7 +52,9 @@ class ComplaintModel(ComplaintBase, IDModel, table=True):
 
     complainant: 'UserModel' = Relationship(
         back_populates='sent_complaints',
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'},
+        sa_relationship_kwargs={
+            'foreign_keys': '[ComplaintModel.complainant_id]',
+        },
     )
     reported_user: 'UserModel' = Relationship(
         back_populates='received_complaints',

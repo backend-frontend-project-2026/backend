@@ -20,9 +20,8 @@ class UserStatus(str, Enum):
 
 
 class UserRole(str, Enum):
-    STUDENT = 'student'
+    USER = 'user'
     ADMIN = 'admin'
-    MODERATOR = 'moderator'
 
 
 class UserBase(TimestampedModel):
