@@ -28,7 +28,7 @@ class UserBase(TimestampedModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     email: EmailStr = Field(index=True)
-    role: UserRole = Field(default=UserRole.STUDENT)
+    role: UserRole = Field(default=UserRole.USER)
     status: UserStatus = Field(default=UserStatus.CREATED)
 
 

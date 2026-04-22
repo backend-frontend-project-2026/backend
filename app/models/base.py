@@ -5,7 +5,11 @@ from sqlalchemy import TIMESTAMP
 from sqlmodel import Field, SQLModel
 
 
-class TimestampedModel(SQLModel):
+class BaseModel(SQLModel):
+    pass
+
+
+class TimestampedModel(BaseModel):
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         nullable=False,
@@ -21,5 +25,5 @@ class TimestampedModel(SQLModel):
     )
 
 
-class IDModel(SQLModel):
+class IDModel(BaseModel):
     id: Optional[int] = Field(default=None, primary_key=True)

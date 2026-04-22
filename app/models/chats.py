@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 
@@ -10,9 +10,6 @@ if TYPE_CHECKING:
     from app.models.deals import DealModel
     from app.models.messages import MessageModel
     from app.models.profiles import ProfileModel
-
-if TYPE_CHECKING:
-    from app.models.messages import MessageModel
 
 class ChatBase(TimestampedModel):
     profile_id: int = Field(foreign_key='profiles.id')

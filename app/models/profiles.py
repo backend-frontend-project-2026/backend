@@ -3,11 +3,9 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
-from app.models.tags import ProfileTagLink, TagModel
-
 from app.models.tags import ProfileTagLink, TagModel
 
 if TYPE_CHECKING:

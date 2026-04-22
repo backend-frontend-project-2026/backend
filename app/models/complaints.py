@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 
@@ -30,7 +30,7 @@ class ComplaintBase(TimestampedModel):
     complainant_id: int = Field(foreign_key='users.id')
     reported_user_id: int = Field(foreign_key='users.id')
     reason: ComplaintReason
-    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
+    status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
     screenshot_url_for_report: Optional[str] = None
 
 
