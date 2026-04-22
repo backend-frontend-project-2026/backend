@@ -30,6 +30,7 @@ class UserBase(SchemaModel):
     last_name: str = SchemaField(max_length=50)
     email: EmailStr
     role: UserRole = UserRole.USER
+    status: UserStatus = UserStatus.CREATED
 
 
 class UserCreate(UserBase):
@@ -41,6 +42,7 @@ class UserUpdate(SchemaModel):
     last_name: Optional[str] = SchemaField(default=None, max_length=50)
     email: Optional[EmailStr] = None
     role: Optional[UserRole] = None
+    status: Optional[UserStatus] = None
     password: Optional[str] = SchemaField(default=None, min_length=8, max_length=128)
 
 

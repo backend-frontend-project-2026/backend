@@ -21,16 +21,29 @@ class DealType(str, Enum):
     DORM = 'dorm'
 
 
+class DealStatus(str, Enum):
+    ACTIVE = 'active'
+    CLOSED = 'closed'
+    CANCELLED = 'cancelled'
+
+
 class DealBase(SchemaModel):
     owner_profile_id: int
     title: str = SchemaField(max_length=120)
     deal_type: DealType
+    status: DealStatus = DealStatus.ACTIVE
     city: str
     neighbourhood_id: Optional[int] = None
     dorm_id: Optional[int] = None
     budget_min: Optional[int] = None
     budget_max: int
     people_amount: int = SchemaField(ge=1)
+
+    housing_type: Optional[str] = SchemaField(default=None, max_length=100)
+    move_in_date: Optional[str] = SchemaField(default=None, max_length=50)
+    stay_duration: Optional[str] = SchemaField(default=None, max_length=100)
+    living_notes: Optional[str] = None
+    rental_criteria: Optional[str] = None
 
 
 class DealCreate(DealBase):
@@ -43,10 +56,17 @@ class DealUpdate(SchemaModel):
     dorm_id: Optional[int] = None
     title: Optional[str] = SchemaField(default=None, max_length=120)
     deal_type: Optional[DealType] = None
+    status: Optional[DealStatus] = None
     city: Optional[str] = None
     budget_min: Optional[int] = None
     budget_max: Optional[int] = None
     people_amount: Optional[int] = SchemaField(default=None, ge=1)
+
+    housing_type: Optional[str] = SchemaField(default=None, max_length=100)
+    move_in_date: Optional[str] = SchemaField(default=None, max_length=50)
+    stay_duration: Optional[str] = SchemaField(default=None, max_length=100)
+    living_notes: Optional[str] = None
+    rental_criteria: Optional[str] = None
 
 
 class DealPublic(DealBase, IDSchema, CreatedAtSchema):
@@ -59,6 +79,7 @@ class DealModel(IDModel, TimestampedModel, table=True):
     owner_profile_id: int = Field(foreign_key='profiles.id')
     title: str = Field(max_length=120)
     deal_type: DealType
+    status: DealStatus = Field(default=DealStatus.ACTIVE)
     city: str
     neighbourhood_id: Optional[int] = Field(
         default=None,
@@ -68,6 +89,12 @@ class DealModel(IDModel, TimestampedModel, table=True):
     budget_min: Optional[int] = None
     budget_max: int
     people_amount: int = Field(ge=1)
+
+    housing_type: Optional[str] = Field(default=None, max_length=100)
+    move_in_date: Optional[str] = Field(default=None, max_length=50)
+    stay_duration: Optional[str] = Field(default=None, max_length=100)
+    living_notes: Optional[str] = None
+    rental_criteria: Optional[str] = None
 
     owner_profile: Optional['ProfileModel'] = Relationship(back_populates='deals')
     neighbourhood: Optional['NeighbourhoodModel'] = Relationship(back_populates='deals')
