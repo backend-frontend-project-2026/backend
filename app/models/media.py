@@ -13,8 +13,7 @@ class MediaKind(str, Enum):
     PROFILE_PHOTO = 'profile_photo'
 
 
-class MediaUploadResponse(SQLModel):
-    id: int
+class MediaUploadResponse(IDModel, SQLModel):
     url: str
     kind: Optional[MediaKind] = None
     filename: str
