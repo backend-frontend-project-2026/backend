@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -25,11 +23,16 @@ class ProfileSex(str, Enum):
 class ProfileBase(TimestampedModel):
     user_id: int = Field(foreign_key='users.id', unique=True)
     uni_id: int = Field(foreign_key='universities.id')
-    neighbourhood_id: int = Field(foreign_key='neighbourhoods.id')
+    faculty_id: int = Field(foreign_key='faculties.id')
     name: str = Field(max_length=50)
     sex: ProfileSex
-    age: int
-    profile_picture_url: Optional[str] = None
+    age: int = Field(ge=16)
+    profile_description: Optional[str] = None
+    course: Optional[int] = Field(default=None, ge=1)
+    city: str
+    neighbourhood_id: Optional[int] = Field(
+        default=None, foreign_key='neighbourhoods.id'
+    )
 
 
 class ProfileCreate(ProfileBase):
@@ -38,11 +41,14 @@ class ProfileCreate(ProfileBase):
 
 class ProfileUpdate(SQLModel):
     uni_id: Optional[int] = None
-    neighbourhood_id: Optional[int] = None
+    faculty_id: Optional[int] = None
     name: Optional[str] = Field(default=None, max_length=50)
     sex: Optional[ProfileSex] = None
     age: Optional[int] = None
-    profile_picture_url: Optional[str] = None
+    profile_description: Optional[str] = None
+    course: Optional[int] = Field(default=None, ge=1)
+    city: Optional[str] = None
+    neighbourhood_id: Optional[int] = None
 
 
 class ProfilePublic(ProfileBase, IDModel):
@@ -52,11 +58,14 @@ class ProfilePublic(ProfileBase, IDModel):
 class ProfileModel(ProfileBase, IDModel, table=True):
     __tablename__ = 'profiles'
 
-    user: 'UserModel' = Relationship(back_populates='profile')
+    user: Optional['UserModel'] = Relationship(back_populates='profile')
     university: Optional['UniversityModel'] = Relationship(back_populates='profiles')
     neighbourhood: Optional['NeighbourhoodModel'] = Relationship(back_populates='profiles')
 
-    tags: list[TagModel] = Relationship(back_populates='profiles', link_model=ProfileTagLink)
+    tags: list['TagModel'] = Relationship(
+        back_populates='profiles',
+        link_model=ProfileTagLink,
+    )
     sent_reactions: list['ReactionModel'] = Relationship(back_populates='profile')
     deals: list['DealModel'] = Relationship(back_populates='owner_profile')
     chats: list['ChatModel'] = Relationship(back_populates='profile')

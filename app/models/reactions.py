@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -42,5 +40,5 @@ class ReactionModel(ReactionBase, IDModel, table=True):
         UniqueConstraint('profile_id', 'deal_id', name='unique_profile_deal_reaction'),
     )
 
-    profile: 'ProfileModel' = Relationship(back_populates='sent_reactions')
-    deal: 'DealModel' = Relationship(back_populates='reactions')
+    profile: Optional['ProfileModel'] = Relationship(back_populates='sent_reactions')
+    deal: Optional['DealModel'] = Relationship(back_populates='reactions')

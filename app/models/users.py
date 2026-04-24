@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -20,16 +18,15 @@ class UserStatus(str, Enum):
 
 
 class UserRole(str, Enum):
-    STUDENT = 'student'
+    USER = 'user'
     ADMIN = 'admin'
-    MODERATOR = 'moderator'
 
 
 class UserBase(TimestampedModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     email: EmailStr = Field(index=True)
-    role: UserRole = Field(default=UserRole.STUDENT)
+    role: UserRole = Field(default=UserRole.USER)
     status: UserStatus = Field(default=UserStatus.CREATED)
 
 

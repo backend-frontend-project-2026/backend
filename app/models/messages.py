@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from datetime import datetime
+from datetime import timezone
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import Column, DateTime
@@ -15,10 +14,11 @@ if TYPE_CHECKING:
 class MessageBase(TimestampedModel):
     chat_id: int = Field(foreign_key='chats.id')
     profile_id: int = Field(foreign_key='profiles.id')
-    content: str
-    opened_at: Optional[datetime] = Field(
-        default=None,
-        sa_column=Column(DateTime(timezone=True), nullable=True),
+    content: str = Field(max_length=1000)
+    is_read: bool = Field(default=False)
+    sent_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
 
@@ -27,8 +27,8 @@ class MessageCreate(MessageBase):
 
 
 class MessageUpdate(SQLModel):
-    content: Optional[str] = None
-    opened_at: Optional[datetime] = None
+    content: Optional[str] = Field(default=None, max_length=1000)
+    is_read: Optional[bool] = None
 
 
 class MessagePublic(MessageBase, IDModel):
@@ -38,4 +38,4 @@ class MessagePublic(MessageBase, IDModel):
 class MessageModel(MessageBase, IDModel, table=True):
     __tablename__ = 'messages'
 
-    chat: 'ChatModel' = Relationship(back_populates='messages')
+    chat: Optional['ChatModel'] = Relationship(back_populates='messages')
