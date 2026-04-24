@@ -4,11 +4,11 @@ from sqlalchemy import URL
 
 class Settings(BaseSettings):
     DB_SCHEME: str = 'postgresql+asyncpg'
-    DB_HOST: str = '127.0.0.1'
+    DB_HOST: str = 'localhost'
     DB_PORT: int = 5432
-    DB_USER: str = 'postgres'
-    DB_PASSWORD: str = '112233'
-    DB_NAME: str = 'roomiematch'
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
 
     model_config = SettingsConfigDict(
         env_file='.env',

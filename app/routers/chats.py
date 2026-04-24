@@ -13,6 +13,7 @@ from app.schemas.messages import (
 )
 
 router = APIRouter(prefix='/chats', tags=['Chats'])
+message_router = APIRouter(prefix='/chats/{chat_id}/messages', tags=['Messages'])
 
 
 @router.get('', response_model=ChatListResponse)
@@ -71,9 +72,7 @@ async def delete_chat(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get(
-    '/{chat_id}/messages', response_model=MessageListResponse, tags=['Messages']
-)
+@message_router.get('', response_model=MessageListResponse)
 async def list_messages(
     chat_id: int,
     message_service: MessageServiceDep,
@@ -97,49 +96,43 @@ async def list_messages(
     )
 
 
-@router.post(
-    '/{chat_id}/messages',
-    response_model=MessageResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=['Messages'],
-)
+@message_router.post('', response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def create_message(
     chat_id: int,
     message_create: MessageCreate,
     message_service: MessageServiceDep,
 ) -> MessageResponse:
-    return await message_service.create(message_create)
+    return await message_service.create(
+        message_create.model_copy(update={'chat_id': chat_id})
+    )
 
 
-@router.get(
-    '/{chat_id}/messages/{message_id}',
-    response_model=MessageResponse,
-    tags=['Messages'],
-)
+@message_router.get('/{message_id}', response_model=MessageResponse)
 async def get_message(
     chat_id: int,
     message_id: int,
     message_service: MessageServiceDep,
 ) -> MessageResponse:
     message = await message_service.get_by_id(message_id)
-    if message is None:
+    if message is None or message.chat_id != chat_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Message not found'
         )
     return message
 
 
-@router.put(
-    '/{chat_id}/messages/{message_id}',
-    response_model=MessageResponse,
-    tags=['Messages'],
-)
+@message_router.put('/{message_id}', response_model=MessageResponse)
 async def update_message(
     chat_id: int,
     message_id: int,
     message_update: MessageUpdate,
     message_service: MessageServiceDep,
 ) -> MessageResponse:
+    existing_message = await message_service.get_by_id(message_id)
+    if existing_message is None or existing_message.chat_id != chat_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Message not found'
+        )
     message = await message_service.update(message_id, message_update)
     if message is None:
         raise HTTPException(
@@ -148,16 +141,17 @@ async def update_message(
     return message
 
 
-@router.delete(
-    '/{chat_id}/messages/{message_id}',
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Messages'],
-)
+@message_router.delete('/{message_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_message(
     chat_id: int,
     message_id: int,
     message_service: MessageServiceDep,
 ) -> Response:
+    existing_message = await message_service.get_by_id(message_id)
+    if existing_message is None or existing_message.chat_id != chat_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Message not found'
+        )
     message = await message_service.delete(message_id)
     if message is None:
         raise HTTPException(

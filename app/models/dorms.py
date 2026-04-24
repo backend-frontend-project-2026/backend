@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -14,6 +12,7 @@ if TYPE_CHECKING:
 class DormBase(TimestampedModel):
     uni_id: int = Field(foreign_key='universities.id')
     name: str = Field(max_length=255)
+    city: str
     address: str = Field(max_length=255)
 
 

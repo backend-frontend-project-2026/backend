@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -29,9 +27,9 @@ class ComplaintReason(str, Enum):
 class ComplaintBase(TimestampedModel):
     complainant_id: int = Field(foreign_key='users.id')
     reported_user_id: int = Field(foreign_key='users.id')
-    reason: ComplaintReason
+    reason: str = Field(max_length=1000)
     status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
-    screenshot_url_for_report: Optional[str] = None
+    screenshots: Optional[str] = None
 
 
 class ComplaintCreate(ComplaintBase):
@@ -40,7 +38,7 @@ class ComplaintCreate(ComplaintBase):
 
 class ComplaintUpdate(SQLModel):
     status: Optional[ComplaintStatus] = None
-    screenshot_url_for_report: Optional[str] = None
+    screenshots: Optional[str] = None
 
 
 class ComplaintPublic(ComplaintBase, IDModel):
@@ -50,13 +48,13 @@ class ComplaintPublic(ComplaintBase, IDModel):
 class ComplaintModel(ComplaintBase, IDModel, table=True):
     __tablename__ = 'complaints'
 
-    complainant: 'UserModel' = Relationship(
+    complainant: Optional['UserModel'] = Relationship(
         back_populates='sent_complaints',
         sa_relationship_kwargs={
             'foreign_keys': '[ComplaintModel.complainant_id]',
         },
     )
-    reported_user: 'UserModel' = Relationship(
+    reported_user: Optional['UserModel'] = Relationship(
         back_populates='received_complaints',
         sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
     )

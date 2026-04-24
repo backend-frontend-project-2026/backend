@@ -28,6 +28,14 @@ from app.schemas.universities import (
 )
 
 router = APIRouter(prefix='/universities', tags=['Universities'])
+faculty_router = APIRouter(
+    prefix='/universities/{university_id}/faculties',
+    tags=['Faculties'],
+)
+dorm_router = APIRouter(
+    prefix='/universities/{university_id}/dorms',
+    tags=['Dorms'],
+)
 
 
 @router.get('', response_model=UniversityListResponse)
@@ -91,9 +99,7 @@ async def delete_university(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get(
-    '/{university_id}/faculties', response_model=FacultyListResponse, tags=['Faculties']
-)
+@faculty_router.get('', response_model=FacultyListResponse)
 async def list_faculties(
     university_id: int,
     faculty_service: FacultyServiceDep,
@@ -106,32 +112,25 @@ async def list_faculties(
     )
 
 
-@router.post(
-    '/{university_id}/faculties',
-    response_model=FacultyResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=['Faculties'],
-)
+@faculty_router.post('', response_model=FacultyResponse, status_code=status.HTTP_201_CREATED)
 async def create_faculty(
     university_id: int,
     faculty_create: FacultyCreate,
     faculty_service: FacultyServiceDep,
 ) -> FacultyResponse:
-    return await faculty_service.create(faculty_create)
+    return await faculty_service.create(
+        faculty_create.model_copy(update={'uni_id': university_id})
+    )
 
 
-@router.get(
-    '/{university_id}/faculties/{faculty_id}',
-    response_model=FacultyResponse,
-    tags=['Faculties'],
-)
+@faculty_router.get('/{faculty_id}', response_model=FacultyResponse)
 async def get_faculty(
     university_id: int,
     faculty_id: int,
     faculty_service: FacultyServiceDep,
 ) -> FacultyResponse:
     faculty = await faculty_service.get_by_id(faculty_id)
-    if faculty is None:
+    if faculty is None or faculty.uni_id != university_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Faculty or university not found',
@@ -139,18 +138,23 @@ async def get_faculty(
     return faculty
 
 
-@router.put(
-    '/{university_id}/faculties/{faculty_id}',
-    response_model=FacultyResponse,
-    tags=['Faculties'],
-)
+@faculty_router.put('/{faculty_id}', response_model=FacultyResponse)
 async def update_faculty(
     university_id: int,
     faculty_id: int,
     faculty_update: FacultyUpdate,
     faculty_service: FacultyServiceDep,
 ) -> FacultyResponse:
-    faculty = await faculty_service.update(faculty_id, faculty_update)
+    existing_faculty = await faculty_service.get_by_id(faculty_id)
+    if existing_faculty is None or existing_faculty.uni_id != university_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Faculty or university not found',
+        )
+    faculty = await faculty_service.update(
+        faculty_id,
+        faculty_update.model_copy(update={'uni_id': university_id}),
+    )
     if faculty is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -159,18 +163,20 @@ async def update_faculty(
     return faculty
 
 
-@router.delete(
-    '/{university_id}/faculties/{faculty_id}',
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Faculties'],
-)
+@faculty_router.delete('/{faculty_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_faculty(
     university_id: int,
     faculty_id: int,
     faculty_service: FacultyServiceDep,
 ) -> Response:
-    faculty = await faculty_service.delete(faculty_id)
-    if faculty is None:
+    faculty = await faculty_service.get_by_id(faculty_id)
+    if faculty is None or faculty.uni_id != university_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Faculty or university not found',
+        )
+    deleted_faculty = await faculty_service.delete(faculty_id)
+    if deleted_faculty is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Faculty or university not found',
@@ -178,7 +184,7 @@ async def delete_faculty(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get('/{university_id}/dorms', response_model=DormListResponse, tags=['Dorms'])
+@dorm_router.get('', response_model=DormListResponse)
 async def list_dorms(
     university_id: int,
     dorm_service: DormServiceDep,
@@ -194,46 +200,47 @@ async def list_dorms(
     )
 
 
-@router.post(
-    '/{university_id}/dorms',
-    response_model=DormResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=['Dorms'],
-)
+@dorm_router.post('', response_model=DormResponse, status_code=status.HTTP_201_CREATED)
 async def create_dorm(
     university_id: int,
     dorm_create: DormCreate,
     dorm_service: DormServiceDep,
 ) -> DormResponse:
-    return await dorm_service.create(dorm_create)
+    return await dorm_service.create(
+        dorm_create.model_copy(update={'uni_id': university_id})
+    )
 
 
-@router.get(
-    '/{university_id}/dorms/{dorm_id}', response_model=DormResponse, tags=['Dorms']
-)
+@dorm_router.get('/{dorm_id}', response_model=DormResponse)
 async def get_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
 ) -> DormResponse:
     dorm = await dorm_service.get_by_id(dorm_id)
-    if dorm is None:
+    if dorm is None or dorm.uni_id != university_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
         )
     return dorm
 
 
-@router.put(
-    '/{university_id}/dorms/{dorm_id}', response_model=DormResponse, tags=['Dorms']
-)
+@dorm_router.put('/{dorm_id}', response_model=DormResponse)
 async def update_dorm(
     university_id: int,
     dorm_id: int,
     dorm_update: DormUpdate,
     dorm_service: DormServiceDep,
 ) -> DormResponse:
-    dorm = await dorm_service.update(dorm_id, dorm_update)
+    existing_dorm = await dorm_service.get_by_id(dorm_id)
+    if existing_dorm is None or existing_dorm.uni_id != university_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+        )
+    dorm = await dorm_service.update(
+        dorm_id,
+        dorm_update.model_copy(update={'uni_id': university_id}),
+    )
     if dorm is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
@@ -241,18 +248,19 @@ async def update_dorm(
     return dorm
 
 
-@router.delete(
-    '/{university_id}/dorms/{dorm_id}',
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Dorms'],
-)
+@dorm_router.delete('/{dorm_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
 ) -> Response:
-    dorm = await dorm_service.delete(dorm_id)
-    if dorm is None:
+    dorm = await dorm_service.get_by_id(dorm_id)
+    if dorm is None or dorm.uni_id != university_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+        )
+    deleted_dorm = await dorm_service.delete(dorm_id)
+    if deleted_dorm is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
         )

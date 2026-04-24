@@ -57,7 +57,7 @@ class Repository[Model: BaseModel]:
                     )
                 continue
             if key.endswith('_from'):
-                column_name = key.removesuffix('_from')
+                column_name = f'{key.removesuffix("_from")}_at'
                 if hasattr(self.model, column_name):
                     filter_statement = and_(
                         filter_statement,
@@ -65,7 +65,7 @@ class Repository[Model: BaseModel]:
                     )
                 continue
             if key.endswith('_to'):
-                column_name = key.removesuffix('_to')
+                column_name = f'{key.removesuffix("_to")}_at'
                 if hasattr(self.model, column_name):
                     filter_statement = and_(
                         filter_statement,
@@ -94,8 +94,8 @@ class Repository[Model: BaseModel]:
             select_statement = select_statement.offset(offset)
         if limit is not None:
             select_statement = select_statement.limit(limit)
-        entities = await self.__session.exec(select_statement)
-        return entities.all()
+        entities = await self.__session.execute(select_statement)
+        return entities.scalars().all()
 
     async def count(self, filters: Optional[PydanticBaseModel] = None) -> int:
         select_statement = select(func.count()).select_from(self.model)
@@ -103,8 +103,8 @@ class Repository[Model: BaseModel]:
             select_statement = select_statement.where(
                 self._build_filter_statement(filters)
             )
-        result = await self.__session.exec(select_statement)
-        return result.one()
+        result = await self.__session.execute(select_statement)
+        return result.scalar_one()
 
     async def save(self, instance: Model) -> Model:
         self.__session.add(instance)

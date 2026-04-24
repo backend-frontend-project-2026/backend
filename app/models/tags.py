@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -28,7 +26,7 @@ class ProfileTagLink(SQLModel, table=True):
 
 
 class TagBase(TimestampedModel):
-    category: TagCategory
+    category: str
     value: str = Field(max_length=100)
 
 
@@ -37,7 +35,7 @@ class TagCreate(TagBase):
 
 
 class TagUpdate(SQLModel):
-    category: Optional[TagCategory] = None
+    category: Optional[str] = None
     value: Optional[str] = Field(default=None, max_length=100)
 
 

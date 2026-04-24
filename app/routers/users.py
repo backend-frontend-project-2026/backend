@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Response, status
 
-from app.dependencies.services import ProfileServiceDep, UserServiceDep
+from app.dependencies.services import UserServiceDep
 from app.models.users import UserRole
-from app.schemas.profiles import ProfileCreate, ProfileResponse, ProfileUpdate
 from app.schemas.users import UserFilters, UserListResponse, UserResponse, UserUpdate
 
 router = APIRouter(prefix='/users', tags=['Users'])
@@ -57,66 +56,5 @@ async def delete_user(
     if deleted_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
-        )
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.get('/{user_id}/profile', response_model=ProfileResponse, tags=['Profiles'])
-async def get_profile(
-    user_id: int,
-    profile_service: ProfileServiceDep,
-) -> ProfileResponse:
-    profile = await profile_service.get_profile_by_user_id(user_id)
-    if profile is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User or profile not found'
-        )
-    return profile
-
-
-@router.post(
-    '/{user_id}/profile',
-    response_model=ProfileResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=['Profiles'],
-)
-async def create_profile(
-    user_id: int,
-    profile_create: ProfileCreate,
-    profile_service: ProfileServiceDep,
-) -> ProfileResponse:
-    existing_profile = await profile_service.get_profile_by_user_id(user_id)
-    if existing_profile is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail='Profile already exists'
-        )
-    return await profile_service.create_profile(user_id, profile_create)
-
-
-@router.put('/{user_id}/profile', response_model=ProfileResponse, tags=['Profiles'])
-async def update_profile(
-    user_id: int,
-    profile_update: ProfileUpdate,
-    profile_service: ProfileServiceDep,
-) -> ProfileResponse:
-    profile = await profile_service.update_profile(user_id, profile_update)
-    if profile is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User or profile not found'
-        )
-    return profile
-
-
-@router.delete(
-    '/{user_id}/profile', status_code=status.HTTP_204_NO_CONTENT, tags=['Profiles']
-)
-async def delete_profile(
-    user_id: int,
-    profile_service: ProfileServiceDep,
-) -> Response:
-    profile = await profile_service.delete_profile(user_id)
-    if profile is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User or profile not found'
         )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

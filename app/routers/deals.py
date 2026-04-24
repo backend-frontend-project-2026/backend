@@ -19,6 +19,7 @@ from app.schemas.reactions import (
 )
 
 router = APIRouter(prefix='/deals', tags=['Deals'])
+reaction_router = APIRouter(prefix='/deals/{deal_id}/reactions', tags=['Reactions'])
 
 
 @router.get('', response_model=DealListResponse)
@@ -68,9 +69,7 @@ async def get_deal(
     return deal
 
 
-@router.get(
-    '/{deal_id}/reactions', response_model=ReactionListResponse, tags=['Reactions']
-)
+@reaction_router.get('', response_model=ReactionListResponse)
 async def list_reactions(
     deal_id: int,
     reaction_service: ReactionServiceDep,
@@ -95,12 +94,7 @@ async def list_reactions(
     )
 
 
-@router.post(
-    '/{deal_id}/reactions',
-    response_model=ReactionResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=['Reactions'],
-)
+@reaction_router.post('', response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
 async def create_reaction(
     deal_id: int,
     reaction_create: ReactionCreate,
@@ -109,11 +103,7 @@ async def create_reaction(
     return await reaction_service.create_reaction(deal_id, reaction_create)
 
 
-@router.get(
-    '/{deal_id}/reactions/{reaction_id}',
-    response_model=ReactionResponse,
-    tags=['Reactions'],
-)
+@reaction_router.get('/{reaction_id}', response_model=ReactionResponse)
 async def get_reaction(
     deal_id: int,
     reaction_id: int,
@@ -125,11 +115,7 @@ async def get_reaction(
     return reaction
 
 
-@router.delete(
-    '/{deal_id}/reactions/{reaction_id}',
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Reactions'],
-)
+@reaction_router.delete('/{reaction_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_reaction(
     deal_id: int,
     reaction_id: int,

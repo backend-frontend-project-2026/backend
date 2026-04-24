@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -10,6 +8,7 @@ if TYPE_CHECKING:
     from app.models.deals import DealModel
     from app.models.messages import MessageModel
     from app.models.profiles import ProfileModel
+
 
 class ChatBase(TimestampedModel):
     profile_id: int = Field(foreign_key='profiles.id')
@@ -32,8 +31,8 @@ class ChatPublic(ChatBase, IDModel):
 class ChatModel(ChatBase, IDModel, table=True):
     __tablename__ = 'chats'
 
-    profile: 'ProfileModel' = Relationship(back_populates='chats')
-    deal: 'DealModel' = Relationship(back_populates='chats')
+    profile: Optional['ProfileModel'] = Relationship(back_populates='chats')
+    deal: Optional['DealModel'] = Relationship(back_populates='chats')
 
     messages: list['MessageModel'] = Relationship(
         back_populates='chat',
