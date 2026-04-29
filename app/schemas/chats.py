@@ -3,31 +3,39 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    CreatedAtSchema,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class ChatCreate(BaseModel):
+class ChatBase(BaseModel):
     profile_id: int
     deal_id: int
+
+
+class ChatCreate(ChatBase):
+    pass
 
 
 class ChatUpdate(BaseModel):
-    profile_id: int | None = None
-    deal_id: int | None = None
+    profile_id: Optional[int] = None
+    deal_id: Optional[int] = None
 
 
-class ChatResponse(ApiResponseModel):
-    id: int
-    profile_id: int
-    deal_id: int
-    created_at: datetime
+class ChatPublic(ChatBase, IDSchema, CreatedAtSchema):
+    pass
 
 
-class ChatListResponse(ApiResponseModel):
-    items: list[ChatResponse]
-    total: int
-    page: int
-    page_size: int
+class ChatResponse(ApiResponseModel, ChatPublic):
+    pass
+
+
+class ChatListResponse(PaginatedResponse[ChatResponse]):
+    pass
 
 
 class ChatFilters(CommonListFilters):

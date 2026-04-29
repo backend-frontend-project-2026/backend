@@ -1,10 +1,26 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
 from app.models.users import UserRole
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    CreatedAtSchema,
+    IDSchema,
+    PaginatedResponse,
+)
+
+
+class UserBase(BaseModel):
+    first_name: str = Field(max_length=50)
+    last_name: str = Field(max_length=50)
+    email: EmailStr
+    role: UserRole = UserRole.USER
+
+
+class UserCreate(UserBase):
+    password: str = Field(min_length=8, max_length=128)
 
 
 class UserUpdate(BaseModel):
@@ -12,23 +28,19 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = Field(default=None, max_length=50)
     email: Optional[EmailStr] = None
     role: Optional[UserRole] = None
-    password: Optional[str] = Field(default=None, min_length=8)
+    password: Optional[str] = Field(default=None, min_length=8, max_length=128)
 
 
-class UserResponse(ApiResponseModel):
-    id: int
-    first_name: str
-    last_name: str
-    email: EmailStr
-    role: UserRole
-    created_at: datetime
+class UserPublic(UserBase, IDSchema, CreatedAtSchema):
+    pass
 
 
-class UserListResponse(ApiResponseModel):
-    items: list[UserResponse]
-    total: int
-    page: int
-    page_size: int
+class UserResponse(ApiResponseModel, UserPublic):
+    pass
+
+
+class UserListResponse(PaginatedResponse[UserResponse]):
+    pass
 
 
 class UserFilters(CommonListFilters):

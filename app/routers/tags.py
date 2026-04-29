@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import TagServiceDep
 from app.schemas.tags import (
@@ -15,12 +17,8 @@ router = APIRouter(prefix='/tags', tags=['Tags'])
 @router.get('', response_model=TagListResponse)
 async def list_tags(
     tag_service: TagServiceDep,
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1),
-    category: str | None = None,
-    value: str | None = None,
+    filters: Annotated[TagFilters, Depends()],
 ) -> TagListResponse:
-    filters = TagFilters(page=page, page_size=page_size, category=category, value=value)
     return await tag_service.get_list(filters)
 
 

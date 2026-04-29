@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -24,27 +24,11 @@ class ProfileTagLink(SQLModel, table=True):
     profile_id: int = Field(foreign_key='profiles.id', primary_key=True)
     tag_id: int = Field(foreign_key='tags.id', primary_key=True)
 
-
-class TagBase(TimestampedModel):
-    category: str
-    value: str = Field(max_length=100)
-
-
-class TagCreate(TagBase):
-    pass
-
-
-class TagUpdate(SQLModel):
-    category: Optional[str] = None
-    value: Optional[str] = Field(default=None, max_length=100)
-
-
-class TagPublic(TagBase, IDModel):
-    pass
-
-
-class TagModel(TagBase, IDModel, table=True):
+class TagModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'tags'
+
+    category: TagCategory
+    value: str = Field(max_length=100)
 
     profiles: list['ProfileModel'] = Relationship(
         back_populates='tags',

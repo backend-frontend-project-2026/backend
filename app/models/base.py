@@ -9,12 +9,15 @@ class BaseModel(SQLModel):
     pass
 
 
-class TimestampedModel(BaseModel):
+class CreatedAtModel(BaseModel):
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         nullable=False,
         sa_type=TIMESTAMP(timezone=True),  # type: ignore
     )
+
+
+class TimestampedModel(CreatedAtModel):
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         nullable=False,

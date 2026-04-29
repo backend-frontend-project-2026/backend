@@ -1,6 +1,6 @@
-from datetime import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import ComplaintServiceDep
 from app.schemas.complaints import (
@@ -8,7 +8,6 @@ from app.schemas.complaints import (
     ComplaintFilters,
     ComplaintListResponse,
     ComplaintResponse,
-    ComplaintStatus,
     ComplaintUpdate,
 )
 
@@ -18,25 +17,9 @@ router = APIRouter(prefix='/complaints', tags=['Complaints'])
 @router.get('', response_model=ComplaintListResponse)
 async def list_complaints(
     complaint_service: ComplaintServiceDep,
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1),
-    complainant_id: int | None = None,
-    reported_user_id: int | None = None,
-    status: ComplaintStatus | None = None,
-    created_from: datetime | None = None,
-    created_to: datetime | None = None,
+    filters: Annotated[ComplaintFilters, Depends()],
 ) -> ComplaintListResponse:
-    return await complaint_service.get_list(
-        ComplaintFilters(
-            page=page,
-            page_size=page_size,
-            complainant_id=complainant_id,
-            reported_user_id=reported_user_id,
-            status=status,
-            created_from=created_from,
-            created_to=created_to,
-        )
-    )
+    return await complaint_service.get_list(filters)
 
 
 @router.post('', response_model=ComplaintResponse, status_code=status.HTTP_201_CREATED)

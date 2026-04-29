@@ -1,11 +1,11 @@
-from pwdlib import PasswordHash
+from passlib.context import CryptContext
 
-password_hash = PasswordHash.recommended()
+password_context = CryptContext(schemes=['argon2'], deprecated='auto')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return password_hash.verify(plain_password, hashed_password)
+    return password_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    return password_hash.hash(password)
+    return password_context.hash(password)

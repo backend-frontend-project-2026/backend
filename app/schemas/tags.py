@@ -1,31 +1,42 @@
-from pydantic import BaseModel
+from typing import Optional
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from pydantic import BaseModel, Field
+
+from app.models.tags import TagCategory
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class TagCreate(BaseModel):
-    category: str
-    value: str
+class TagBase(BaseModel):
+    category: TagCategory
+    value: str = Field(max_length=100)
+
+
+class TagCreate(TagBase):
+    pass
 
 
 class TagUpdate(BaseModel):
-    category: str | None = None
-    value: str | None = None
+    category: Optional[TagCategory] = None
+    value: Optional[str] = Field(default=None, max_length=100)
 
 
-class TagResponse(ApiResponseModel):
-    id: int
-    category: str
-    value: str
+class TagPublic(TagBase, IDSchema):
+    pass
 
 
-class TagListResponse(ApiResponseModel):
-    items: list[TagResponse]
-    total: int
-    page: int
-    page_size: int
+class TagResponse(ApiResponseModel, TagPublic):
+    pass
+
+
+class TagListResponse(PaginatedResponse[TagResponse]):
+    pass
 
 
 class TagFilters(CommonListFilters):
-    category: str | None = None
-    value: str | None = None
+    category: Optional[TagCategory] = None
+    value: Optional[str] = None

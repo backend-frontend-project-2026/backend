@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -16,6 +17,14 @@ class CommonListFilters(BaseModel):
     @property
     def limit(self) -> int:
         return self.page_size
+
+
+class IDSchema(BaseModel):
+    id: int
+
+
+class CreatedAtSchema(BaseModel):
+    created_at: datetime
 
 
 def _strip_required(schema: dict[str, Any]) -> None:

@@ -1,35 +1,41 @@
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from app.models.reactions import ReactionType
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    CreatedAtSchema,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class ReactionType(str, Enum):
-    LIKE = 'like'
-    DISLIKE = 'dislike'
-
-
-class ReactionCreate(BaseModel):
+class ReactionBase(BaseModel):
     profile_id: int
     reaction_type: ReactionType
 
 
-class ReactionResponse(ApiResponseModel):
-    id: int
+class ReactionCreate(ReactionBase):
+    pass
+
+
+class ReactionUpdate(BaseModel):
+    reaction_type: Optional[ReactionType] = None
+
+
+class ReactionPublic(ReactionBase, IDSchema, CreatedAtSchema):
     deal_id: int
-    profile_id: int
-    reaction_type: ReactionType
-    created_at: datetime
 
 
-class ReactionListResponse(ApiResponseModel):
-    items: list[ReactionResponse]
-    total: int
-    page: int
-    page_size: int
+class ReactionResponse(ApiResponseModel, ReactionPublic):
+    pass
+
+
+class ReactionListResponse(PaginatedResponse[ReactionResponse]):
+    pass
 
 
 class ReactionFilters(CommonListFilters):

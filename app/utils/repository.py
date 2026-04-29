@@ -1,4 +1,5 @@
-from typing import Optional, Sequence
+from collections.abc import Mapping
+from typing import Any, Optional, Sequence
 
 from generics import get_filled_type
 from pydantic import BaseModel as PydanticBaseModel
@@ -127,11 +128,16 @@ class Repository[Model: BaseModel]:
         await self.__session.commit()
         return instance
 
-    async def update(self, pk: int, updates: PydanticBaseModel) -> Optional[Model]:
+    async def update(
+        self, pk: int, updates: PydanticBaseModel | Mapping[str, Any]
+    ) -> Optional[Model]:
         instance = await self.get(pk)
         if instance is None:
             return None
-        instance_update_dump = updates.model_dump()
+        if isinstance(updates, PydanticBaseModel):
+            instance_update_dump = updates.model_dump(exclude_unset=True)
+        else:
+            instance_update_dump = dict(updates)
         for key, value in instance_update_dump.items():
             if hasattr(instance, key):
                 setattr(instance, key, value)
