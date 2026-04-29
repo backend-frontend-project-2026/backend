@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import NeighbourhoodServiceDep
 from app.schemas.neighbourhoods import (
@@ -15,17 +17,8 @@ router = APIRouter(prefix='/neighbourhoods', tags=['Neighbourhoods'])
 @router.get('', response_model=NeighbourhoodListResponse)
 async def list_neighbourhoods(
     neighbourhood_service: NeighbourhoodServiceDep,
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1),
-    city: str | None = None,
-    district_name: str | None = None,
+    filters: Annotated[NeighbourhoodFilters, Depends()],
 ) -> NeighbourhoodListResponse:
-    filters = NeighbourhoodFilters(
-        page=page,
-        page_size=page_size,
-        city=city,
-        district_name=district_name,
-    )
     return await neighbourhood_service.get_list(filters)
 
 

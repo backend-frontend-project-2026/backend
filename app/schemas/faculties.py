@@ -1,31 +1,38 @@
-from pydantic import BaseModel
+from typing import Optional
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
 class FacultyCreate(BaseModel):
-    uni_id: int
-    name: str
+    name: str = Field(max_length=255)
 
 
 class FacultyUpdate(BaseModel):
-    uni_id: int | None = None
-    name: str | None = None
+    name: Optional[str] = Field(default=None, max_length=255)
 
 
-class FacultyResponse(ApiResponseModel):
-    id: int
+class FacultyPublic(IDSchema):
     uni_id: int
     name: str
 
 
-class FacultyListResponse(ApiResponseModel):
-    items: list[FacultyResponse]
-    total: int
-    page: int
-    page_size: int
+class FacultyResponse(ApiResponseModel, FacultyPublic):
+    pass
+
+
+class FacultyListResponse(PaginatedResponse[FacultyResponse]):
+    pass
 
 
 class FacultyFilters(CommonListFilters):
-    name: str | None = None
-    uni_id: int | None = None
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: Optional[str] = None
+    uni_id: Optional[int] = Field(default=None, alias='university_id')

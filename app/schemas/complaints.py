@@ -1,45 +1,46 @@
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from app.models.complaints import (
+    ComplaintReason,
+    ComplaintStatus,
+)
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    CreatedAtSchema,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class ComplaintStatus(str, Enum):
-    NEW = 'new'
-    IN_PROGRESS = 'in_progress'
-    RESOLVED = 'resolved'
-    REJECTED = 'rejected'
-
-
-class ComplaintCreate(BaseModel):
+class ComplaintBase(BaseModel):
     complainant_id: int
     reported_user_id: int
-    reason: str = Field(max_length=1000)
+    reason: ComplaintReason
     screenshots: Optional[str] = None
+
+
+class ComplaintCreate(ComplaintBase):
+    pass
 
 
 class ComplaintUpdate(BaseModel):
     status: Optional[ComplaintStatus] = None
 
 
-class ComplaintResponse(ApiResponseModel):
-    id: int
-    complainant_id: int
-    reported_user_id: int
-    reason: str
-    screenshots: Optional[str]
+class ComplaintPublic(ComplaintBase, IDSchema, CreatedAtSchema):
     status: ComplaintStatus
-    created_at: datetime
 
 
-class ComplaintListResponse(ApiResponseModel):
-    items: list[ComplaintResponse]
-    total: int
-    page: int
-    page_size: int
+class ComplaintResponse(ApiResponseModel, ComplaintPublic):
+    pass
+
+
+class ComplaintListResponse(PaginatedResponse[ComplaintResponse]):
+    pass
 
 
 class ComplaintFilters(CommonListFilters):

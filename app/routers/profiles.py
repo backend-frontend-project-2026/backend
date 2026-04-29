@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import ProfileServiceDep
-from app.models.profiles import ProfileSex
 from app.schemas.profiles import (
     ProfileCreate,
     ProfileFilters,
@@ -10,42 +11,18 @@ from app.schemas.profiles import (
     ProfileUpdate,
 )
 
-router = APIRouter(prefix='/profiles', tags=['Profiles'])
+router = APIRouter(tags=['Profiles'])
 user_profile_router = APIRouter(prefix='/users/{user_id}/profile', tags=['Profiles'])
 
-
-@router.get('', response_model=ProfileListResponse)
+@router.get('/profiles')
 async def list_profiles(
     profile_service: ProfileServiceDep,
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1),
-    sex: ProfileSex | None = None,
-    age_min: int | None = None,
-    age_max: int | None = None,
-    uni_id: int | None = None,
-    faculty_id: int | None = None,
-    city: str | None = None,
-    neighbourhood_id: int | None = None,
-    tag_id: int | None = None,
-    course: int | None = None,
+    filters: Annotated[ProfileFilters, Depends()],
 ) -> ProfileListResponse:
-    filters = ProfileFilters(
-        page=page,
-        page_size=page_size,
-        sex=sex,
-        age_min=age_min,
-        age_max=age_max,
-        uni_id=uni_id,
-        faculty_id=faculty_id,
-        city=city,
-        neighbourhood_id=neighbourhood_id,
-        tag_id=tag_id,
-        course=course,
-    )
-    return await profile_service.get_profiles(filters)
+    return await profile_service.get_list(filters)
 
 
-@user_profile_router.get('', response_model=ProfileResponse)
+@user_profile_router.get('')
 async def get_profile(
     user_id: int,
     profile_service: ProfileServiceDep,
@@ -59,7 +36,10 @@ async def get_profile(
     return profile
 
 
-@user_profile_router.post('', response_model=ProfileResponse, status_code=status.HTTP_201_CREATED)
+@user_profile_router.post(
+    '',
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_profile(
     user_id: int,
     profile_create: ProfileCreate,
@@ -71,10 +51,10 @@ async def create_profile(
             status_code=status.HTTP_409_CONFLICT,
             detail='Profile already exists',
         )
-    return await profile_service.create_profile(user_id, profile_create)
+    return await profile_service.create(profile_create, user_id=user_id)
 
 
-@user_profile_router.put('', response_model=ProfileResponse)
+@user_profile_router.put('')
 async def update_profile(
     user_id: int,
     profile_update: ProfileUpdate,
@@ -101,3 +81,5 @@ async def delete_profile(
             detail='User or profile not found',
         )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+router.include_router(user_profile_router)

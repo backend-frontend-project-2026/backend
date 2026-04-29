@@ -1,31 +1,41 @@
-from pydantic import BaseModel
+from typing import Optional
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from pydantic import BaseModel, Field
+
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class NeighbourhoodCreate(BaseModel):
-    district_name: str
-    city: str
+class NeighbourhoodBase(BaseModel):
+    city: str = Field(max_length=100)
+    district_name: str = Field(max_length=100)
+
+
+class NeighbourhoodCreate(NeighbourhoodBase):
+    pass
 
 
 class NeighbourhoodUpdate(BaseModel):
-    district_name: str | None = None
-    city: str | None = None
+    city: Optional[str] = Field(default=None, max_length=100)
+    district_name: Optional[str] = Field(default=None, max_length=100)
 
 
-class NeighbourhoodResponse(ApiResponseModel):
-    id: int
-    district_name: str
-    city: str
+class NeighbourhoodPublic(NeighbourhoodBase, IDSchema):
+    pass
 
 
-class NeighbourhoodListResponse(ApiResponseModel):
-    items: list[NeighbourhoodResponse]
-    total: int
-    page: int
-    page_size: int
+class NeighbourhoodResponse(ApiResponseModel, NeighbourhoodPublic):
+    pass
+
+
+class NeighbourhoodListResponse(PaginatedResponse[NeighbourhoodResponse]):
+    pass
 
 
 class NeighbourhoodFilters(CommonListFilters):
-    district_name: str | None = None
-    city: str | None = None
+    district_name: Optional[str] = None
+    city: Optional[str] = None

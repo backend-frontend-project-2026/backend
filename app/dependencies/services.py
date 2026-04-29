@@ -16,63 +16,44 @@ from app.dependencies.repositories import (
     UniversityRepositoryDep,
     UserRepositoryDep,
 )
-from app.models.chats import ChatModel
-from app.models.complaints import ComplaintModel
-from app.models.deals import DealModel
-from app.models.dorms import DormModel
-from app.models.faculties import FacultyModel
-from app.models.messages import MessageModel
-from app.models.neighbourhoods import NeighbourhoodModel
-from app.models.profiles import ProfileModel
-from app.models.reactions import ReactionModel
-from app.models.tags import TagModel
-from app.models.universities import UniversityModel
-from app.schemas.chats import ChatCreate, ChatFilters, ChatResponse, ChatUpdate
+from app.schemas.chats import ChatListResponse, ChatResponse
 from app.schemas.complaints import (
-    ComplaintCreate,
-    ComplaintFilters,
+    ComplaintListResponse,
     ComplaintResponse,
-    ComplaintUpdate,
 )
-from app.schemas.deals import DealCreate, DealFilters, DealResponse, DealUpdate
-from app.schemas.dorms import DormCreate, DormFilters, DormResponse, DormUpdate
+from app.schemas.deals import DealListResponse, DealResponse
+from app.schemas.dorms import DormListResponse, DormResponse
 from app.schemas.faculties import (
-    FacultyCreate,
-    FacultyFilters,
+    FacultyListResponse,
     FacultyResponse,
-    FacultyUpdate,
 )
 from app.schemas.messages import (
-    MessageCreate,
-    MessageFilters,
+    MessageListResponse,
     MessageResponse,
-    MessageUpdate,
 )
 from app.schemas.neighbourhoods import (
-    NeighbourhoodCreate,
-    NeighbourhoodFilters,
+    NeighbourhoodListResponse,
     NeighbourhoodResponse,
-    NeighbourhoodUpdate,
 )
-from app.schemas.profiles import (
-    ProfileCreate,
-    ProfileFilters,
-    ProfileResponse,
-    ProfileUpdate,
-)
-from app.schemas.reactions import ReactionCreate, ReactionFilters, ReactionResponse
-from app.schemas.tags import TagCreate, TagFilters, TagResponse, TagUpdate
+from app.schemas.tags import TagListResponse, TagResponse
 from app.schemas.universities import (
-    UniversityCreate,
-    UniversityFilters,
+    UniversityListResponse,
     UniversityResponse,
-    UniversityUpdate,
 )
-from app.schemas.users import UserFilters, UserResponse, UserUpdate
 from app.services.crud import CrudService
 from app.services.profiles import ProfileService
 from app.services.reactions import ReactionService
 from app.services.users import UserService
+
+type DealService = CrudService
+type ComplaintService = CrudService
+type ChatService = CrudService
+type MessageService = CrudService
+type UniversityService = CrudService
+type FacultyService = CrudService
+type DormService = CrudService
+type NeighbourhoodService = CrudService
+type TagService = CrudService
 
 
 def get_user_service(user_repository: UserRepositoryDep) -> UserService:
@@ -83,84 +64,58 @@ def get_profile_service(profile_repository: ProfileRepositoryDep) -> ProfileServ
     return ProfileService(profile_repository)
 
 
-def get_deal_service(
-    deal_repository: DealRepositoryDep,
-) -> CrudService[DealModel, DealCreate, DealUpdate, DealResponse, DealFilters]:
-    return CrudService(deal_repository, DealResponse)
+def get_deal_service(deal_repository: DealRepositoryDep) -> DealService:
+    return CrudService(deal_repository, DealResponse, DealListResponse)
 
 
 def get_complaint_service(
     complaint_repository: ComplaintRepositoryDep,
-) -> CrudService[
-    ComplaintModel,
-    ComplaintCreate,
-    ComplaintUpdate,
-    ComplaintResponse,
-    ComplaintFilters,
-]:
-    return CrudService(complaint_repository, ComplaintResponse)
+) -> ComplaintService:
+    return CrudService(
+        complaint_repository,
+        ComplaintResponse,
+        ComplaintListResponse,
+    )
 
 
-def get_chat_service(
-    chat_repository: ChatRepositoryDep,
-) -> CrudService[ChatModel, ChatCreate, ChatUpdate, ChatResponse, ChatFilters]:
-    return CrudService(chat_repository, ChatResponse)
+def get_chat_service(chat_repository: ChatRepositoryDep) -> ChatService:
+    return CrudService(chat_repository, ChatResponse, ChatListResponse)
 
 
-def get_message_service(
-    message_repository: MessageRepositoryDep,
-) -> CrudService[
-    MessageModel,
-    MessageCreate,
-    MessageUpdate,
-    MessageResponse,
-    MessageFilters,
-]:
-    return CrudService(message_repository, MessageResponse)
+def get_message_service(message_repository: MessageRepositoryDep) -> MessageService:
+    return CrudService(message_repository, MessageResponse, MessageListResponse)
 
 
 def get_university_service(
     university_repository: UniversityRepositoryDep,
-) -> CrudService[
-    UniversityModel,
-    UniversityCreate,
-    UniversityUpdate,
-    UniversityResponse,
-    UniversityFilters,
-]:
-    return CrudService(university_repository, UniversityResponse)
+) -> UniversityService:
+    return CrudService(
+        university_repository,
+        UniversityResponse,
+        UniversityListResponse,
+    )
 
 
-def get_faculty_service(
-    faculty_repository: FacultyRepositoryDep,
-) -> CrudService[
-    FacultyModel, FacultyCreate, FacultyUpdate, FacultyResponse, FacultyFilters
-]:
-    return CrudService(faculty_repository, FacultyResponse)
+def get_faculty_service(faculty_repository: FacultyRepositoryDep) -> FacultyService:
+    return CrudService(faculty_repository, FacultyResponse, FacultyListResponse)
 
 
-def get_dorm_service(
-    dorm_repository: DormRepositoryDep,
-) -> CrudService[DormModel, DormCreate, DormUpdate, DormResponse, DormFilters]:
-    return CrudService(dorm_repository, DormResponse)
+def get_dorm_service(dorm_repository: DormRepositoryDep) -> DormService:
+    return CrudService(dorm_repository, DormResponse, DormListResponse)
 
 
 def get_neighbourhood_service(
     neighbourhood_repository: NeighbourhoodRepositoryDep,
-) -> CrudService[
-    NeighbourhoodModel,
-    NeighbourhoodCreate,
-    NeighbourhoodUpdate,
-    NeighbourhoodResponse,
-    NeighbourhoodFilters,
-]:
-    return CrudService(neighbourhood_repository, NeighbourhoodResponse)
+) -> NeighbourhoodService:
+    return CrudService(
+        neighbourhood_repository,
+        NeighbourhoodResponse,
+        NeighbourhoodListResponse,
+    )
 
 
-def get_tag_service(
-    tag_repository: TagRepositoryDep,
-) -> CrudService[TagModel, TagCreate, TagUpdate, TagResponse, TagFilters]:
-    return CrudService(tag_repository, TagResponse)
+def get_tag_service(tag_repository: TagRepositoryDep) -> TagService:
+    return CrudService(tag_repository, TagResponse, TagListResponse)
 
 
 def get_reaction_service(reaction_repository: ReactionRepositoryDep) -> ReactionService:
@@ -169,62 +124,19 @@ def get_reaction_service(reaction_repository: ReactionRepositoryDep) -> Reaction
 
 type UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 type ProfileServiceDep = Annotated[ProfileService, Depends(get_profile_service)]
-type DealServiceDep = Annotated[
-    CrudService[DealModel, DealCreate, DealUpdate, DealResponse, DealFilters],
-    Depends(get_deal_service),
-]
+type DealServiceDep = Annotated[DealService, Depends(get_deal_service)]
 type ComplaintServiceDep = Annotated[
-    CrudService[
-        ComplaintModel,
-        ComplaintCreate,
-        ComplaintUpdate,
-        ComplaintResponse,
-        ComplaintFilters,
-    ],
-    Depends(get_complaint_service),
+    ComplaintService, Depends(get_complaint_service)
 ]
-type ChatServiceDep = Annotated[
-    CrudService[ChatModel, ChatCreate, ChatUpdate, ChatResponse, ChatFilters],
-    Depends(get_chat_service),
-]
-type MessageServiceDep = Annotated[
-    CrudService[
-        MessageModel, MessageCreate, MessageUpdate, MessageResponse, MessageFilters
-    ],
-    Depends(get_message_service),
-]
+type ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
+type MessageServiceDep = Annotated[MessageService, Depends(get_message_service)]
 type UniversityServiceDep = Annotated[
-    CrudService[
-        UniversityModel,
-        UniversityCreate,
-        UniversityUpdate,
-        UniversityResponse,
-        UniversityFilters,
-    ],
-    Depends(get_university_service),
+    UniversityService, Depends(get_university_service)
 ]
-type FacultyServiceDep = Annotated[
-    CrudService[
-        FacultyModel, FacultyCreate, FacultyUpdate, FacultyResponse, FacultyFilters
-    ],
-    Depends(get_faculty_service),
-]
-type DormServiceDep = Annotated[
-    CrudService[DormModel, DormCreate, DormUpdate, DormResponse, DormFilters],
-    Depends(get_dorm_service),
-]
+type FacultyServiceDep = Annotated[FacultyService, Depends(get_faculty_service)]
+type DormServiceDep = Annotated[DormService, Depends(get_dorm_service)]
 type NeighbourhoodServiceDep = Annotated[
-    CrudService[
-        NeighbourhoodModel,
-        NeighbourhoodCreate,
-        NeighbourhoodUpdate,
-        NeighbourhoodResponse,
-        NeighbourhoodFilters,
-    ],
-    Depends(get_neighbourhood_service),
+    NeighbourhoodService, Depends(get_neighbourhood_service)
 ]
-type TagServiceDep = Annotated[
-    CrudService[TagModel, TagCreate, TagUpdate, TagResponse, TagFilters],
-    Depends(get_tag_service),
-]
+type TagServiceDep = Annotated[TagService, Depends(get_tag_service)]
 type ReactionServiceDep = Annotated[ReactionService, Depends(get_reaction_service)]

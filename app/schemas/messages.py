@@ -3,11 +3,15 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
 class MessageCreate(BaseModel):
-    chat_id: int
     profile_id: int
     content: str = Field(max_length=1000)
 
@@ -17,8 +21,7 @@ class MessageUpdate(BaseModel):
     is_read: Optional[bool] = None
 
 
-class MessageResponse(ApiResponseModel):
-    id: int
+class MessagePublic(IDSchema):
     chat_id: int
     profile_id: int
     content: str
@@ -26,16 +29,20 @@ class MessageResponse(ApiResponseModel):
     sent_at: datetime
 
 
-class MessageListResponse(ApiResponseModel):
-    items: list[MessageResponse]
-    total: int
-    page: int
-    page_size: int
+class MessageResponse(ApiResponseModel, MessagePublic):
+    pass
 
 
-class MessageFilters(CommonListFilters):
-    chat_id: Optional[int] = None
+class MessageListResponse(PaginatedResponse[MessageResponse]):
+    pass
+
+
+class ChatMessageFilters(CommonListFilters):
     profile_id: Optional[int] = None
     sent_from: Optional[datetime] = None
     sent_to: Optional[datetime] = None
     is_read: Optional[bool] = None
+
+
+class MessageFilters(ChatMessageFilters):
+    chat_id: Optional[int] = None

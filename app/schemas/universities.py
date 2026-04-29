@@ -1,31 +1,41 @@
-from pydantic import BaseModel
+from typing import Optional
 
-from app.schemas.base import ApiResponseModel, CommonListFilters
+from pydantic import BaseModel, Field
+
+from app.schemas.base import (
+    ApiResponseModel,
+    CommonListFilters,
+    IDSchema,
+    PaginatedResponse,
+)
 
 
-class UniversityCreate(BaseModel):
-    name: str
+class UniversityBase(BaseModel):
+    name: str = Field(max_length=255)
     city: str
+
+
+class UniversityCreate(UniversityBase):
+    pass
 
 
 class UniversityUpdate(BaseModel):
-    name: str | None = None
-    city: str | None = None
+    name: Optional[str] = Field(default=None, max_length=255)
+    city: Optional[str] = None
 
 
-class UniversityResponse(ApiResponseModel):
-    id: int
-    name: str
-    city: str
+class UniversityPublic(UniversityBase, IDSchema):
+    pass
 
 
-class UniversityListResponse(ApiResponseModel):
-    items: list[UniversityResponse]
-    total: int
-    page: int
-    page_size: int
+class UniversityResponse(ApiResponseModel, UniversityPublic):
+    pass
+
+
+class UniversityListResponse(PaginatedResponse[UniversityResponse]):
+    pass
 
 
 class UniversityFilters(CommonListFilters):
-    name: str | None = None
-    city: str | None = None
+    name: Optional[str] = None
+    city: Optional[str] = None

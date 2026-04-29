@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
 
@@ -21,35 +21,14 @@ class UserRole(str, Enum):
     USER = 'user'
     ADMIN = 'admin'
 
+class UserModel(IDModel, TimestampedModel, table=True):
+    __tablename__ = 'users'
 
-class UserBase(TimestampedModel):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     email: EmailStr = Field(index=True)
     role: UserRole = Field(default=UserRole.USER)
     status: UserStatus = Field(default=UserStatus.CREATED)
-
-
-class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=128)
-
-
-class UserUpdate(SQLModel):
-    first_name: Optional[str] = Field(default=None, max_length=50)
-    last_name: Optional[str] = Field(default=None, max_length=50)
-    email: Optional[EmailStr] = None
-    role: Optional[UserRole] = None
-    status: Optional[UserStatus] = None
-    password: Optional[str] = Field(default=None, min_length=8, max_length=128)
-
-
-class UserPublic(UserBase, IDModel):
-    pass
-
-
-class UserModel(UserBase, IDModel, table=True):
-    __tablename__ = 'users'
-
     password_hash: str
 
     sent_complaints: list['ComplaintModel'] = Relationship(

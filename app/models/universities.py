@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
 
@@ -9,26 +9,11 @@ if TYPE_CHECKING:
     from app.models.faculties import FacultyModel
     from app.models.profiles import ProfileModel
 
+class UniversityModel(IDModel, TimestampedModel, table=True):
+    __tablename__ = 'universities'
 
-class UniversityBase(TimestampedModel):
     name: str = Field(unique=True, max_length=255)
     city: str
-
-
-class UniversityCreate(UniversityBase):
-    pass
-
-
-class UniversityUpdate(SQLModel):
-    name: Optional[str] = Field(default=None, max_length=255)
-
-
-class UniversityPublic(UniversityBase, IDModel):
-    pass
-
-
-class UniversityModel(UniversityBase, IDModel, table=True):
-    __tablename__ = 'universities'
 
     faculties: list['FacultyModel'] = Relationship(
         back_populates='university',

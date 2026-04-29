@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
 from app.models.tags import ProfileTagLink, TagModel
@@ -19,9 +19,9 @@ class ProfileSex(str, Enum):
     MALE = 'male'
     FEMALE = 'female'
 
+class ProfileModel(IDModel, TimestampedModel, table=True):
+    __tablename__ = 'profiles'
 
-class ProfileBase(TimestampedModel):
-    user_id: int = Field(foreign_key='users.id', unique=True)
     uni_id: int = Field(foreign_key='universities.id')
     faculty_id: int = Field(foreign_key='faculties.id')
     name: str = Field(max_length=50)
@@ -33,34 +33,13 @@ class ProfileBase(TimestampedModel):
     neighbourhood_id: Optional[int] = Field(
         default=None, foreign_key='neighbourhoods.id'
     )
-
-
-class ProfileCreate(ProfileBase):
-    pass
-
-
-class ProfileUpdate(SQLModel):
-    uni_id: Optional[int] = None
-    faculty_id: Optional[int] = None
-    name: Optional[str] = Field(default=None, max_length=50)
-    sex: Optional[ProfileSex] = None
-    age: Optional[int] = None
-    profile_description: Optional[str] = None
-    course: Optional[int] = Field(default=None, ge=1)
-    city: Optional[str] = None
-    neighbourhood_id: Optional[int] = None
-
-
-class ProfilePublic(ProfileBase, IDModel):
-    pass
-
-
-class ProfileModel(ProfileBase, IDModel, table=True):
-    __tablename__ = 'profiles'
+    user_id: int = Field(foreign_key='users.id', unique=True)
 
     user: Optional['UserModel'] = Relationship(back_populates='profile')
     university: Optional['UniversityModel'] = Relationship(back_populates='profiles')
-    neighbourhood: Optional['NeighbourhoodModel'] = Relationship(back_populates='profiles')
+    neighbourhood: Optional['NeighbourhoodModel'] = Relationship(
+        back_populates='profiles'
+    )
 
     tags: list['TagModel'] = Relationship(
         back_populates='profiles',

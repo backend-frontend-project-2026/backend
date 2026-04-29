@@ -1,7 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, String
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
 
@@ -23,30 +24,17 @@ class ComplaintReason(str, Enum):
     INAPPROPRIATE_CONTENT = 'inappropriate_content'
     OTHER = 'other'
 
+class ComplaintModel(IDModel, TimestampedModel, table=True):
+    __tablename__ = 'complaints'
 
-class ComplaintBase(TimestampedModel):
     complainant_id: int = Field(foreign_key='users.id')
     reported_user_id: int = Field(foreign_key='users.id')
-    reason: str = Field(max_length=1000)
+    reason: ComplaintReason
+    screenshots: Optional[str] = Field(
+        default=None,
+        sa_column=Column('screenshot_url_for_report', String(), nullable=True),
+    )
     status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
-    screenshots: Optional[str] = None
-
-
-class ComplaintCreate(ComplaintBase):
-    pass
-
-
-class ComplaintUpdate(SQLModel):
-    status: Optional[ComplaintStatus] = None
-    screenshots: Optional[str] = None
-
-
-class ComplaintPublic(ComplaintBase, IDModel):
-    pass
-
-
-class ComplaintModel(ComplaintBase, IDModel, table=True):
-    __tablename__ = 'complaints'
 
     complainant: Optional['UserModel'] = Relationship(
         back_populates='sent_complaints',
