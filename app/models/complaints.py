@@ -1,18 +1,20 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import BaseModel as SchemaModel
+from sqlalchemy import Column, String
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
+from app.schemas.base import CreatedAtSchema, IDSchema
 
 if TYPE_CHECKING:
     from app.models.users import UserModel
 
 
 class ComplaintStatus(str, Enum):
-    CREATED = 'created'
+    NEW = 'new'
+    IN_PROGRESS = 'in_progress'
     RESOLVED = 'resolved'
     REJECTED = 'rejected'
 
@@ -25,35 +27,44 @@ class ComplaintReason(str, Enum):
     OTHER = 'other'
 
 
-class ComplaintBase(TimestampedModel):
-    complainant_id: int = Field(foreign_key='users.id')
-    reported_user_id: int = Field(foreign_key='users.id')
+class ComplaintBase(SchemaModel):
+    complainant_id: int
+    reported_user_id: int
     reason: ComplaintReason
-    status: ComplaintStatus = Field(default=ComplaintStatus.CREATED)
-    screenshot_url_for_report: Optional[str] = None
+    screenshots: Optional[str] = None
 
 
 class ComplaintCreate(ComplaintBase):
     pass
 
 
-class ComplaintUpdate(SQLModel):
+class ComplaintUpdate(SchemaModel):
     status: Optional[ComplaintStatus] = None
-    screenshot_url_for_report: Optional[str] = None
 
 
-class ComplaintPublic(ComplaintBase, IDModel):
-    pass
+class ComplaintPublic(ComplaintBase, IDSchema, CreatedAtSchema):
+    status: ComplaintStatus
 
 
-class ComplaintModel(ComplaintBase, IDModel, table=True):
+class ComplaintModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'complaints'
 
-    complainant: 'UserModel' = Relationship(
-        back_populates='sent_complaints',
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.complainant_id]'},
+    complainant_id: int = Field(foreign_key='users.id')
+    reported_user_id: int = Field(foreign_key='users.id')
+    reason: ComplaintReason
+    screenshots: Optional[str] = Field(
+        default=None,
+        sa_column=Column('screenshot_url_for_report', String(), nullable=True),
     )
-    reported_user: 'UserModel' = Relationship(
+    status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
+
+    complainant: Optional['UserModel'] = Relationship(
+        back_populates='sent_complaints',
+        sa_relationship_kwargs={
+            'foreign_keys': '[ComplaintModel.complainant_id]',
+        },
+    )
+    reported_user: Optional['UserModel'] = Relationship(
         back_populates='received_complaints',
         sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
     )

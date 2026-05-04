@@ -5,13 +5,16 @@ description = "RoomieMatch backend"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "asyncpg>=0.31.0",
     "fastapi[standard]>=0.135.2",
+    "greenlet>=3.3.2",
+    "passlib[argon2]>=1.7.4",
     "pydantic[email]>=2.12.5",
     "pydantic-settings>=2.8.1",
+    "python-generics>=0.2.4",
     "sqlmodel>=0.0.37",
     "uvicorn>=0.41.0",
     "alembic>=1.16.0",
-    "asyncpg>=0.30.0",
     "psycopg[binary]>=3.3.3",
 ]
 

@@ -1,12 +1,12 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
+from pydantic import BaseModel as SchemaModel
 from sqlalchemy import UniqueConstraint
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
+from app.schemas.base import CreatedAtSchema, IDSchema
 
 if TYPE_CHECKING:
     from app.models.deals import DealModel
@@ -18,9 +18,8 @@ class ReactionType(str, Enum):
     DISLIKE = 'dislike'
 
 
-class ReactionBase(TimestampedModel):
-    profile_id: int = Field(foreign_key='profiles.id')
-    deal_id: int = Field(foreign_key='deals.id')
+class ReactionBase(SchemaModel):
+    profile_id: int
     reaction_type: ReactionType
 
 
@@ -28,19 +27,23 @@ class ReactionCreate(ReactionBase):
     pass
 
 
-class ReactionUpdate(SQLModel):
+class ReactionUpdate(SchemaModel):
     reaction_type: Optional[ReactionType] = None
 
 
-class ReactionPublic(ReactionBase, IDModel):
-    pass
+class ReactionPublic(ReactionBase, IDSchema, CreatedAtSchema):
+    deal_id: int
 
 
-class ReactionModel(ReactionBase, IDModel, table=True):
+class ReactionModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'reactions'
     __table_args__ = (
         UniqueConstraint('profile_id', 'deal_id', name='unique_profile_deal_reaction'),
     )
 
-    profile: 'ProfileModel' = Relationship(back_populates='sent_reactions')
-    deal: 'DealModel' = Relationship(back_populates='reactions')
+    profile_id: int = Field(foreign_key='profiles.id')
+    reaction_type: ReactionType
+    deal_id: int = Field(foreign_key='deals.id')
+
+    profile: Optional['ProfileModel'] = Relationship(back_populates='sent_reactions')
+    deal: Optional['DealModel'] = Relationship(back_populates='reactions')

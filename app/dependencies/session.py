@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+import app.models  # noqa: F401
 from app.db.engine import async_session_maker
 
 

@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 
+from app.routers.api import api_router
+
 app = FastAPI()
-
-
-@app.get('/')
-async def main_page() -> dict[str, str]:
-    return {'Hello': 'World'}
+app.include_router(api_router)

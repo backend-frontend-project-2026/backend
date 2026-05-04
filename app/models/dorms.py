@@ -1,38 +1,44 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import BaseModel as SchemaModel
+from pydantic import Field as SchemaField
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
+from app.schemas.base import IDSchema
 
 if TYPE_CHECKING:
     from app.models.deals import DealModel
     from app.models.universities import UniversityModel
 
 
-class DormBase(TimestampedModel):
-    uni_id: int = Field(foreign_key='universities.id')
-    name: str = Field(max_length=255)
-    address: str = Field(max_length=255)
+class DormBase(SchemaModel):
+    name: str = SchemaField(max_length=255)
+    city: str
+    address: str = SchemaField(max_length=255)
 
 
 class DormCreate(DormBase):
     pass
 
 
-class DormUpdate(SQLModel):
-    uni_id: Optional[int] = None
-    name: Optional[str] = Field(default=None, max_length=255)
-    address: Optional[str] = Field(default=None, max_length=255)
+class DormUpdate(SchemaModel):
+    name: Optional[str] = SchemaField(default=None, max_length=255)
+    city: Optional[str] = None
+    address: Optional[str] = SchemaField(default=None, max_length=255)
 
 
-class DormPublic(DormBase, IDModel):
-    pass
+class DormPublic(DormBase, IDSchema):
+    uni_id: int
 
 
-class DormModel(DormBase, IDModel, table=True):
+class DormModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'dorms'
+
+    uni_id: int = Field(foreign_key='universities.id')
+    name: str = Field(max_length=255)
+    city: str
+    address: str = Field(max_length=255)
 
     university: Optional['UniversityModel'] = Relationship(back_populates='dorms')
     deals: list['DealModel'] = Relationship(back_populates='dorm')

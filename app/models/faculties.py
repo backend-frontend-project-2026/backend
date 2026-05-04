@@ -1,34 +1,36 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import BaseModel as SchemaModel
+from pydantic import Field as SchemaField
+from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
+from app.schemas.base import IDSchema
 
 if TYPE_CHECKING:
     from app.models.universities import UniversityModel
 
 
-class FacultyBase(TimestampedModel):
-    uni_id: int = Field(foreign_key='universities.id')
-    name: str = Field(max_length=255)
+class FacultyBase(SchemaModel):
+    name: str = SchemaField(max_length=255)
 
 
 class FacultyCreate(FacultyBase):
     pass
 
 
-class FacultyUpdate(SQLModel):
-    uni_id: Optional[int] = None
-    name: Optional[str] = Field(default=None, max_length=255)
+class FacultyUpdate(SchemaModel):
+    name: Optional[str] = SchemaField(default=None, max_length=255)
 
 
-class FacultyPublic(FacultyBase, IDModel):
-    pass
+class FacultyPublic(FacultyBase, IDSchema):
+    uni_id: int
 
 
-class FacultyModel(FacultyBase, IDModel, table=True):
+class FacultyModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'faculties'
+
+    uni_id: int = Field(foreign_key='universities.id')
+    name: str = Field(max_length=255)
 
     university: Optional['UniversityModel'] = Relationship(back_populates='faculties')
