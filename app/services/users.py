@@ -1,13 +1,11 @@
 from typing import Any, Optional
 
 from app.dependencies.repositories import UserRepository, UserRepositoryDep
-from app.models.users import UserModel
+from app.models.users import UserCreate, UserModel, UserUpdate
 from app.schemas.users import (
-    UserCreate,
     UserFilters,
     UserListResponse,
     UserResponse,
-    UserUpdate,
 )
 from app.services.crud import CrudService
 from app.utils.hashing import get_password_hash

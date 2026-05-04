@@ -1,12 +1,11 @@
 from typing import Optional
 
 from app.dependencies.repositories import ProfileRepository, ProfileRepositoryDep
-from app.models.profiles import ProfileModel
+from app.models.profiles import ProfileModel, ProfileUpdate
 from app.schemas.profiles import (
     ProfileFilters,
     ProfileListResponse,
     ProfileResponse,
-    ProfileUpdate,
 )
 from app.services.crud import CrudService
 

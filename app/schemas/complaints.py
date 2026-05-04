@@ -1,38 +1,15 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-
 from app.models.complaints import (
-    ComplaintReason,
+    ComplaintPublic,
     ComplaintStatus,
 )
 from app.schemas.base import (
     ApiResponseModel,
     CommonListFilters,
-    CreatedAtSchema,
-    IDSchema,
     PaginatedResponse,
 )
-
-
-class ComplaintBase(BaseModel):
-    complainant_id: int
-    reported_user_id: int
-    reason: ComplaintReason
-    screenshots: Optional[str] = None
-
-
-class ComplaintCreate(ComplaintBase):
-    pass
-
-
-class ComplaintUpdate(BaseModel):
-    status: Optional[ComplaintStatus] = None
-
-
-class ComplaintPublic(ComplaintBase, IDSchema, CreatedAtSchema):
-    status: ComplaintStatus
 
 
 class ComplaintResponse(ApiResponseModel, ComplaintPublic):

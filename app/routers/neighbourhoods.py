@@ -3,12 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import NeighbourhoodServiceDep
+from app.models.neighbourhoods import NeighbourhoodCreate, NeighbourhoodUpdate
 from app.schemas.neighbourhoods import (
-    NeighbourhoodCreate,
     NeighbourhoodFilters,
     NeighbourhoodListResponse,
     NeighbourhoodResponse,
-    NeighbourhoodUpdate,
 )
 
 router = APIRouter(prefix='/neighbourhoods', tags=['Neighbourhoods'])
@@ -26,7 +25,7 @@ async def list_neighbourhoods(
 async def get_neighbourhood(
     neighbourhood_id: int,
     neighbourhood_service: NeighbourhoodServiceDep,
-) -> NeighbourhoodResponse:
+):
     neighbourhood = await neighbourhood_service.get_by_id(neighbourhood_id)
     if neighbourhood is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not found')
@@ -50,7 +49,7 @@ async def update_neighbourhood(
     neighbourhood_id: int,
     neighbourhood_update: NeighbourhoodUpdate,
     neighbourhood_service: NeighbourhoodServiceDep,
-) -> NeighbourhoodResponse:
+):
     neighbourhood = await neighbourhood_service.update(
         neighbourhood_id, neighbourhood_update
     )
@@ -59,12 +58,12 @@ async def update_neighbourhood(
     return neighbourhood
 
 
-@router.delete('/{neighbourhood_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{neighbourhood_id}', response_model=NeighbourhoodResponse)
 async def delete_neighbourhood(
     neighbourhood_id: int,
     neighbourhood_service: NeighbourhoodServiceDep,
-) -> Response:
+):
     neighbourhood = await neighbourhood_service.delete(neighbourhood_id)
     if neighbourhood is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not found')
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return neighbourhood

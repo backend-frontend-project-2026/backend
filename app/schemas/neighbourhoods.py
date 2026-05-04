@@ -1,31 +1,11 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
-
+from app.models.neighbourhoods import NeighbourhoodPublic
 from app.schemas.base import (
     ApiResponseModel,
     CommonListFilters,
-    IDSchema,
     PaginatedResponse,
 )
-
-
-class NeighbourhoodBase(BaseModel):
-    city: str = Field(max_length=100)
-    district_name: str = Field(max_length=100)
-
-
-class NeighbourhoodCreate(NeighbourhoodBase):
-    pass
-
-
-class NeighbourhoodUpdate(BaseModel):
-    city: Optional[str] = Field(default=None, max_length=100)
-    district_name: Optional[str] = Field(default=None, max_length=100)
-
-
-class NeighbourhoodPublic(NeighbourhoodBase, IDSchema):
-    pass
 
 
 class NeighbourhoodResponse(ApiResponseModel, NeighbourhoodPublic):

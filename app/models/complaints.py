@@ -1,10 +1,12 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
+from pydantic import BaseModel as SchemaModel
 from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship
 
 from app.models.base import IDModel, TimestampedModel
+from app.schemas.base import CreatedAtSchema, IDSchema
 
 if TYPE_CHECKING:
     from app.models.users import UserModel
@@ -23,6 +25,26 @@ class ComplaintReason(str, Enum):
     FAKE = 'fake'
     INAPPROPRIATE_CONTENT = 'inappropriate_content'
     OTHER = 'other'
+
+
+class ComplaintBase(SchemaModel):
+    complainant_id: int
+    reported_user_id: int
+    reason: ComplaintReason
+    screenshots: Optional[str] = None
+
+
+class ComplaintCreate(ComplaintBase):
+    pass
+
+
+class ComplaintUpdate(SchemaModel):
+    status: Optional[ComplaintStatus] = None
+
+
+class ComplaintPublic(ComplaintBase, IDSchema, CreatedAtSchema):
+    status: ComplaintStatus
+
 
 class ComplaintModel(IDModel, TimestampedModel, table=True):
     __tablename__ = 'complaints'

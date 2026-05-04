@@ -3,40 +3,39 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import DormServiceDep
+from app.models.dorms import DormCreate, DormUpdate
 from app.schemas.dorms import (
-    DormCreate,
     DormFilters,
     DormListResponse,
     DormResponse,
-    DormUpdate,
 )
 
 router = APIRouter(prefix='/universities/{university_id}/dorms', tags=['Dorms'])
 
 
-@router.get('')
+@router.get('', response_model=DormListResponse)
 async def list_dorms(
     dorm_service: DormServiceDep,
     filters: Annotated[DormFilters, Depends()],
-) -> DormListResponse:
+):
     return await dorm_service.get_list(filters)
 
 
-@router.post('', status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=DormResponse)
 async def create_dorm(
     university_id: int,
     dorm_create: DormCreate,
     dorm_service: DormServiceDep,
-) -> DormResponse:
+):
     return await dorm_service.create(dorm_create, uni_id=university_id)
 
 
-@router.get('/{dorm_id}')
+@router.get('/{dorm_id}', response_model=DormResponse)
 async def get_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
-) -> DormResponse:
+):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
         raise HTTPException(
@@ -45,13 +44,13 @@ async def get_dorm(
     return dorm
 
 
-@router.put('/{dorm_id}')
+@router.put('/{dorm_id}', response_model=DormResponse)
 async def update_dorm(
     university_id: int,
     dorm_id: int,
     dorm_update: DormUpdate,
     dorm_service: DormServiceDep,
-) -> DormResponse:
+):
     existing_dorm = await dorm_service.get_by_id(dorm_id)
     if existing_dorm is None or existing_dorm.uni_id != university_id:
         raise HTTPException(
@@ -68,12 +67,12 @@ async def update_dorm(
     return dorm
 
 
-@router.delete('/{dorm_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{dorm_id}', response_model=DormResponse)
 async def delete_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
-) -> Response:
+):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
         raise HTTPException(
@@ -84,4 +83,4 @@ async def delete_dorm(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
         )
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return deleted_dorm
