@@ -13,12 +13,15 @@ if TYPE_CHECKING:
 
 
 class TagCategory(str, Enum):
-    NOISE = 'noise'
-    BAD_HABITS = 'bad_habits'
-    GUESTS = 'guests'
-    CLEANLINESS = 'cleanliness'
-    ROOM_ORDER = 'room_order'
     SLEEP_SCHEDULE = 'sleep_schedule'
+    CLEANLINESS = 'cleanliness'
+    NOISE_LEVEL = 'noise_level'
+    GUEST_FREQUENCY = 'guest_frequency'
+    SMOKING_PREFERENCE = 'smoking_preference'
+    ALCOHOL_PREFERENCE = 'alcohol_preference'
+    ROOM_ORDER_PREFERENCE = 'room_order_preference'
+    PET_PREFERENCE = 'pet_preference'
+    INTERESTS = 'interests'
 
 
 class ProfileTagLink(SQLModel, table=True):
@@ -31,6 +34,7 @@ class ProfileTagLink(SQLModel, table=True):
 class TagBase(SchemaModel):
     category: TagCategory
     value: str = SchemaField(max_length=100)
+    label: str = SchemaField(max_length=255)
 
 
 class TagCreate(TagBase):
@@ -40,6 +44,7 @@ class TagCreate(TagBase):
 class TagUpdate(SchemaModel):
     category: Optional[TagCategory] = None
     value: Optional[str] = SchemaField(default=None, max_length=100)
+    label: Optional[str] = SchemaField(default=None, max_length=255)
 
 
 class TagPublic(TagBase, IDSchema):
@@ -51,6 +56,7 @@ class TagModel(IDModel, TimestampedModel, table=True):
 
     category: TagCategory
     value: str = Field(max_length=100)
+    label: str = Field(max_length=255)
 
     profiles: list['ProfileModel'] = Relationship(
         back_populates='tags',
