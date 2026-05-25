@@ -13,6 +13,7 @@ from app.models.tags import ProfileTagLink, TagModel
 from app.models.universities import UniversityModel
 from app.models.user_blocks import UserBlockModel
 from app.models.users import UserModel
+from app.models.refresh_sessions import RefreshSessionModel
 
 __all__ = [
     'UserModel',
@@ -32,4 +33,5 @@ __all__ = [
     'UserBlockModel',
     'EmailVerificationCodeModel',
     'PasswordResetTokenModel',
+    'RefreshSessionModel',
 ]

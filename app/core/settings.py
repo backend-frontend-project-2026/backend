@@ -9,6 +9,11 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     DB_NAME: str
+    JWT_SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = 900
+    REFRESH_TOKEN_EXPIRE_SECONDS: int = 2_592_000
+    REFRESH_COOKIE_NAME: str = 'refresh_token'
+    JWT_ALGORITHM: str = 'HS256'
 
     model_config = SettingsConfigDict(
         env_file='.env',
