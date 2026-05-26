@@ -3,12 +3,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from typing import Annotated
 
+from fastapi import Security
 from fastapi import Depends
 
 from app.core.settings import settings
 from app.dependencies.auth import get_current_user
 from app.dependencies.session import SessionDep
-from app.models.users import UserPublic
+from app.models.users import UserPublic, UserModel
 from app.services.auth import AuthService
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
@@ -73,8 +74,8 @@ async def login(
 
 @router.get('/me', response_model=UserPublic)
 async def get_me(
-    current_user: Annotated[UserPublic, Depends(get_current_user)],
-) -> UserPublic:
+    current_user: UserModel = Security(get_current_user, scopes=['auth:me']),
+) -> UserModel:
     return current_user
 
 

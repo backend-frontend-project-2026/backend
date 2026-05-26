@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
+from datetime import timedelta
 
 
 class Settings(BaseSettings):
@@ -10,8 +11,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
     JWT_SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_SECONDS: int = 900
-    REFRESH_TOKEN_EXPIRE_SECONDS: int = 2_592_000
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = int(timedelta(minutes=15).total_seconds())
+    REFRESH_TOKEN_EXPIRE_SECONDS: int = int(timedelta(minutes=30).total_seconds())
     REFRESH_COOKIE_NAME: str = 'refresh_token'
     JWT_ALGORITHM: str = 'HS256'
 

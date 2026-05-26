@@ -65,19 +65,23 @@ class AuthService:
 
     @staticmethod
     async def create_token_pair(
-        session: AsyncSession,
-        user: UserModel,
+            session: AsyncSession,
+            user: UserModel,
     ) -> dict[str, str]:
+        scopes = AuthService.get_user_scopes(user)
+
         access_token, access_jti, _ = JWTService.create_token(
             user_id=user.id,
             expires_delta=timedelta(seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS),
             token_type=TokenType.ACCESS,
+            scopes=scopes,
         )
 
         refresh_token, refresh_jti, refresh_expires_at = JWTService.create_token(
             user_id=user.id,
             expires_delta=timedelta(seconds=settings.REFRESH_TOKEN_EXPIRE_SECONDS),
             token_type=TokenType.REFRESH,
+            scopes=['auth:refresh'],
         )
 
         refresh_session = RefreshSessionModel(
@@ -95,6 +99,28 @@ class AuthService:
             'refresh_token': refresh_token,
             'token_type': 'bearer',
         }
+
+    @staticmethod
+    def get_user_scopes(user: UserModel) -> list[str]:
+        role = user.role.value if hasattr(user.role, 'value') else str(user.role)
+
+        public_scopes = [
+            'auth:me',
+            'profiles:read',
+            'profiles:update',
+        ]
+
+        admin_scopes = [
+            *public_scopes,
+            'users:manage',
+            'complaints:manage',
+            'references:manage',
+        ]
+
+        if role.lower() == 'admin':
+            return admin_scopes
+
+        return public_scopes
 
     @staticmethod
     async def get_user_by_access_token(
@@ -186,3 +212,4 @@ class AuthService:
             refresh_session.invalidated_at = datetime.now(timezone.utc)
             session.add(refresh_session)
             await session.commit()
+

@@ -13,7 +13,12 @@ class TokenType:
 
 class JWTService:
     @staticmethod
-    def create_token(user_id: int, expires_delta: timedelta, token_type: str) -> tuple[str, str, datetime]:
+    def create_token(
+            user_id: int,
+            expires_delta: timedelta,
+            token_type: str,
+            scopes: list[str] | None = None,
+    ) -> tuple[str, str, datetime]:
         now = datetime.now(timezone.utc)
         expires_at = now + expires_delta
         jti = str(uuid4())
@@ -24,6 +29,7 @@ class JWTService:
             'sub': str(user_id),
             'jti': jti,
             'type': token_type,
+            'scope': ' '.join(scopes or []),
         }
 
         token = jwt.encode(
