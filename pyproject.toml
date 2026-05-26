@@ -16,6 +16,9 @@ dependencies = [
     "uvicorn>=0.41.0",
     "alembic>=1.16.0",
     "psycopg[binary]>=3.3.3",
+    "pyjwt>=2.13.0",
+    "pwdlib>=0.3.0",
+    "python-multipart>=0.0.27",
 ]
 
 [tool.mypy]

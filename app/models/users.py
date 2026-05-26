@@ -14,22 +14,23 @@ if TYPE_CHECKING:
     from app.models.profiles import ProfileModel
 
 
-class UserStatus(str, Enum):
-    CREATED = 'created'
-    CONFIRMED = 'confirmed'
-    BANNED = 'banned'
-
-
 class UserRole(str, Enum):
-    USER = 'user'
-    ADMIN = 'admin'
+    STUDENT = 'STUDENT'
+    ADMIN = 'ADMIN'
+    MODERATOR = 'MODERATOR'
+
+
+class UserStatus(str, Enum):
+    CREATED = 'CREATED'
+    CONFIRMED = 'CONFIRMED'
+    BANNED = 'BANNED'
 
 
 class UserBase(SchemaModel):
     first_name: str = SchemaField(max_length=50)
     last_name: str = SchemaField(max_length=50)
     email: EmailStr
-    role: UserRole = UserRole.USER
+    role: UserRole = UserRole.STUDENT
     status: UserStatus = UserStatus.CREATED
 
 
@@ -56,7 +57,7 @@ class UserModel(IDModel, TimestampedModel, table=True):
     first_name: str = Field(max_length=50)
     last_name: str = Field(max_length=50)
     email: EmailStr = Field(index=True)
-    role: UserRole = Field(default=UserRole.USER)
+    role: UserRole = Field(default=UserRole.STUDENT)
     status: UserStatus = Field(default=UserStatus.CREATED)
     password_hash: str
 
