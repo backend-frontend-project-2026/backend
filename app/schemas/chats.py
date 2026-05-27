@@ -3,17 +3,12 @@ from typing import Optional
 
 from app.models.chats import ChatPublic
 from app.schemas.base import (
-    ApiResponseModel,
     CommonListFilters,
     PaginatedResponse,
 )
 
 
-class ChatResponse(ApiResponseModel, ChatPublic):
-    pass
-
-
-class ChatListResponse(PaginatedResponse[ChatResponse]):
+class ChatListResponse(PaginatedResponse[ChatPublic]):
     pass
 
 

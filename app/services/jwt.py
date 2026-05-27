@@ -14,10 +14,10 @@ class TokenType:
 class JWTService:
     @staticmethod
     def create_token(
-            user_id: int,
-            expires_delta: timedelta,
-            token_type: str,
-            scopes: list[str] | None = None,
+        user_id: int,
+        expires_delta: timedelta,
+        token_type: str,
+        scopes: list[str] | None = None,
     ) -> tuple[str, str, datetime]:
         now = datetime.now(timezone.utc)
         expires_at = now + expires_delta
@@ -39,6 +39,27 @@ class JWTService:
         )
 
         return token, jti, expires_at
+
+    @staticmethod
+    def create_access_token(
+        user_id: int,
+        scopes: list[str] | None = None,
+    ) -> tuple[str, str, datetime]:
+        return JWTService.create_token(
+            user_id=user_id,
+            expires_delta=timedelta(seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS),
+            token_type=TokenType.ACCESS,
+            scopes=scopes,
+        )
+
+    @staticmethod
+    def create_refresh_token(user_id: int) -> tuple[str, str, datetime]:
+        return JWTService.create_token(
+            user_id=user_id,
+            expires_delta=timedelta(seconds=settings.REFRESH_TOKEN_EXPIRE_SECONDS),
+            token_type=TokenType.REFRESH,
+            scopes=['auth:refresh'],
+        )
 
     @staticmethod
     def decode_token(token: str) -> dict:

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 from pydantic import BaseModel as SchemaModel
 from sqlalchemy import Column, String
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 from app.schemas.base import CreatedAtSchema, IDSchema
@@ -27,11 +27,15 @@ class ComplaintReason(str, Enum):
     OTHER = 'other'
 
 
-class ComplaintBase(SchemaModel):
-    complainant_id: int
-    reported_user_id: int
+class ComplaintBase(SQLModel):
+    complainant_id: int = Field(foreign_key='users.id')
+    reported_user_id: int = Field(foreign_key='users.id')
     reason: ComplaintReason
-    screenshots: Optional[str] = None
+    screenshots: Optional[str] = Field(
+        default=None,
+        sa_column=Column('screenshot_url_for_report', String(), nullable=True),
+    )
+    status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
 
 
 class ComplaintCreate(ComplaintBase):
@@ -43,20 +47,11 @@ class ComplaintUpdate(SchemaModel):
 
 
 class ComplaintPublic(ComplaintBase, IDSchema, CreatedAtSchema):
-    status: ComplaintStatus
+    pass
 
 
-class ComplaintModel(IDModel, TimestampedModel, table=True):
+class ComplaintModel(ComplaintBase, IDModel, TimestampedModel, table=True):
     __tablename__ = 'complaints'
-
-    complainant_id: int = Field(foreign_key='users.id')
-    reported_user_id: int = Field(foreign_key='users.id')
-    reason: ComplaintReason
-    screenshots: Optional[str] = Field(
-        default=None,
-        sa_column=Column('screenshot_url_for_report', String(), nullable=True),
-    )
-    status: ComplaintStatus = Field(default=ComplaintStatus.NEW)
 
     complainant: Optional['UserModel'] = Relationship(
         back_populates='sent_complaints',
@@ -66,5 +61,7 @@ class ComplaintModel(IDModel, TimestampedModel, table=True):
     )
     reported_user: Optional['UserModel'] = Relationship(
         back_populates='received_complaints',
-        sa_relationship_kwargs={'foreign_keys': '[ComplaintModel.reported_user_id]'},
+        sa_relationship_kwargs={
+            'foreign_keys': '[ComplaintModel.reported_user_id]',
+        },
     )
