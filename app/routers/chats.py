@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.dependencies.services import ChatServiceDep
 from app.models.chats import ChatCreate
-from app.schemas.chats import ChatFilters, ChatListResponse, ChatResponse
-
+from app.models.chats import ChatPublic
+from app.schemas.chats import ChatFilters, ChatListResponse
 router = APIRouter(prefix='/chats', tags=['Chats'])
 
 
-@router.get('', response_model=ChatListResponse)
+@router.get('', response_model=ChatPublic)
 async def list_chats(
     chat_service: ChatServiceDep,
     filters: Annotated[ChatFilters, Depends()],
@@ -17,7 +17,7 @@ async def list_chats(
     return await chat_service.get_list(filters)
 
 
-@router.post('', response_model=ChatResponse)
+@router.post('', response_model=ChatPublic)
 async def create_chat(
     chat_create: ChatCreate,
     chat_service: ChatServiceDep,
@@ -25,7 +25,7 @@ async def create_chat(
     return await chat_service.create(chat_create)
 
 
-@router.get('/{chat_id}', response_model=ChatResponse)
+@router.get('/{chat_id}', response_model=ChatPublic)
 async def get_chat(
     chat_id: int,
     chat_service: ChatServiceDep,
@@ -38,7 +38,7 @@ async def get_chat(
     return chat
 
 
-@router.delete('/{chat_id}', response_model=ChatResponse)
+@router.delete('/{chat_id}', response_model=ChatPublic)
 async def delete_chat(
     chat_id: int,
     chat_service: ChatServiceDep,

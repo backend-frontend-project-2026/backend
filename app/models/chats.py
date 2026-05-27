@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from pydantic import BaseModel as SchemaModel
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
 from app.schemas.base import CreatedAtSchema, IDSchema
@@ -12,9 +12,9 @@ if TYPE_CHECKING:
     from app.models.profiles import ProfileModel
 
 
-class ChatBase(SchemaModel):
-    profile_id: int
-    deal_id: int
+class ChatBase(SQLModel):
+    profile_id: int = Field(foreign_key='profiles.id')
+    deal_id: int = Field(foreign_key='deals.id')
 
 
 class ChatCreate(ChatBase):
@@ -30,11 +30,8 @@ class ChatPublic(ChatBase, IDSchema, CreatedAtSchema):
     pass
 
 
-class ChatModel(IDModel, TimestampedModel, table=True):
+class ChatModel(ChatBase, IDModel, TimestampedModel, table=True):
     __tablename__ = 'chats'
-
-    profile_id: int = Field(foreign_key='profiles.id')
-    deal_id: int = Field(foreign_key='deals.id')
 
     profile: Optional['ProfileModel'] = Relationship(back_populates='chats')
     deal: Optional['DealModel'] = Relationship(back_populates='chats')
