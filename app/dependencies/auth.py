@@ -1,7 +1,8 @@
 from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+from jwt import PyJWTError
 
-from app.dependencies.session import SessionDep
+from app.dependencies.repositories import UserAuthRepositoryDep
 from app.models.users import UserModel
 from app.services.auth import AuthService
 from app.services.jwt import JWTService
@@ -10,21 +11,23 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='/api/v1/auth/login',
     scopes={
         'auth:me': 'Read current user',
-        'profiles:read': 'Read profiles',
-        'profiles:update': 'Update own profile',
-        'users:manage': 'Manage users',
-        'complaints:manage': 'Manage complaints',
-        'references:manage': 'Manage references',
     },
 )
 
 
 async def get_current_user(
     security_scopes: SecurityScopes,
-    session: SessionDep,
+    user_repository: UserAuthRepositoryDep,
     token: str = Depends(oauth2_scheme),
 ) -> UserModel:
-    payload = JWTService.decode_token(token)
+    try:
+        payload = JWTService.decode_token(token)
+    except PyJWTError as error:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Invalid token',
+        ) from error
+
     token_scopes = payload.get('scope', '').split()
 
     for scope in security_scopes.scopes:
@@ -35,7 +38,7 @@ async def get_current_user(
             )
 
     return await AuthService.get_user_by_access_token(
-        session=session,
+        user_repository=user_repository,
         access_token=token,
     )
 
