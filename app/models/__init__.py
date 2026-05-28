@@ -14,6 +14,12 @@ from app.models.universities import UniversityModel
 from app.models.user_blocks import UserBlockModel
 from app.models.users import UserModel
 from app.models.refresh_sessions import RefreshSessionModel
+from app.models.roles import (
+    PermissionModel,
+    RoleModel,
+    RolePermissionLink,
+    UserRoleLink,
+)
 
 __all__ = [
     'UserModel',
@@ -34,4 +40,8 @@ __all__ = [
     'EmailVerificationCodeModel',
     'PasswordResetTokenModel',
     'RefreshSessionModel',
+    'RoleModel',
+    'UserRoleLink',
+    'PermissionModel',
+    'RolePermissionLink',
 ]

@@ -15,8 +15,13 @@ from app.models.reactions import ReactionModel
 from app.models.tags import TagModel
 from app.models.universities import UniversityModel
 from app.models.users import UserModel
-from app.repositories.auth import RefreshSessionRepository, UserAuthRepository
+from app.repositories.auth import (
+    RefreshSessionRepository,
+    RoleRepository,
+    UserAuthRepository,
+)
 from app.utils.repository import Repository
+from app.models.roles import RoleModel
 
 
 def get_user_repository(session: SessionDep) -> Repository[UserModel]:
@@ -79,9 +84,14 @@ def get_reaction_repository(session: SessionDep) -> Repository[ReactionModel]:
     return Repository[ReactionModel](session)
 
 
+def get_role_repository(session: SessionDep) -> RoleRepository:
+    return RoleRepository(session)
+
+
 type UserRepository = Repository[UserModel]
 type UserAuthRepositoryType = UserAuthRepository
 type RefreshSessionRepositoryType = RefreshSessionRepository
+type RoleRepositoryType = RoleRepository
 type ProfileRepository = Repository[ProfileModel]
 type DealRepository = Repository[DealModel]
 type ComplaintRepository = Repository[ComplaintModel]
@@ -103,6 +113,10 @@ UserAuthRepositoryDep = Annotated[
 RefreshSessionRepositoryDep = Annotated[
     RefreshSessionRepositoryType,
     Depends(get_refresh_session_repository),
+]
+RoleRepositoryDep = Annotated[
+    RoleRepositoryType,
+    Depends(get_role_repository),
 ]
 ProfileRepositoryDep = Annotated[ProfileRepository, Depends(get_profile_repository)]
 DealRepositoryDep = Annotated[DealRepository, Depends(get_deal_repository)]

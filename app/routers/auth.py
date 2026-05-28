@@ -8,6 +8,7 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.repositories import (
     RefreshSessionRepositoryDep,
     UserAuthRepositoryDep,
+    RoleRepositoryDep,
 )
 from app.models.users import UserModel, UserPublic
 from app.schemas.auth import MessageResponse, RegisterRequest, TokenResponse
@@ -20,9 +21,11 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
 async def register(
     payload: RegisterRequest,
     user_repository: UserAuthRepositoryDep,
+    role_repository: RoleRepositoryDep,
 ) -> MessageResponse:
     await AuthService.register_user(
         user_repository=user_repository,
+        role_repository=role_repository,
         first_name=payload.first_name,
         last_name=payload.last_name,
         email=str(payload.email),

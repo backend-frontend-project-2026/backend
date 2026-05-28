@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 
+from app.dependencies.auth import get_current_user
 from app.dependencies.services import TagServiceDep
-from app.models.tags import TagCreate, TagUpdate
+from app.models.users import UserModel
 from app.schemas.tags import (
     TagFilters,
     TagListResponse,
@@ -17,6 +18,10 @@ router = APIRouter(prefix='/tags', tags=['Tags'])
 async def list_tags(
     tag_service: TagServiceDep,
     filters: Annotated[TagFilters, Depends()],
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:read'],
+    ),
 ):
     return await tag_service.get_list(filters)
 
@@ -25,10 +30,17 @@ async def list_tags(
 async def get_tag(
     tag_id: int,
     tag_service: TagServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:read'],
+    ),
 ):
     tag = await tag_service.get_by_id(tag_id)
     if tag is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not found')
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Not found',
+        )
     return tag
 
 

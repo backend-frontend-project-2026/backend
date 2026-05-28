@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Optional
 
-from pydantic import BaseModel as SchemaModel
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.base import IDModel, TimestampedModel
@@ -21,7 +20,7 @@ class ChatCreate(ChatBase):
     pass
 
 
-class ChatUpdate(SchemaModel):
+class ChatUpdate(SQLModel):
     profile_id: Optional[int] = None
     deal_id: Optional[int] = None
 
