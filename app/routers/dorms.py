@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 
+from app.dependencies.auth import get_current_user
 from app.dependencies.services import DormServiceDep
 from app.models.dorms import DormCreate, DormUpdate
+from app.models.users import UserModel
 from app.schemas.dorms import (
     DormFilters,
     DormListResponse,
@@ -17,6 +19,10 @@ router = APIRouter(prefix='/universities/{university_id}/dorms', tags=['Dorms'])
 async def list_dorms(
     dorm_service: DormServiceDep,
     filters: Annotated[DormFilters, Depends()],
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:read'],
+    ),
 ):
     return await dorm_service.get_list(filters)
 
@@ -26,6 +32,10 @@ async def create_dorm(
     university_id: int,
     dorm_create: DormCreate,
     dorm_service: DormServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:create'],
+    ),
 ):
     return await dorm_service.create(dorm_create, uni_id=university_id)
 
@@ -35,11 +45,16 @@ async def get_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:read'],
+    ),
 ):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Dorm or university not found',
         )
     return dorm
 
@@ -50,19 +65,26 @@ async def update_dorm(
     dorm_id: int,
     dorm_update: DormUpdate,
     dorm_service: DormServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:update'],
+    ),
 ):
     existing_dorm = await dorm_service.get_by_id(dorm_id)
     if existing_dorm is None or existing_dorm.uni_id != university_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Dorm or university not found',
         )
+
     dorm = await dorm_service.update(
         dorm_id,
         dorm_update,
     )
     if dorm is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Dorm or university not found',
         )
     return dorm
 
@@ -72,15 +94,22 @@ async def delete_dorm(
     university_id: int,
     dorm_id: int,
     dorm_service: DormServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['references:delete'],
+    ),
 ):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Dorm or university not found',
         )
+
     deleted_dorm = await dorm_service.delete(dorm_id)
     if deleted_dorm is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Dorm or university not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Dorm or university not found',
         )
     return deleted_dorm

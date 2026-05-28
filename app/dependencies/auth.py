@@ -11,6 +11,40 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='/api/v1/auth/login',
     scopes={
         'auth:me': 'Read current user',
+
+        'users:read': 'Read users',
+        'users:create': 'Create users',
+        'users:update': 'Update users',
+        'users:delete': 'Delete users',
+
+        'profiles:read': 'Read profiles',
+        'profiles:create': 'Create profiles',
+        'profiles:update': 'Update profiles',
+        'profiles:delete': 'Delete profiles',
+
+        'chats:read': 'Read chats',
+        'chats:create': 'Create chats',
+        'chats:delete': 'Delete chats',
+
+        'messages:read': 'Read messages',
+        'messages:create': 'Create messages',
+        'messages:update': 'Update messages',
+        'messages:delete': 'Delete messages',
+
+        'deals:read': 'Read deals',
+        'deals:create': 'Create deals',
+        'deals:update': 'Update deals',
+        'deals:delete': 'Delete deals',
+
+        'complaints:read': 'Read complaints',
+        'complaints:create': 'Create complaints',
+        'complaints:update': 'Update complaints',
+        'complaints:delete': 'Delete complaints',
+
+        'references:read': 'Read reference data',
+        'references:create': 'Create reference data',
+        'references:update': 'Update reference data',
+        'references:delete': 'Delete reference data',
     },
 )
 

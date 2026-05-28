@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 
 from app.dependencies.repositories import (
     RefreshSessionRepository,
+    RoleRepository,
     UserAuthRepository,
 )
 from app.models.refresh_sessions import RefreshSessionModel
@@ -17,6 +18,7 @@ class AuthService:
     @staticmethod
     async def register_user(
         user_repository: UserAuthRepository,
+        role_repository: RoleRepository,
         first_name: str,
         last_name: str,
         email: str,
@@ -30,12 +32,21 @@ class AuthService:
                 detail='User with this email already exists',
             )
 
+        public_role = await role_repository.get_by_name('public')
+
+        if public_role is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Public role is not initialized',
+            )
+
         user = UserModel(
             first_name=first_name,
             last_name=last_name,
             email=email,
             password_hash=get_password_hash(password),
         )
+        user.roles = [public_role]
 
         return await user_repository.save(user)
 
@@ -66,9 +77,11 @@ class AuthService:
                 detail='User id is missing',
             )
 
+        scopes = AuthService.get_user_scopes(user)
+
         access_token, access_jti, _ = JWTService.create_access_token(
             user_id=user.id,
-            scopes=['auth:me'],
+            scopes=scopes,
         )
 
         refresh_token, refresh_jti, refresh_expires_at = (
@@ -104,7 +117,6 @@ class AuthService:
             )
 
         user_id = int(payload['sub'])
-
         user = await user_repository.get(user_id)
 
         if user is None:
@@ -186,5 +198,14 @@ class AuthService:
 
         refresh_session.is_invalidated = True
         refresh_session.invalidated_at = datetime.now(timezone.utc)
-
         await refresh_session_repository.save(refresh_session)
+
+    @staticmethod
+    def get_user_scopes(user: UserModel) -> list[str]:
+        scopes = set()
+
+        for role in user.roles:
+            for permission in role.permissions:
+                scopes.add(permission.scope)
+
+        return sorted(scopes)
