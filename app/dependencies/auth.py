@@ -45,6 +45,11 @@ oauth2_scheme = OAuth2PasswordBearer(
         'references:create': 'Create reference data',
         'references:update': 'Update reference data',
         'references:delete': 'Delete reference data',
+
+        'roles:read': 'Read roles and permissions',
+        'roles:create': 'Create roles',
+        'roles:update': 'Update roles',
+        'roles:delete': 'Delete roles',
     },
 )
 

@@ -41,3 +41,9 @@ uv run uvicorn app.main:app --reload
 | ACCESS_TOKEN_EXPIRE_SECONDS  | int | Время жизни access-токена в секундах   | 900                   |
 | REFRESH_TOKEN_EXPIRE_SECONDS | int | Время жизни refresh-токена в секундах  | 1800                  |
 | REFRESH_COOKIE_NAME          | str | Название cookie для refresh-токена     | refresh_token         |
+| RBAC_ADMIN_ROLE              | str | Название роли администратора           | admin                 |
+| RBAC_PUBLIC_ROLE             | str | Название публичной роли                | public                |
+| RBAC_ADMIN_EMAIL             | str | Email начального admin-пользователя    | admin@admin.com       |
+| RBAC_ADMIN_PASSWORD          | str | Пароль начального admin-пользователя   | adminpassword         |
+| RBAC_ADMIN_FIRST_NAME        | str | Имя начального admin-пользователя      | Admin                 |
+| RBAC_ADMIN_LAST_NAME         | str | Фамилия начального admin-пользователя  | User                  |

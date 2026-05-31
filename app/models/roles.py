@@ -38,11 +38,17 @@ class RoleModel(RoleBase, IDModel, TimestampedModel, table=True):
     users: list['UserModel'] = Relationship(
         back_populates='roles',
         link_model=UserRoleLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
     permissions: list['PermissionModel'] = Relationship(
         back_populates='roles',
         link_model=RolePermissionLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
+
+    @property
+    def scopes(self) -> list[str]:
+        return [p.scope for p in self.permissions]
 
 
 class PermissionModel(PermissionBase, IDModel, TimestampedModel, table=True):
@@ -51,4 +57,5 @@ class PermissionModel(PermissionBase, IDModel, TimestampedModel, table=True):
     roles: list['RoleModel'] = Relationship(
         back_populates='permissions',
         link_model=RolePermissionLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )

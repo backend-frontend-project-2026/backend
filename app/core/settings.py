@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_SECONDS: int = int(timedelta(minutes=30).total_seconds())
     REFRESH_COOKIE_NAME: str = 'refresh_token'
     JWT_ALGORITHM: str = 'HS256'
+    RBAC_ADMIN_ROLE: str = 'admin'
+    RBAC_PUBLIC_ROLE: str = 'public'
+    RBAC_ADMIN_EMAIL: str = 'admin@admin.com'
+    RBAC_ADMIN_PASSWORD: str = 'adminpassword'
+    RBAC_ADMIN_FIRST_NAME: str = 'Admin'
+    RBAC_ADMIN_LAST_NAME: str = 'User'
 
     model_config = SettingsConfigDict(
         env_file='.env',

@@ -41,8 +41,12 @@ class UserUpdate(SchemaModel):
     password: Optional[str] = SchemaField(default=None, min_length=8, max_length=128)
 
 
+class UserRolesUpdate(SchemaModel):
+    role_ids: list[int]
+
+
 class UserPublic(UserBase, IDSchema, CreatedAtSchema):
-    pass
+    roles: list[str] = []
 
 
 class UserModel(UserBase, IDModel, TimestampedModel, table=True):
@@ -53,6 +57,7 @@ class UserModel(UserBase, IDModel, TimestampedModel, table=True):
     roles: list['RoleModel'] = Relationship(
         back_populates='users',
         link_model=UserRoleLink,
+        sa_relationship_kwargs={'lazy': 'selectin'},
     )
 
     sent_complaints: list['ComplaintModel'] = Relationship(

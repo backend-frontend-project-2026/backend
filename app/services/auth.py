@@ -7,6 +7,7 @@ from app.dependencies.repositories import (
     RoleRepository,
     UserAuthRepository,
 )
+from app.core.settings import settings
 from app.models.refresh_sessions import RefreshSessionModel
 from app.models.users import UserModel
 from app.schemas.auth import TokenPair
@@ -32,7 +33,7 @@ class AuthService:
                 detail='User with this email already exists',
             )
 
-        public_role = await role_repository.get_by_name('public')
+        public_role = await role_repository.get_by_name(settings.RBAC_PUBLIC_ROLE)
 
         if public_role is None:
             raise HTTPException(
