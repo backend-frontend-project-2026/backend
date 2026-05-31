@@ -12,6 +12,8 @@ from app.routers.reactions import router as reactions_router
 from app.routers.messages import router as messages_router
 from app.routers.faculties import router as faculties_router
 from app.routers.dorms import router as dorms_router
+from app.routers.auth import router as auth_router
+from app.routers.roles import router as roles_router
 
 api_router = APIRouter(prefix='/api/v1')
 api_router.include_router(users_router)
@@ -28,4 +30,5 @@ api_router.include_router(faculties_router)
 api_router.include_router(dorms_router)
 api_router.include_router(neighbourhoods_router)
 api_router.include_router(tags_router)
-
+api_router.include_router(auth_router)
+api_router.include_router(roles_router)

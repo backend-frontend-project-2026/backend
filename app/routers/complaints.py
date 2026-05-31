@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 
+from app.dependencies.auth import get_current_user
 from app.dependencies.services import ComplaintServiceDep
 from app.models.complaints import ComplaintCreate, ComplaintUpdate
+from app.models.users import UserModel
 from app.schemas.complaints import (
     ComplaintFilters,
     ComplaintListResponse,
@@ -17,6 +19,10 @@ router = APIRouter(prefix='/complaints', tags=['Complaints'])
 async def list_complaints(
     complaint_service: ComplaintServiceDep,
     filters: Annotated[ComplaintFilters, Depends()],
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['complaints:read'],
+    ),
 ) -> ComplaintListResponse:
     return await complaint_service.get_list(filters)
 
@@ -25,6 +31,10 @@ async def list_complaints(
 async def create_complaint(
     complaint_create: ComplaintCreate,
     complaint_service: ComplaintServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['complaints:create'],
+    ),
 ):
     return await complaint_service.create(complaint_create)
 
@@ -33,11 +43,16 @@ async def create_complaint(
 async def get_complaint(
     complaint_id: int,
     complaint_service: ComplaintServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['complaints:read'],
+    ),
 ):
     complaint = await complaint_service.get_by_id(complaint_id)
     if complaint is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Complaint not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Complaint not found',
         )
     return complaint
 
@@ -47,11 +62,16 @@ async def update_complaint(
     complaint_id: int,
     complaint_update: ComplaintUpdate,
     complaint_service: ComplaintServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['complaints:update'],
+    ),
 ):
     complaint = await complaint_service.update(complaint_id, complaint_update)
     if complaint is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Complaint not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Complaint not found',
         )
     return complaint
 
@@ -60,10 +80,15 @@ async def update_complaint(
 async def delete_complaint(
     complaint_id: int,
     complaint_service: ComplaintServiceDep,
+    _current_user: UserModel = Security(
+        get_current_user,
+        scopes=['complaints:delete'],
+    ),
 ):
     complaint = await complaint_service.delete(complaint_id)
     if complaint is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Complaint not found'
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Complaint not found',
         )
     return complaint

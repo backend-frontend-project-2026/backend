@@ -5,7 +5,7 @@ from app.models.users import UserCreate, UserModel, UserUpdate
 from app.schemas.users import (
     UserFilters,
     UserListResponse,
-    UserResponse,
+    UserPublic,
 )
 from app.services.crud import CrudService
 from app.utils.hashing import get_password_hash
@@ -15,7 +15,7 @@ class UserService(CrudService):
     __user_repository: UserRepository
 
     def __init__(self, user_repository: UserRepositoryDep):
-        super().__init__(user_repository, UserResponse, UserListResponse)
+        super().__init__(user_repository, UserPublic, UserListResponse)
         self.__user_repository = user_repository
 
     def _prepare_create_data(
@@ -39,11 +39,11 @@ class UserService(CrudService):
             return None
         return users[0]
 
-    async def get_user_by_email(self, email: str) -> Optional[UserResponse]:
+    async def get_user_by_email(self, email: str) -> Optional[UserPublic]:
         user = await self._get_user_model_by_email(email)
         return self._to_response(user) if user is not None else None
 
     async def update_user(
         self, user_update: UserUpdate, user_id: int
-    ) -> Optional[UserResponse]:
+    ) -> Optional[UserPublic]:
         return await super().update(user_id, user_update)

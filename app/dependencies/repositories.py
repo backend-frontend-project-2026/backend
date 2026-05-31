@@ -15,11 +15,27 @@ from app.models.reactions import ReactionModel
 from app.models.tags import TagModel
 from app.models.universities import UniversityModel
 from app.models.users import UserModel
+from app.repositories.auth import (
+    RefreshSessionRepository,
+    RoleRepository,
+    UserAuthRepository,
+)
 from app.utils.repository import Repository
+from app.models.roles import RoleModel
 
 
 def get_user_repository(session: SessionDep) -> Repository[UserModel]:
     return Repository[UserModel](session)
+
+
+def get_user_auth_repository(session: SessionDep) -> UserAuthRepository:
+    return UserAuthRepository(session)
+
+
+def get_refresh_session_repository(
+    session: SessionDep,
+) -> RefreshSessionRepository:
+    return RefreshSessionRepository(session)
 
 
 def get_profile_repository(session: SessionDep) -> Repository[ProfileModel]:
@@ -68,7 +84,14 @@ def get_reaction_repository(session: SessionDep) -> Repository[ReactionModel]:
     return Repository[ReactionModel](session)
 
 
+def get_role_repository(session: SessionDep) -> RoleRepository:
+    return RoleRepository(session)
+
+
 type UserRepository = Repository[UserModel]
+type UserAuthRepositoryType = UserAuthRepository
+type RefreshSessionRepositoryType = RefreshSessionRepository
+type RoleRepositoryType = RoleRepository
 type ProfileRepository = Repository[ProfileModel]
 type DealRepository = Repository[DealModel]
 type ComplaintRepository = Repository[ComplaintModel]
@@ -83,20 +106,35 @@ type ReactionRepository = Repository[ReactionModel]
 
 
 UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
+UserAuthRepositoryDep = Annotated[
+    UserAuthRepositoryType,
+    Depends(get_user_auth_repository),
+]
+RefreshSessionRepositoryDep = Annotated[
+    RefreshSessionRepositoryType,
+    Depends(get_refresh_session_repository),
+]
+RoleRepositoryDep = Annotated[
+    RoleRepositoryType,
+    Depends(get_role_repository),
+]
 ProfileRepositoryDep = Annotated[ProfileRepository, Depends(get_profile_repository)]
 DealRepositoryDep = Annotated[DealRepository, Depends(get_deal_repository)]
 ComplaintRepositoryDep = Annotated[
-    ComplaintRepository, Depends(get_complaint_repository)
+    ComplaintRepository,
+    Depends(get_complaint_repository),
 ]
 ChatRepositoryDep = Annotated[ChatRepository, Depends(get_chat_repository)]
 MessageRepositoryDep = Annotated[MessageRepository, Depends(get_message_repository)]
 UniversityRepositoryDep = Annotated[
-    UniversityRepository, Depends(get_university_repository)
+    UniversityRepository,
+    Depends(get_university_repository),
 ]
 FacultyRepositoryDep = Annotated[FacultyRepository, Depends(get_faculty_repository)]
 DormRepositoryDep = Annotated[DormRepository, Depends(get_dorm_repository)]
 NeighbourhoodRepositoryDep = Annotated[
-    NeighbourhoodRepository, Depends(get_neighbourhood_repository)
+    NeighbourhoodRepository,
+    Depends(get_neighbourhood_repository),
 ]
 TagRepositoryDep = Annotated[TagRepository, Depends(get_tag_repository)]
 ReactionRepositoryDep = Annotated[ReactionRepository, Depends(get_reaction_repository)]
