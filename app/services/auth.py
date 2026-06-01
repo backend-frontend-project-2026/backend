@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
-
-from fastapi import HTTPException, status
+from app.exceptions.base import ConflictError, InternalServerError, UnauthorizedError
 
 from app.dependencies.repositories import (
     RefreshSessionRepository,
@@ -28,18 +27,12 @@ class AuthService:
         existing_user = await user_repository.get_by_email(email)
 
         if existing_user is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='User with this email already exists',
-            )
+            raise ConflictError('User with this email already exists')
 
         public_role = await role_repository.get_by_name(settings.RBAC_PUBLIC_ROLE)
 
         if public_role is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Public role is not initialized',
-            )
+            raise InternalServerError('Public role is not initialized')
 
         user = UserModel(
             first_name=first_name,
@@ -60,10 +53,7 @@ class AuthService:
         user = await user_repository.get_by_email(email)
 
         if user is None or not verify_password(password, user.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Incorrect email or password',
-            )
+            raise UnauthorizedError('Incorrect email or password')
 
         return user
 
@@ -73,10 +63,7 @@ class AuthService:
         user: UserModel,
     ) -> TokenPair:
         if user.id is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='User id is missing',
-            )
+            raise InternalServerError('User id is missing')
 
         scopes = AuthService.get_user_scopes(user)
 
@@ -112,19 +99,13 @@ class AuthService:
         payload = JWTService.decode_token(access_token)
 
         if payload.get('type') != TokenType.ACCESS:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid token type',
-            )
+            raise UnauthorizedError('Invalid token type')
 
         user_id = int(payload['sub'])
         user = await user_repository.get(user_id)
 
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='User not found',
-            )
+            raise UnauthorizedError('User not found')
 
         return user
 
@@ -137,10 +118,7 @@ class AuthService:
         payload = JWTService.decode_token(refresh_token)
 
         if payload.get('type') != TokenType.REFRESH:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid token type',
-            )
+            raise UnauthorizedError('Invalid refresh session')
 
         refresh_jti = payload['jti']
         user_id = int(payload['sub'])
@@ -150,10 +128,7 @@ class AuthService:
         )
 
         if refresh_session is None or not refresh_session.is_valid:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid refresh session',
-            )
+            raise UnauthorizedError('Invalid refresh session')
 
         refresh_session.is_invalidated = True
         refresh_session.invalidated_at = datetime.now(timezone.utc)
@@ -162,10 +137,7 @@ class AuthService:
         user = await user_repository.get(user_id)
 
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='User not found',
-            )
+            raise UnauthorizedError('User not found')
 
         return await AuthService.create_token_pair(
             refresh_session_repository=refresh_session_repository,
@@ -180,10 +152,7 @@ class AuthService:
         payload = JWTService.decode_token(refresh_token)
 
         if payload.get('type') != TokenType.REFRESH:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid token type',
-            )
+            raise UnauthorizedError('Invalid token type')
 
         refresh_jti = payload['jti']
 
@@ -192,10 +161,7 @@ class AuthService:
         )
 
         if refresh_session is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid refresh session',
-            )
+            raise UnauthorizedError('Invalid refresh session')
 
         refresh_session.is_invalidated = True
         refresh_session.invalidated_at = datetime.now(timezone.utc)

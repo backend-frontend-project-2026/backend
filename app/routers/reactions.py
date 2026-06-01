@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import ReactionServiceDep
+from app.exceptions.base import NotFoundError
+from app.exceptions.responses import common_error_responses, create_error_responses
 from app.models.reactions import ReactionCreate
 from app.models.users import UserModel
 from app.schemas.reactions import (
@@ -15,7 +17,11 @@ from app.schemas.reactions import (
 router = APIRouter(prefix='/deals/{deal_id}/reactions', tags=['Reactions'])
 
 
-@router.get('', response_model=ReactionListResponse)
+@router.get(
+    '',
+    response_model=ReactionListResponse,
+    responses=common_error_responses,
+)
 async def list_reactions(
     reaction_service: ReactionServiceDep,
     filters: Annotated[ReactionFilters, Depends()],
@@ -27,7 +33,11 @@ async def list_reactions(
     return await reaction_service.get_list(filters)
 
 
-@router.post('', response_model=ReactionResponse)
+@router.post(
+    '',
+    response_model=ReactionResponse,
+    responses=create_error_responses,
+)
 async def create_reaction(
     deal_id: int,
     reaction_create: ReactionCreate,
@@ -40,7 +50,11 @@ async def create_reaction(
     return await reaction_service.create(reaction_create, deal_id=deal_id)
 
 
-@router.get('/{reaction_id}', response_model=ReactionResponse)
+@router.get(
+    '/{reaction_id}',
+    response_model=ReactionResponse,
+    responses=common_error_responses,
+)
 async def get_reaction(
     deal_id: int,
     reaction_id: int,
@@ -52,14 +66,15 @@ async def get_reaction(
 ):
     reaction = await reaction_service.get_reaction(deal_id, reaction_id)
     if reaction is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Not found',
-        )
+        raise NotFoundError('Reaction not found')
     return reaction
 
 
-@router.delete('/{reaction_id}', response_model=ReactionResponse)
+@router.delete(
+    '/{reaction_id}',
+    response_model=ReactionResponse,
+    responses=common_error_responses,
+)
 async def delete_reaction(
     deal_id: int,
     reaction_id: int,
@@ -71,8 +86,5 @@ async def delete_reaction(
 ):
     reaction = await reaction_service.delete_reaction(deal_id, reaction_id)
     if reaction is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Not found',
-        )
+        raise NotFoundError('Reaction not found')
     return reaction

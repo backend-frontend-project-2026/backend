@@ -1,15 +1,17 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, Security, status
+from fastapi import APIRouter, Cookie, Depends, Response, Security
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.settings import settings
 from app.dependencies.auth import get_current_user
 from app.dependencies.repositories import (
     RefreshSessionRepositoryDep,
-    UserAuthRepositoryDep,
     RoleRepositoryDep,
+    UserAuthRepositoryDep,
 )
+from app.exceptions.base import UnauthorizedError
+from app.exceptions.responses import auth_responses
 from app.models.users import UserModel, UserPublic
 from app.schemas.auth import MessageResponse, RegisterRequest, TokenResponse
 from app.services.auth import AuthService
@@ -17,7 +19,11 @@ from app.services.auth import AuthService
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
 
-@router.post('/register', response_model=MessageResponse)
+@router.post(
+    '/register',
+    response_model=MessageResponse,
+    responses=auth_responses,
+)
 async def register(
     payload: RegisterRequest,
     user_repository: UserAuthRepositoryDep,
@@ -35,7 +41,11 @@ async def register(
     return MessageResponse(message='Registration successful')
 
 
-@router.post('/login', response_model=TokenResponse)
+@router.post(
+    '/login',
+    response_model=TokenResponse,
+    responses=auth_responses,
+)
 async def login(
     response: Response,
     user_repository: UserAuthRepositoryDep,
@@ -64,14 +74,30 @@ async def login(
     return TokenResponse(access_token=tokens.access_token)
 
 
-@router.get('/me', response_model=UserPublic)
+@router.get(
+    '/me',
+    response_model=UserPublic,
+    responses=auth_responses,
+)
 async def get_me(
     current_user: UserModel = Security(get_current_user, scopes=['auth:me']),
-) -> UserModel:
-    return current_user
+) -> UserPublic:
+    return UserPublic(
+        id=current_user.id,
+        created_at=current_user.created_at,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        email=current_user.email,
+        status=current_user.status,
+        roles=[role.name for role in current_user.roles],
+    )
 
 
-@router.post('/refresh', response_model=TokenResponse)
+@router.post(
+    '/refresh',
+    response_model=TokenResponse,
+    responses=auth_responses,
+)
 async def refresh(
     response: Response,
     user_repository: UserAuthRepositoryDep,
@@ -79,10 +105,7 @@ async def refresh(
     refresh_token: str | None = Cookie(default=None),
 ) -> TokenResponse:
     if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Refresh token is missing',
-        )
+        raise UnauthorizedError('Refresh token is missing')
 
     tokens = await AuthService.refresh_tokens(
         user_repository=user_repository,
@@ -101,17 +124,18 @@ async def refresh(
     return TokenResponse(access_token=tokens.access_token)
 
 
-@router.post('/logout', response_model=MessageResponse)
+@router.post(
+    '/logout',
+    response_model=MessageResponse,
+    responses=auth_responses,
+)
 async def logout(
     response: Response,
     refresh_session_repository: RefreshSessionRepositoryDep,
     refresh_token: str | None = Cookie(default=None),
 ) -> MessageResponse:
     if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Refresh token is missing',
-        )
+        raise UnauthorizedError('Refresh token is missing')
 
     await AuthService.logout(
         refresh_session_repository=refresh_session_repository,

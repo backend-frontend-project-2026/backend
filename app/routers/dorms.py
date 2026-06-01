@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import DormServiceDep
+from app.exceptions.base import NotFoundError
+from app.exceptions.responses import common_error_responses, create_error_responses
 from app.models.dorms import DormCreate, DormUpdate
 from app.models.users import UserModel
 from app.schemas.dorms import (
@@ -15,7 +17,11 @@ from app.schemas.dorms import (
 router = APIRouter(prefix='/universities/{university_id}/dorms', tags=['Dorms'])
 
 
-@router.get('', response_model=DormListResponse)
+@router.get(
+    '',
+    response_model=DormListResponse,
+    responses=common_error_responses,
+)
 async def list_dorms(
     dorm_service: DormServiceDep,
     filters: Annotated[DormFilters, Depends()],
@@ -27,7 +33,11 @@ async def list_dorms(
     return await dorm_service.get_list(filters)
 
 
-@router.post('', response_model=DormResponse)
+@router.post(
+    '',
+    response_model=DormResponse,
+    responses=create_error_responses,
+)
 async def create_dorm(
     university_id: int,
     dorm_create: DormCreate,
@@ -40,7 +50,11 @@ async def create_dorm(
     return await dorm_service.create(dorm_create, uni_id=university_id)
 
 
-@router.get('/{dorm_id}', response_model=DormResponse)
+@router.get(
+    '/{dorm_id}',
+    response_model=DormResponse,
+    responses=common_error_responses,
+)
 async def get_dorm(
     university_id: int,
     dorm_id: int,
@@ -52,14 +66,15 @@ async def get_dorm(
 ):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Dorm or university not found',
-        )
+        raise NotFoundError('Dorm or university not found')
     return dorm
 
 
-@router.put('/{dorm_id}', response_model=DormResponse)
+@router.put(
+    '/{dorm_id}',
+    response_model=DormResponse,
+    responses=common_error_responses,
+)
 async def update_dorm(
     university_id: int,
     dorm_id: int,
@@ -72,24 +87,22 @@ async def update_dorm(
 ):
     existing_dorm = await dorm_service.get_by_id(dorm_id)
     if existing_dorm is None or existing_dorm.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Dorm or university not found',
-        )
+        raise NotFoundError('Dorm or university not found')
 
     dorm = await dorm_service.update(
         dorm_id,
         dorm_update,
     )
     if dorm is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Dorm or university not found',
-        )
+        raise NotFoundError('Dorm or university not found')
     return dorm
 
 
-@router.delete('/{dorm_id}', response_model=DormResponse)
+@router.delete(
+    '/{dorm_id}',
+    response_model=DormResponse,
+    responses=common_error_responses,
+)
 async def delete_dorm(
     university_id: int,
     dorm_id: int,
@@ -101,15 +114,9 @@ async def delete_dorm(
 ):
     dorm = await dorm_service.get_by_id(dorm_id)
     if dorm is None or dorm.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Dorm or university not found',
-        )
+        raise NotFoundError('Dorm or university not found')
 
     deleted_dorm = await dorm_service.delete(dorm_id)
     if deleted_dorm is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Dorm or university not found',
-        )
+        raise NotFoundError('Dorm or university not found')
     return deleted_dorm
