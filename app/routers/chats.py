@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import ChatServiceDep
+from app.exceptions.base import NotFoundError
+from app.exceptions.responses import common_error_responses, create_error_responses
 from app.models.chats import ChatCreate, ChatPublic
 from app.models.users import UserModel
 from app.schemas.chats import ChatFilters, ChatListResponse
@@ -11,7 +13,11 @@ from app.schemas.chats import ChatFilters, ChatListResponse
 router = APIRouter(prefix='/chats', tags=['Chats'])
 
 
-@router.get('', response_model=ChatListResponse)
+@router.get(
+    '',
+    response_model=ChatListResponse,
+    responses=common_error_responses,
+)
 async def list_chats(
     chat_service: ChatServiceDep,
     filters: Annotated[ChatFilters, Depends()],
@@ -20,7 +26,11 @@ async def list_chats(
     return await chat_service.get_list(filters)
 
 
-@router.post('', response_model=ChatPublic)
+@router.post(
+    '',
+    response_model=ChatPublic,
+    responses=create_error_responses,
+)
 async def create_chat(
     chat_create: ChatCreate,
     chat_service: ChatServiceDep,
@@ -29,7 +39,11 @@ async def create_chat(
     return await chat_service.create(chat_create)
 
 
-@router.get('/{chat_id}', response_model=ChatPublic)
+@router.get(
+    '/{chat_id}',
+    response_model=ChatPublic,
+    responses=common_error_responses,
+)
 async def get_chat(
     chat_id: int,
     chat_service: ChatServiceDep,
@@ -37,14 +51,15 @@ async def get_chat(
 ):
     chat = await chat_service.get_by_id(chat_id)
     if chat is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Chat not found',
-        )
+        raise NotFoundError('Chat not found')
     return chat
 
 
-@router.delete('/{chat_id}', response_model=ChatPublic)
+@router.delete(
+    '/{chat_id}',
+    response_model=ChatPublic,
+    responses=common_error_responses,
+)
 async def delete_chat(
     chat_id: int,
     chat_service: ChatServiceDep,
@@ -52,8 +67,5 @@ async def delete_chat(
 ):
     chat = await chat_service.delete(chat_id)
     if chat is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Chat not found',
-        )
+        raise NotFoundError('Chat not found')
     return chat

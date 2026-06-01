@@ -5,6 +5,7 @@ from fastapi import Depends
 from app.dependencies.session import SessionDep
 from app.models.chats import ChatModel
 from app.models.complaints import ComplaintModel
+from app.repositories.email_notifications import EmailNotificationRepository
 from app.models.deals import DealModel
 from app.models.dorms import DormModel
 from app.models.faculties import FacultyModel
@@ -88,6 +89,13 @@ def get_role_repository(session: SessionDep) -> RoleRepository:
     return RoleRepository(session)
 
 
+def get_email_notification_repository(
+    session: SessionDep,
+) -> EmailNotificationRepository:
+    return EmailNotificationRepository(session)
+
+
+type EmailNotificationRepositoryType = EmailNotificationRepository
 type UserRepository = Repository[UserModel]
 type UserAuthRepositoryType = UserAuthRepository
 type RefreshSessionRepositoryType = RefreshSessionRepository
@@ -138,3 +146,7 @@ NeighbourhoodRepositoryDep = Annotated[
 ]
 TagRepositoryDep = Annotated[TagRepository, Depends(get_tag_repository)]
 ReactionRepositoryDep = Annotated[ReactionRepository, Depends(get_reaction_repository)]
+EmailNotificationRepositoryDep = Annotated[
+    EmailNotificationRepositoryType,
+    Depends(get_email_notification_repository),
+]

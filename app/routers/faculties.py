@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import FacultyServiceDep
+from app.exceptions.base import NotFoundError
+from app.exceptions.responses import common_error_responses, create_error_responses
 from app.models.faculties import FacultyCreate, FacultyUpdate
 from app.models.users import UserModel
 from app.schemas.faculties import (
@@ -15,7 +17,11 @@ from app.schemas.faculties import (
 router = APIRouter(prefix='/universities/{university_id}/faculties', tags=['Faculties'])
 
 
-@router.get('', response_model=FacultyListResponse)
+@router.get(
+    '',
+    response_model=FacultyListResponse,
+    responses=common_error_responses,
+)
 async def list_faculties(
     faculty_service: FacultyServiceDep,
     filters: Annotated[FacultyFilters, Depends()],
@@ -27,7 +33,11 @@ async def list_faculties(
     return await faculty_service.get_list(filters)
 
 
-@router.post('', response_model=FacultyResponse)
+@router.post(
+    '',
+    response_model=FacultyResponse,
+    responses=create_error_responses,
+)
 async def create_faculty(
     university_id: int,
     faculty_create: FacultyCreate,
@@ -40,7 +50,11 @@ async def create_faculty(
     return await faculty_service.create(faculty_create, uni_id=university_id)
 
 
-@router.get('/{faculty_id}', response_model=FacultyResponse)
+@router.get(
+    '/{faculty_id}',
+    response_model=FacultyResponse,
+    responses=common_error_responses,
+)
 async def get_faculty(
     university_id: int,
     faculty_id: int,
@@ -52,14 +66,15 @@ async def get_faculty(
 ):
     faculty = await faculty_service.get_by_id(faculty_id)
     if faculty is None or faculty.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Faculty or university not found',
-        )
+        raise NotFoundError('Faculty or university not found')
     return faculty
 
 
-@router.put('/{faculty_id}', response_model=FacultyResponse)
+@router.put(
+    '/{faculty_id}',
+    response_model=FacultyResponse,
+    responses=common_error_responses,
+)
 async def update_faculty(
     university_id: int,
     faculty_id: int,
@@ -72,24 +87,22 @@ async def update_faculty(
 ):
     existing_faculty = await faculty_service.get_by_id(faculty_id)
     if existing_faculty is None or existing_faculty.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Faculty or university not found',
-        )
+        raise NotFoundError('Faculty or university not found')
 
     faculty = await faculty_service.update(
         faculty_id,
         faculty_update,
     )
     if faculty is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Faculty or university not found',
-        )
+        raise NotFoundError('Faculty or university not found')
     return faculty
 
 
-@router.delete('/{faculty_id}', response_model=FacultyResponse)
+@router.delete(
+    '/{faculty_id}',
+    response_model=FacultyResponse,
+    responses=common_error_responses,
+)
 async def delete_faculty(
     university_id: int,
     faculty_id: int,
@@ -101,15 +114,9 @@ async def delete_faculty(
 ):
     existing_faculty = await faculty_service.get_by_id(faculty_id)
     if existing_faculty is None or existing_faculty.uni_id != university_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Faculty or university not found',
-        )
+        raise NotFoundError('Faculty or university not found')
 
     deleted_faculty = await faculty_service.delete(faculty_id)
     if deleted_faculty is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Faculty or university not found',
-        )
+        raise NotFoundError('Faculty or university not found')
     return deleted_faculty

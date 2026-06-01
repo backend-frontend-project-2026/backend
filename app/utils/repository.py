@@ -166,3 +166,15 @@ class Repository[Model: BaseModel]:
 
         await self.save(instance)
         return instance
+
+    async def add_without_commit(self, item: Model) -> Model:
+        self._session.add(item)
+        await self._session.flush()
+        await self._session.refresh(item)
+        return item
+
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def rollback(self) -> None:
+        await self._session.rollback()
