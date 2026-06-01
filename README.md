@@ -26,6 +26,12 @@ uv sync
 uv run uvicorn app.main:app --reload
 ```
 
+### Production run
+
+```
+gunicorn app.main:app -c gunicorn.conf.py
+```
+
 ## Переменные среды
 
 | Название переменной          | Тип | Описание                               | Значение по умолчанию |

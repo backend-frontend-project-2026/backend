@@ -8,6 +8,28 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class ConfirmAccountRequest(BaseModel):
+    user_id: int
+    code: str = Field(min_length=1, max_length=64)
+
+
+class RequestPasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    user_id: int
+    code: str = Field(min_length=1, max_length=64)
+    new_password: str = Field(min_length=8, max_length=128)
+    new_password_repeat: str = Field(min_length=8, max_length=128)
+
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+    new_password_repeat: str = Field(min_length=8, max_length=128)
+
+
 class MessageResponse(BaseModel):
     message: str
 

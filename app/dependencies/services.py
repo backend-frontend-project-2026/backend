@@ -14,6 +14,12 @@ from app.services.reactions import ReactionService
 from app.services.tags import TagService
 from app.services.universities import UniversityService
 from app.services.users import UserService
+from app.services.email import EmailService
+
+
+def get_email_service() -> EmailService:
+    return EmailService()
+
 
 type UserServiceDep = Annotated[UserService, Depends(UserService)]
 type ProfileServiceDep = Annotated[ProfileService, Depends(ProfileService)]
@@ -29,3 +35,9 @@ type NeighbourhoodServiceDep = Annotated[
 ]
 type TagServiceDep = Annotated[TagService, Depends(TagService)]
 type ReactionServiceDep = Annotated[ReactionService, Depends(ReactionService)]
+type EmailServiceType = EmailService
+
+EmailServiceDep = Annotated[
+    EmailServiceType,
+    Depends(get_email_service),
+]
