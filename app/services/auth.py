@@ -1,14 +1,25 @@
-from datetime import datetime, timezone
-from app.exceptions.base import ConflictError, InternalServerError, UnauthorizedError
+from datetime import datetime, timedelta, timezone
+from secrets import token_urlsafe
 
+from app.core.settings import settings
 from app.dependencies.repositories import (
+    EmailNotificationRepository,
     RefreshSessionRepository,
     RoleRepository,
     UserAuthRepository,
 )
-from app.core.settings import settings
+from app.exceptions.base import (
+    BadRequestError,
+    ConflictError,
+    InternalServerError,
+    UnauthorizedError,
+)
+from app.models.email_notifications import (
+    EmailNotificationAction,
+    EmailNotificationModel,
+)
 from app.models.refresh_sessions import RefreshSessionModel
-from app.models.users import UserModel
+from app.models.users import UserModel, UserStatus
 from app.schemas.auth import TokenPair
 from app.services.jwt import JWTService, TokenType
 from app.utils.hashing import get_password_hash, verify_password
@@ -17,12 +28,13 @@ from app.utils.hashing import get_password_hash, verify_password
 class AuthService:
     @staticmethod
     async def register_user(
-        user_repository: UserAuthRepository,
-        role_repository: RoleRepository,
-        first_name: str,
-        last_name: str,
-        email: str,
-        password: str,
+            user_repository: UserAuthRepository,
+            role_repository: RoleRepository,
+            first_name: str,
+            last_name: str,
+            email: str,
+            password: str,
+            commit: bool = True,
     ) -> UserModel:
         existing_user = await user_repository.get_by_email(email)
 
@@ -39,10 +51,144 @@ class AuthService:
             last_name=last_name,
             email=email,
             password_hash=get_password_hash(password),
+            status=UserStatus.CREATED,
         )
         user.roles = [public_role]
 
+        if commit:
+            return await user_repository.save(user)
+
+        return await user_repository.add_without_commit(user)
+
+    @staticmethod
+    async def create_email_notification(
+            email_notification_repository: EmailNotificationRepository,
+            user: UserModel,
+            action: EmailNotificationAction,
+            expire_minutes: int,
+            commit: bool = True,
+    ) -> EmailNotificationModel:
+        if user.id is None:
+            raise InternalServerError('User id is missing')
+
+        notification = EmailNotificationModel(
+            user_id=user.id,
+            recipient_email=user.email,
+            action=action,
+            code=token_urlsafe(24),
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=expire_minutes),
+        )
+
+        if commit:
+            return await email_notification_repository.save(notification)
+
+        return await email_notification_repository.add_without_commit(notification)
+
+    @staticmethod
+    async def confirm_account(
+        user_repository: UserAuthRepository,
+        email_notification_repository: EmailNotificationRepository,
+        user_id: int,
+        code: str,
+    ) -> UserModel:
+        notification = (
+            await email_notification_repository.get_active_by_user_action_code(
+                user_id=user_id,
+                action=EmailNotificationAction.CONFIRM_ACCOUNT,
+                code=code,
+            )
+        )
+
+        if notification is None or not notification.is_valid:
+            raise UnauthorizedError('Invalid confirmation code')
+
+        user = await user_repository.get(user_id)
+
+        if user is None:
+            raise UnauthorizedError('User not found')
+
+        user.status = UserStatus.CONFIRMED
+
+        await email_notification_repository.mark_as_used(notification)
         return await user_repository.save(user)
+
+    @staticmethod
+    async def request_password_reset(
+            user_repository: UserAuthRepository,
+            email_notification_repository: EmailNotificationRepository,
+            email: str,
+            commit: bool = True,
+    ) -> EmailNotificationModel | None:
+        user = await user_repository.get_by_email(email)
+
+        if user is None:
+            return None
+
+        return await AuthService.create_email_notification(
+            email_notification_repository=email_notification_repository,
+            user=user,
+            action=EmailNotificationAction.RESET_PASSWORD,
+            expire_minutes=settings.PASSWORD_RESET_CODE_EXPIRE_MINUTES,
+            commit=commit,
+        )
+
+    @staticmethod
+    async def reset_password(
+        user_repository: UserAuthRepository,
+        email_notification_repository: EmailNotificationRepository,
+        refresh_session_repository: RefreshSessionRepository,
+        user_id: int,
+        code: str,
+        new_password: str,
+        new_password_repeat: str,
+    ) -> None:
+        if new_password != new_password_repeat:
+            raise BadRequestError('Passwords do not match')
+
+        notification = (
+            await email_notification_repository.get_active_by_user_action_code(
+                user_id=user_id,
+                action=EmailNotificationAction.RESET_PASSWORD,
+                code=code,
+            )
+        )
+
+        if notification is None or not notification.is_valid:
+            raise UnauthorizedError('Invalid password reset code')
+
+        user = await user_repository.get(user_id)
+
+        if user is None:
+            raise UnauthorizedError('User not found')
+
+        user.password_hash = get_password_hash(new_password)
+
+        await user_repository.save(user)
+        await email_notification_repository.mark_as_used(notification)
+        await refresh_session_repository.invalidate_all_by_user_id(user_id)
+
+    @staticmethod
+    async def change_password(
+        user_repository: UserAuthRepository,
+        refresh_session_repository: RefreshSessionRepository,
+        user: UserModel,
+        old_password: str,
+        new_password: str,
+        new_password_repeat: str,
+    ) -> None:
+        if user.id is None:
+            raise InternalServerError('User id is missing')
+
+        if new_password != new_password_repeat:
+            raise BadRequestError('Passwords do not match')
+
+        if not verify_password(old_password, user.password_hash):
+            raise UnauthorizedError('Incorrect old password')
+
+        user.password_hash = get_password_hash(new_password)
+
+        await user_repository.save(user)
+        await refresh_session_repository.invalidate_all_by_user_id(user.id)
 
     @staticmethod
     async def authenticate_user(

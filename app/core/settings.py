@@ -28,6 +28,21 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = 'INFO'
     LOG_FILE_PATH: str = 'logs/app.log'
 
+    SMTP_HOST: str = 'smtp.yandex.ru'
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ''
+    SMTP_PASSWORD: str = ''
+    SMTP_FROM_EMAIL: str = ''
+    SMTP_FROM_NAME: str = 'Roomie Match'
+    SMTP_STARTTLS: bool = True
+    SMTP_SSL_TLS: bool = False
+
+    EMAIL_NOTIFICATIONS_ENABLED: bool = True
+    EMAIL_CONFIRMATION_CODE_EXPIRE_MINUTES: int = 15
+    PASSWORD_RESET_CODE_EXPIRE_MINUTES: int = 15
+
+    FRONTEND_BASE_URL: str = 'http://localhost:3000'
+
     model_config = SettingsConfigDict(
         env_file='.env',
         env_file_encoding='utf-8',
