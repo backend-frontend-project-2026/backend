@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = 'INFO'
     LOG_FILE_PATH: str = 'logs/app.log'
 
-    SMTP_HOST: str = 'smtp.yandex.ru'
+    SMTP_HOST: str = 'smtp.yandex.com'
     SMTP_PORT: int = 587
     SMTP_USERNAME: str = ''
     SMTP_PASSWORD: str = ''
@@ -42,6 +42,15 @@ class Settings(BaseSettings):
     PASSWORD_RESET_CODE_EXPIRE_MINUTES: int = 15
 
     FRONTEND_BASE_URL: str = 'http://localhost:3000'
+
+    CORS_ALLOW_ORIGINS: str = 'http://localhost:3000,http://127.0.0.1:3000'
+    CORS_ALLOW_CREDENTIALS: bool = True
+    CORS_ALLOW_METHODS: str = '*'
+    CORS_ALLOW_HEADERS: str = '*'
+
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_DEFAULT: str = '100/minute'
+    RATE_LIMIT_AUTH: str = '10/minute'
 
     model_config = SettingsConfigDict(
         env_file='.env',
@@ -70,6 +79,36 @@ class Settings(BaseSettings):
             port=self.DB_PORT,
             database=self.DB_NAME,
         ).render_as_string(hide_password=False)
+
+    @property
+    def cors_allow_origins_list(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.CORS_ALLOW_ORIGINS.split(',')
+            if origin.strip()
+        ]
+
+    @property
+    def cors_allow_methods_list(self) -> list[str]:
+        if self.CORS_ALLOW_METHODS == '*':
+            return ['*']
+
+        return [
+            method.strip()
+            for method in self.CORS_ALLOW_METHODS.split(',')
+            if method.strip()
+        ]
+
+    @property
+    def cors_allow_headers_list(self) -> list[str]:
+        if self.CORS_ALLOW_HEADERS == '*':
+            return ['*']
+
+        return [
+            header.strip()
+            for header in self.CORS_ALLOW_HEADERS.split(',')
+            if header.strip()
+        ]
 
 
 settings = Settings()

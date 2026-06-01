@@ -101,14 +101,13 @@ async def bootstrap_roles_and_permissions(session: AsyncSession) -> None:
 
     await session.flush()
 
-    await _bootstrap_admin_user(session, permissions_by_scope)
+    await _bootstrap_admin_user(session)
 
     await session.commit()
 
 
 async def _bootstrap_admin_user(
-    session: AsyncSession,
-    permissions_by_scope: dict[str, PermissionModel],
+        session: AsyncSession,
 ) -> None:
     result = await session.execute(
         select(UserModel).where(UserModel.email == settings.RBAC_ADMIN_EMAIL)

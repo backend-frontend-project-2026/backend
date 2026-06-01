@@ -1,8 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, Response, Security
+from fastapi import APIRouter, Cookie, Depends, Request, Response, Security
 from fastapi.security import OAuth2PasswordRequestForm
 
+from app.core.logging import logger
+from app.core.rate_limit import limiter
 from app.core.settings import settings
 from app.dependencies.auth import get_current_user
 from app.dependencies.repositories import (
@@ -12,7 +14,6 @@ from app.dependencies.repositories import (
     UserAuthRepositoryDep,
 )
 from app.dependencies.services import EmailServiceDep
-from app.core.logging import logger
 from app.exceptions.base import InternalServerError, UnauthorizedError
 from app.exceptions.responses import auth_responses
 from app.models.email_notifications import EmailNotificationAction
@@ -36,7 +37,9 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def register(
+    request: Request,
     payload: RegisterRequest,
     user_repository: UserAuthRepositoryDep,
     role_repository: RoleRepositoryDep,
@@ -85,7 +88,9 @@ async def register(
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def confirm_account(
+    request: Request,
     payload: ConfirmAccountRequest,
     user_repository: UserAuthRepositoryDep,
     email_notification_repository: EmailNotificationRepositoryDep,
@@ -105,7 +110,9 @@ async def confirm_account(
     response_model=TokenResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def login(
+    request: Request,
     response: Response,
     user_repository: UserAuthRepositoryDep,
     refresh_session_repository: RefreshSessionRepositoryDep,
@@ -157,7 +164,9 @@ async def get_me(
     response_model=TokenResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def refresh(
+    request: Request,
     response: Response,
     user_repository: UserAuthRepositoryDep,
     refresh_session_repository: RefreshSessionRepositoryDep,
@@ -188,7 +197,9 @@ async def refresh(
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def logout(
+    request: Request,
     response: Response,
     refresh_session_repository: RefreshSessionRepositoryDep,
     refresh_token: str | None = Cookie(default=None),
@@ -211,7 +222,9 @@ async def logout(
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def request_password_reset(
+    request: Request,
     payload: RequestPasswordResetRequest,
     user_repository: UserAuthRepositoryDep,
     email_notification_repository: EmailNotificationRepositoryDep,
@@ -255,7 +268,9 @@ async def request_password_reset(
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def reset_password(
+    request: Request,
     payload: ResetPasswordRequest,
     user_repository: UserAuthRepositoryDep,
     email_notification_repository: EmailNotificationRepositoryDep,
@@ -279,7 +294,9 @@ async def reset_password(
     response_model=MessageResponse,
     responses=auth_responses,
 )
+@limiter.limit(settings.RATE_LIMIT_AUTH)
 async def change_password(
+    request: Request,
     payload: ChangePasswordRequest,
     user_repository: UserAuthRepositoryDep,
     refresh_session_repository: RefreshSessionRepositoryDep,
