@@ -1,9 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Security, status
+from fastapi import APIRouter, Depends, Security
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import UniversityServiceDep
+from app.exceptions.base import NotFoundError
+from app.exceptions.responses import common_error_responses, create_error_responses
 from app.models.universities import UniversityCreate, UniversityUpdate
 from app.models.users import UserModel
 from app.schemas.universities import (
@@ -15,7 +17,11 @@ from app.schemas.universities import (
 router = APIRouter(prefix='/universities', tags=['Universities'])
 
 
-@router.get('', response_model=UniversityListResponse)
+@router.get(
+    '',
+    response_model=UniversityListResponse,
+    responses=common_error_responses,
+)
 async def list_universities(
     university_service: UniversityServiceDep,
     filters: Annotated[UniversityFilters, Depends()],
@@ -27,7 +33,11 @@ async def list_universities(
     return await university_service.get_list(filters)
 
 
-@router.post('', response_model=UniversityResponse)
+@router.post(
+    '',
+    response_model=UniversityResponse,
+    responses=create_error_responses,
+)
 async def create_university(
     university_create: UniversityCreate,
     university_service: UniversityServiceDep,
@@ -39,7 +49,11 @@ async def create_university(
     return await university_service.create(university_create)
 
 
-@router.get('/{university_id}', response_model=UniversityResponse)
+@router.get(
+    '/{university_id}',
+    response_model=UniversityResponse,
+    responses=common_error_responses,
+)
 async def get_university(
     university_id: int,
     university_service: UniversityServiceDep,
@@ -50,14 +64,15 @@ async def get_university(
 ):
     university = await university_service.get_by_id(university_id)
     if university is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='University not found',
-        )
+        raise NotFoundError('University not found')
     return university
 
 
-@router.put('/{university_id}', response_model=UniversityResponse)
+@router.put(
+    '/{university_id}',
+    response_model=UniversityResponse,
+    responses=common_error_responses,
+)
 async def update_university(
     university_id: int,
     university_update: UniversityUpdate,
@@ -69,14 +84,15 @@ async def update_university(
 ):
     university = await university_service.update(university_id, university_update)
     if university is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='University not found',
-        )
+        raise NotFoundError('University not found')
     return university
 
 
-@router.delete('/{university_id}', response_model=UniversityResponse)
+@router.delete(
+    '/{university_id}',
+    response_model=UniversityResponse,
+    responses=common_error_responses,
+)
 async def delete_university(
     university_id: int,
     university_service: UniversityServiceDep,
@@ -87,8 +103,5 @@ async def delete_university(
 ):
     university = await university_service.delete(university_id)
     if university is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='University not found',
-        )
+        raise NotFoundError('University not found')
     return university

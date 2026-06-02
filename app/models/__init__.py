@@ -13,6 +13,7 @@ from app.models.tags import ProfileTagLink, TagModel
 from app.models.universities import UniversityModel
 from app.models.user_blocks import UserBlockModel
 from app.models.users import UserModel
+from app.models.email_notifications import EmailNotificationModel
 from app.models.refresh_sessions import RefreshSessionModel
 from app.models.roles import (
     PermissionModel,
@@ -44,4 +45,5 @@ __all__ = [
     'UserRoleLink',
     'PermissionModel',
     'RolePermissionLink',
+    'EmailNotificationModel',
 ]

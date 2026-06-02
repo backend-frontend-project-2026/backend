@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy.orm import selectinload
@@ -32,6 +33,21 @@ class RefreshSessionRepository(Repository[RefreshSessionModel]):
             )
         )
         return result.scalars().first()
+
+    async def invalidate_all_by_user_id(self, user_id: int) -> None:
+        result = await self._session.execute(
+            select(RefreshSessionModel).where(
+                RefreshSessionModel.user_id == user_id,
+                RefreshSessionModel.is_invalidated.is_(False),
+            )
+        )
+        refresh_sessions = result.scalars().all()
+
+        for refresh_session in refresh_sessions:
+            refresh_session.is_invalidated = True
+            refresh_session.invalidated_at = datetime.now(timezone.utc)
+
+        await self._session.commit()
 
 
 class RoleRepository(Repository[RoleModel]):
