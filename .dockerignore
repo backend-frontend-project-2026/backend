@@ -1,0 +1,17 @@
+.git/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pre-commit-config.yaml
+tests/
+logs/
+*.log
+docker-compose*.yml
+Dockerfile*
+nginx/
+.dockerignore
