@@ -1,0 +1,48 @@
+name: Setup Ansible
+description: Configure SSH and install Ansible dependencies
+
+inputs:
+  ssh-private-key-b64:
+    description: Base64 encoded private SSH key
+    required: true
+  ssh-known-hosts:
+    description: Known hosts content for SSH
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openssh-client python3 python3-pip pipx
+
+    - name: Install Ansible
+      shell: bash
+      run: |
+        pipx install --include-deps ansible ansible-lint
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Install Ansible collections
+      shell: bash
+      run: |
+        ansible-galaxy collection install -r ansible/requirements.yml
+
+    - name: Configure SSH directory
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+
+    - name: Decode SSH private key
+      shell: bash
+      run: |
+        echo "${{ inputs.ssh-private-key-b64 }}" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+
+    - name: Configure known hosts
+      shell: bash
+      run: |
+        echo "${{ inputs.ssh-known-hosts }}" > ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
