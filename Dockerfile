@@ -25,10 +25,10 @@ RUN useradd --create-home --uid 1000 appuser
 
 WORKDIR /app
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
-COPY --chown=appuser:appuser . .
+COPY --from=builder --chown=appuser:appuser /app/app ./app
+COPY --from=builder --chown=appuser:appuser /app/migrations ./migrations
+COPY --from=builder --chown=appuser:appuser /app/alembic.ini /app/gunicorn.conf.py ./
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
@@ -39,6 +39,6 @@ USER appuser
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:8000/openapi.json || exit 1
+    CMD curl -f http://localhost:8000/openapi.json
 
 CMD ["gunicorn", "-c", "gunicorn.conf.py", "app.main:app"]
