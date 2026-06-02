@@ -5,8 +5,6 @@ x-backend-common: &backend-common
   env_file: .env
   environment:
     DB_HOST: db
-  networks:
-    - roomie-net
 
 services:
   db:
@@ -17,8 +15,6 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - roomie-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -65,13 +61,7 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    networks:
-      - roomie-net
     restart: unless-stopped
 
 volumes:
   postgres_data:
-
-networks:
-  roomie-net:
-    driver: bridge
