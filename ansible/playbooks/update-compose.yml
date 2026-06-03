@@ -6,6 +6,7 @@
 
   vars:
     app_dir: /opt/roomie-match
+    ansible_root_dir: "{{ playbook_dir | dirname }}"
     docker_user: "{{ lookup('env', 'DOCKER_USER') }}"
     docker_image_name: "{{ lookup('env', 'DOCKER_IMAGE_NAME') }}"
     docker_image_tag: "{{ lookup('env', 'DOCKER_IMAGE_TAG') | default('latest', true) }}"
@@ -31,7 +32,7 @@
 
     - name: Copy nginx config
       ansible.builtin.copy:
-        src: ../files/nginx.conf
+        src: "{{ ansible_root_dir }}/files/nginx.conf"
         dest: "{{ app_dir }}/nginx.conf"
         mode: "0644"
 
@@ -43,7 +44,7 @@
 
     - name: Render production compose file
       ansible.builtin.template:
-        src: ../templates/docker-compose.prod.yml.j2
+        src: "{{ ansible_root_dir }}/templates/docker-compose.prod.yml.j2"
         dest: "{{ app_dir }}/docker-compose.yml"
         mode: "0644"
 
