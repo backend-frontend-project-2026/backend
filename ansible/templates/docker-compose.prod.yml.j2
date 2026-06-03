@@ -30,7 +30,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    restart: on-failure
+    restart: "no"
 
   bootstrap:
     <<: *backend-common
@@ -38,7 +38,7 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-    restart: on-failure
+    restart: "no"
 
   api:
     <<: *backend-common
