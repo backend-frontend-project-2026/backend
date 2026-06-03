@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+    inputs:
+      docker_image_tag:
+        description: Docker image tag for manual deploy
+        required: true
+        default: dev
+
 permissions:
   contents: write
   issues: write
