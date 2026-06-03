@@ -29,6 +29,7 @@ COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 COPY --from=builder --chown=appuser:appuser /app/app ./app
 COPY --from=builder --chown=appuser:appuser /app/migrations ./migrations
 COPY --from=builder --chown=appuser:appuser /app/alembic.ini /app/gunicorn.conf.py ./
+COPY --from=builder --chown=appuser:appuser /app/scripts ./scripts
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
