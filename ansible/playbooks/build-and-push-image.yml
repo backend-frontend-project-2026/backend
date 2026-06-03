@@ -1,0 +1,78 @@
+---
+- name: Build and push backend Docker image
+  hosts: app
+  become: true
+  gather_facts: false
+
+  vars:
+    app_name: roomie-match-backend
+    remote_build_dir: /tmp/roomie-match-backend-build
+    local_project_dir: "{{ playbook_dir }}/../.."
+
+    docker_user: "{{ lookup('env', 'DOCKER_USER') }}"
+    docker_token: "{{ lookup('env', 'DOCKER_TOKEN') }}"
+    docker_image_name: "{{ lookup('env', 'DOCKER_IMAGE_NAME') }}"
+    docker_image_tag: "{{ lookup('env', 'DOCKER_IMAGE_TAG') | default('latest', true) }}"
+    docker_full_image: "{{ docker_user }}/{{ docker_image_name }}:{{ docker_image_tag }}"
+
+  tasks:
+    - name: Check required Docker environment variables
+      ansible.builtin.assert:
+        that:
+          - docker_user | length > 0
+          - docker_token | length > 0
+          - docker_image_name | length > 0
+        fail_msg: >-
+          Required environment variables are missing.
+          Set DOCKER_USER, DOCKER_TOKEN and DOCKER_IMAGE_NAME.
+
+    - name: Remove previous temporary build directory
+      ansible.builtin.file:
+        path: "{{ remote_build_dir }}"
+        state: absent
+
+    - name: Create temporary build directory
+      ansible.builtin.file:
+        path: "{{ remote_build_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy project sources to VM
+      ansible.posix.synchronize:
+        src: "{{ local_project_dir }}/"
+        dest: "{{ remote_build_dir }}/"
+        delete: true
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.venv"
+          - "--exclude=__pycache__"
+          - "--exclude=.pytest_cache"
+          - "--exclude=.ruff_cache"
+          - "--exclude=.env"
+          - "--exclude=logs"
+          - "--exclude=ansible/inventories.ini"
+
+    - name: Log in to DockerHub
+      community.docker.docker_login:
+        username: "{{ docker_user }}"
+        password: "{{ docker_token }}"
+
+    - name: Build backend Docker image
+      community.docker.docker_image_build:
+        name: "{{ docker_user }}/{{ docker_image_name }}"
+        tag: "{{ docker_image_tag }}"
+        path: "{{ remote_build_dir }}"
+
+    - name: Push backend Docker image
+      community.docker.docker_image_push:
+        name: "{{ docker_user }}/{{ docker_image_name }}"
+        tag: "{{ docker_image_tag }}"
+
+    - name: Remove temporary build directory
+      ansible.builtin.file:
+        path: "{{ remote_build_dir }}"
+        state: absent
+
+    - name: Show pushed image
+      ansible.builtin.debug:
+        msg: "Pushed image {{ docker_full_image }}"

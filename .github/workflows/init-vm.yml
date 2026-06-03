@@ -1,0 +1,36 @@
+name: Init VM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  init-vm:
+    name: Initialize VM
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ansible
+        uses: ./.github/actions/setup-ansible
+        with:
+          ssh-private-key-b64: ${{ secrets.SSH_PRIVATE_KEY_B64 }}
+          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          vm-host: ${{ vars.VM_HOST }}
+          vm-user: ${{ vars.VM_USER }}
+
+      - name: Run VM initialization playbook
+        shell: bash
+        run: |
+          ansible-playbook \
+            -i ansible/inventories.ini \
+            ansible/playbooks/init-vm.yml
+
+      - name: Run ansible-lint
+        shell: bash
+        run: |
+          ansible-lint ansible/playbooks/init-vm.yml

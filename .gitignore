@@ -363,4 +363,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,linux,windows,pycharm
 *.sqlite3
 *.db
-
+ansible/inventories.ini
+deploy/.env
