@@ -1,9 +1,13 @@
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import delete, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
-from app.models.roles import PermissionModel, RoleModel
+from app.models.roles import (
+    PermissionModel,
+    RoleModel,
+    RolePermissionLink,
+    UserRoleLink,
+)
 from app.models.users import UserModel
 from app.utils.hashing import get_password_hash
 
@@ -60,6 +64,23 @@ ROLE_PERMISSIONS = {
 
 
 async def bootstrap_roles_and_permissions(session: AsyncSession) -> None:
+    permissions_by_scope = await _ensure_permissions(session)
+    roles_by_name = await _ensure_roles(session)
+
+    await _sync_role_permissions(
+        session=session,
+        roles_by_name=roles_by_name,
+        permissions_by_scope=permissions_by_scope,
+    )
+
+    await _bootstrap_admin_user(session, roles_by_name)
+
+    await session.commit()
+
+
+async def _ensure_permissions(
+    session: AsyncSession,
+) -> dict[str, PermissionModel]:
     permissions_by_scope: dict[str, PermissionModel] = {}
 
     all_scopes = sorted(
@@ -79,16 +100,19 @@ async def bootstrap_roles_and_permissions(session: AsyncSession) -> None:
         if permission is None:
             permission = PermissionModel(scope=scope)
             session.add(permission)
+            await session.flush()
 
         permissions_by_scope[scope] = permission
 
-    await session.flush()
+    return permissions_by_scope
 
-    for role_name, scopes in ROLE_PERMISSIONS.items():
+
+async def _ensure_roles(session: AsyncSession) -> dict[str, RoleModel]:
+    roles_by_name: dict[str, RoleModel] = {}
+
+    for role_name in ROLE_PERMISSIONS:
         result = await session.execute(
-            select(RoleModel)
-            .options(selectinload(RoleModel.permissions))
-            .where(RoleModel.name == role_name)
+            select(RoleModel).where(RoleModel.name == role_name)
         )
         role = result.scalars().first()
 
@@ -97,37 +121,68 @@ async def bootstrap_roles_and_permissions(session: AsyncSession) -> None:
             session.add(role)
             await session.flush()
 
-        role.permissions = [permissions_by_scope[scope] for scope in scopes]
+        roles_by_name[role_name] = role
+
+    return roles_by_name
+
+
+async def _sync_role_permissions(
+    session: AsyncSession,
+    roles_by_name: dict[str, RoleModel],
+    permissions_by_scope: dict[str, PermissionModel],
+) -> None:
+    for role_name, scopes in ROLE_PERMISSIONS.items():
+        role = roles_by_name[role_name]
+
+        await session.execute(
+            delete(RolePermissionLink).where(
+                RolePermissionLink.role_id == role.id,
+            )
+        )
+
+        for scope in scopes:
+            permission = permissions_by_scope[scope]
+            session.add(
+                RolePermissionLink(
+                    role_id=role.id,
+                    permission_id=permission.id,
+                )
+            )
 
     await session.flush()
 
-    await _bootstrap_admin_user(session)
-
-    await session.commit()
-
 
 async def _bootstrap_admin_user(
-        session: AsyncSession,
+    session: AsyncSession,
+    roles_by_name: dict[str, RoleModel],
 ) -> None:
     result = await session.execute(
         select(UserModel).where(UserModel.email == settings.RBAC_ADMIN_EMAIL)
     )
-    if result.scalars().first() is not None:
-        return
+    admin_user = result.scalars().first()
 
-    admin_role_result = await session.execute(
-        select(RoleModel).where(RoleModel.name == settings.RBAC_ADMIN_ROLE)
-    )
-    admin_role = admin_role_result.scalars().first()
-
+    admin_role = roles_by_name.get(settings.RBAC_ADMIN_ROLE)
     if admin_role is None:
         return
 
-    admin_user = UserModel(
-        first_name=settings.RBAC_ADMIN_FIRST_NAME,
-        last_name=settings.RBAC_ADMIN_LAST_NAME,
-        email=settings.RBAC_ADMIN_EMAIL,
-        password_hash=get_password_hash(settings.RBAC_ADMIN_PASSWORD),
+    if admin_user is None:
+        admin_user = UserModel(
+            first_name=settings.RBAC_ADMIN_FIRST_NAME,
+            last_name=settings.RBAC_ADMIN_LAST_NAME,
+            email=settings.RBAC_ADMIN_EMAIL,
+            password_hash=get_password_hash(settings.RBAC_ADMIN_PASSWORD),
+        )
+        session.add(admin_user)
+        await session.flush()
+
+    await session.execute(
+        delete(UserRoleLink).where(UserRoleLink.user_id == admin_user.id)
     )
-    admin_user.roles = [admin_role]
-    session.add(admin_user)
+    session.add(
+        UserRoleLink(
+            user_id=admin_user.id,
+            role_id=admin_role.id,
+        )
+    )
+
+    await session.flush()
