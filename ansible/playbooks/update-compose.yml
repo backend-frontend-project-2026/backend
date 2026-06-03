@@ -35,12 +35,6 @@
         dest: "{{ app_dir }}/nginx.conf"
         mode: "0644"
 
-    - name: Copy index page
-      ansible.builtin.copy:
-        src: ../files/index.html
-        dest: "{{ app_dir }}/index.html"
-        mode: "0644"
-
     - name: Write environment file
       ansible.builtin.copy:
         content: "{{ deploy_env }}"

@@ -1,74 +1,68 @@
 x-back-image: &back-image "{{ docker_user }}/{{ docker_image_name }}:{{ docker_image_tag }}"
+x-front-image: &front-image "{{ front_image | default('ceoceo/roomie-match-frontend:latest') }}"
 
-x-back-env: &back-env
-  env_file:
-    - .env
-
-x-back-depends: &back-depends
-  depends_on:
-    db:
-      condition: service_healthy
+x-backend-common: &backend-common
+  image: *back-image
+  env_file: .env
+  environment:
+    DB_HOST: db
 
 services:
   db:
     image: postgres:18
-    container_name: roomie_match_db
-    restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
   migrate:
-    image: *back-image
-    container_name: roomie_match_migrate
-    restart: "no"
-    <<: [*back-env, *back-depends]
-    command: uv run alembic upgrade head
-
-  bootstrap-rbac:
-    image: *back-image
-    container_name: roomie_match_bootstrap_rbac
-    restart: "no"
-    <<: [*back-env, *back-depends]
+    <<: *backend-common
+    command: ["alembic", "upgrade", "head"]
     depends_on:
       db:
         condition: service_healthy
+    restart: on-failure
+
+  bootstrap:
+    <<: *backend-common
+    command: ["python", "scripts/bootstrap_rbac.py"]
+    depends_on:
       migrate:
         condition: service_completed_successfully
-    command: uv run python scripts/bootstrap_rbac.py
+    restart: on-failure
 
   api:
-    image: *back-image
-    container_name: roomie_match_api
-    restart: unless-stopped
-    <<: [*back-env, *back-depends]
+    <<: *backend-common
     depends_on:
-      db:
-        condition: service_healthy
-      migrate:
+      bootstrap:
         condition: service_completed_successfully
-      bootstrap-rbac:
-        condition: service_completed_successfully
-    command: gunicorn app.main:app -c gunicorn.conf.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/openapi.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
 
   nginx:
-    image: nginx:1.27-alpine
-    container_name: roomie_match_nginx
-    restart: unless-stopped
-    depends_on:
-      api:
-        condition: service_started
+    image: *front-image
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./index.html:/usr/share/nginx/html/index.html:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
