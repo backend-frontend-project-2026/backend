@@ -10,6 +10,47 @@
 - **@operupolnomochennaya** — Backend Developer
 - **@sam1rrrr** — Backend Developer
 
+## Запуск через Docker Compose
+
+### Требования
+
+- [Docker](https://docs.docker.com/get-docker/) (версия 24+)
+
+### Шаги
+
+1. Склонируйте репозиторий:
+
+```bash
+git clone <repo-url>
+cd backend
+```
+
+2. Создайте файл `.env` на основе `.env.example`:
+
+3. Запустите проект:
+
+```bash
+docker compose up
+```
+
+После запуска:
+
+| Адрес | Что это |
+|---|---|
+| `http://localhost` | Главная страница |
+| `http://localhost/api/v1/docs` | Swagger UI (документация API) |
+
+> Все запросы к API нужно делать через `http://localhost/api/v1/...` — nginx проксирует их на бэкенд автоматически.
+
+### Остановка
+
+```bash
+docker compose down          # остановить контейнеры
+docker compose down -v       # остановить и удалить БД (данные будут потеряны)
+```
+
+---
+
 ## Инструкция по запуску
 
 ### 1. Установка зависимостей
