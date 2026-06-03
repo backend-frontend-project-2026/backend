@@ -1,5 +1,5 @@
 name: Setup Ansible
-description: Configure SSH and install Ansible dependencies
+description: Configure SSH, inventory and Ansible dependencies
 
 inputs:
   ssh-private-key-b64:
@@ -7,6 +7,12 @@ inputs:
     required: true
   ssh-known-hosts:
     description: Known hosts content for SSH
+    required: true
+  vm-host:
+    description: VM public host
+    required: true
+  vm-user:
+    description: SSH user for VM
     required: true
 
 runs:
@@ -16,13 +22,13 @@ runs:
       shell: bash
       run: |
         sudo apt-get update
-        sudo apt-get install -y openssh-client python3 python3-pip pipx
+        sudo apt-get install -y openssh-client python3 python3-pip
 
-    - name: Install Ansible
+    - name: Install Ansible dependencies
       shell: bash
       run: |
-        pipx install --include-deps ansible ansible-lint
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        python -m pip install --upgrade pip
+        python -m pip install ansible ansible-lint
 
     - name: Install Ansible collections
       shell: bash
@@ -46,3 +52,11 @@ runs:
       run: |
         echo "${{ inputs.ssh-known-hosts }}" > ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
+
+    - name: Create Ansible inventory
+      shell: bash
+      run: |
+        cat > ansible/inventories.ini <<EOF
+        [app]
+        ${{ inputs.vm-host }} ansible_user=${{ inputs.vm-user }} ansible_ssh_private_key_file=~/.ssh/deploy_key
+        EOF

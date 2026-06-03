@@ -151,7 +151,7 @@ ansible/
     update-compose.yml
   templates/
     docker-compose.prod.yml.j2
-  files/
+  nginx/
     nginx.conf
 ```
 

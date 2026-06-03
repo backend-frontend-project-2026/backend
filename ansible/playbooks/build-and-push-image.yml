@@ -62,7 +62,6 @@
         name: "{{ docker_user }}/{{ docker_image_name }}"
         tag: "{{ docker_image_tag }}"
         path: "{{ remote_build_dir }}"
-        pull: true
 
     - name: Push backend Docker image
       community.docker.docker_image_push:

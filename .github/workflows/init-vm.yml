@@ -20,14 +20,8 @@ jobs:
         with:
           ssh-private-key-b64: ${{ secrets.SSH_PRIVATE_KEY_B64 }}
           ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-
-      - name: Create Ansible inventory
-        shell: bash
-        run: |
-          cat > ansible/inventories.ini <<EOF
-          [app]
-          ${{ vars.VM_HOST }} ansible_user=${{ vars.VM_USER }} ansible_ssh_private_key_file=~/.ssh/deploy_key
-          EOF
+          vm-host: ${{ vars.VM_HOST }}
+          vm-user: ${{ vars.VM_USER }}
 
       - name: Run VM initialization playbook
         shell: bash
