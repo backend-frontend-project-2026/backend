@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+from fastapi import logger
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import EmailStr
@@ -38,7 +39,12 @@ class EmailService:
         context: dict[str, Any],
     ) -> None:
         if not settings.EMAIL_NOTIFICATIONS_ENABLED:
-            raise RuntimeError('Email notifications are disabled')
+            logger.warning(
+                'Email notifications are disabled. Skip sending email: recipient=%s subject=%s',
+                recipient,
+                subject,
+            )
+            return
 
         template = self._template_env.get_template(template_name)
         html_body = template.render(**context)
