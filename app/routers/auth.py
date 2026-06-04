@@ -1,7 +1,4 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Cookie, Depends, Request, Response, Security
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Cookie, Request, Response, Security
 
 from app.core.logging import logger
 from app.core.rate_limit import limiter
@@ -21,6 +18,7 @@ from app.models.users import UserModel, UserPublic
 from app.schemas.auth import (
     ChangePasswordRequest,
     ConfirmAccountRequest,
+    LoginRequest,
     MessageResponse,
     RegisterRequest,
     RequestPasswordResetRequest,
@@ -114,14 +112,14 @@ async def confirm_account(
 async def login(
     request: Request,
     response: Response,
+    payload: LoginRequest,
     user_repository: UserAuthRepositoryDep,
     refresh_session_repository: RefreshSessionRepositoryDep,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> TokenResponse:
     user = await AuthService.authenticate_user(
         user_repository=user_repository,
-        email=form_data.username,
-        password=form_data.password,
+        email=str(payload.email),
+        password=payload.password,
     )
 
     tokens = await AuthService.create_token_pair(
