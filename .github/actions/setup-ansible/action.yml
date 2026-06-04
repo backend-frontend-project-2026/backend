@@ -1,0 +1,62 @@
+name: Setup Ansible
+description: Configure SSH, inventory and Ansible dependencies
+
+inputs:
+  ssh-private-key-b64:
+    description: Base64 encoded private SSH key
+    required: true
+  ssh-known-hosts:
+    description: Known hosts content for SSH
+    required: true
+  vm-host:
+    description: VM public host
+    required: true
+  vm-user:
+    description: SSH user for VM
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openssh-client python3 python3-pip
+
+    - name: Install Ansible dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ansible ansible-lint
+
+    - name: Install Ansible collections
+      shell: bash
+      run: |
+        ansible-galaxy collection install -r ansible/requirements.yml
+
+    - name: Configure SSH directory
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+
+    - name: Decode SSH private key
+      shell: bash
+      run: |
+        echo "${{ inputs.ssh-private-key-b64 }}" | base64 -d > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+
+    - name: Configure known hosts
+      shell: bash
+      run: |
+        echo "${{ inputs.ssh-known-hosts }}" > ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+
+    - name: Create Ansible inventory
+      shell: bash
+      run: |
+        cat > ansible/inventories.ini <<EOF
+        [app]
+        ${{ inputs.vm-host }} ansible_user=${{ inputs.vm-user }} ansible_ssh_private_key_file=~/.ssh/deploy_key
+        EOF
