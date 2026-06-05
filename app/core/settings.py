@@ -43,6 +43,9 @@ class Settings(BaseSettings):
 
     FRONTEND_BASE_URL: str = 'http://localhost:3000'
 
+    MEDIA_DIR: str = 'media'
+    MEDIA_BASE_URL: str = 'http://localhost/media'
+
     CORS_ALLOW_ORIGINS: str = 'http://localhost:3000,http://127.0.0.1:3000'
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: str = '*'
