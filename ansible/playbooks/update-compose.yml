@@ -12,6 +12,7 @@
     docker_image_name: "{{ lookup('env', 'DOCKER_IMAGE_NAME') }}"
     docker_image_tag: "{{ lookup('env', 'DOCKER_IMAGE_TAG') | default('latest', true) }}"
     deploy_env: "{{ lookup('env', 'ENV') }}"
+    front_image: "{{ lookup('env', 'FRONT_IMAGE') | default('annittabonita/roomie-match-frontend:latest', true) }}"
 
   tasks:
     - name: Check required deployment variables
