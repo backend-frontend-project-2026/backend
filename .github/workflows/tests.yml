@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  pytest:
+    name: Run pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run tests
+        run: |
+          mkdir -p reports
+          uv run pytest tests/ -v --tb=short --junit-xml=reports/junit.xml
+        env:
+          DB_USER: test
+          DB_PASSWORD: test
+          DB_NAME: test
+          JWT_SECRET_KEY: test-secret-key-minimum-32-characters!!
+          EMAIL_NOTIFICATIONS_ENABLED: 'false'
+          RATE_LIMIT_AUTH: '1000/minute'
+          RATE_LIMIT_DEFAULT: '1000/minute'
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: reports/junit.xml
+          check_name: Pytest Results
+          comment_mode: always
+          fail_on: test failures

@@ -27,7 +27,7 @@ class RefreshSessionModel(IDModel, TimestampedModel, table=True):
 
     @property
     def is_valid(self) -> bool:
-        return (
-            not self.is_invalidated
-            and self.expires_at > datetime.now(timezone.utc)
-        )
+        expires_at = self.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        return not self.is_invalidated and expires_at > datetime.now(timezone.utc)
