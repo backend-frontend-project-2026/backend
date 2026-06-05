@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from pydantic import BaseModel as SchemaModel
 from pydantic import Field as SchemaField
-from sqlalchemy import Column, String
+from sqlalchemy import JSON, Column, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import Field, Relationship
 
@@ -135,7 +135,7 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
     avatar_url: Optional[str] = None
     photo_urls: list[str] = Field(
         default_factory=list,
-        sa_column=Column(ARRAY(String()), nullable=False),
+        sa_column=Column(ARRAY(String()).with_variant(JSON(), 'sqlite'), nullable=False),
     )
 
     sleep_schedule: Optional[str] = Field(default=None, max_length=100)
@@ -164,7 +164,7 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
 
     interests: list[str] = Field(
         default_factory=list,
-        sa_column=Column(ARRAY(String()), nullable=False),
+        sa_column=Column(ARRAY(String()).with_variant(JSON(), 'sqlite'), nullable=False),
     )
 
     compatibility_note: Optional[str] = None

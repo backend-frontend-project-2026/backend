@@ -18,8 +18,36 @@ permissions:
   pull-requests: write
 
 jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run tests
+        run: |
+          mkdir -p reports
+          uv run pytest tests/ -v --tb=short --junit-xml=reports/junit.xml
+        env:
+          DB_USER: test
+          DB_PASSWORD: test
+          DB_NAME: test
+          JWT_SECRET_KEY: test-secret-key-minimum-32-characters!!
+          EMAIL_NOTIFICATIONS_ENABLED: 'false'
+          RATE_LIMIT_AUTH: '1000/minute'
+          RATE_LIMIT_DEFAULT: '1000/minute'
+
   release:
     name: Create release tag
+    needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
@@ -50,10 +78,11 @@ jobs:
   deploy:
     name: Build image and update compose
     runs-on: ubuntu-latest
-    needs: release
+    needs: [test, release]
 
     if: >-
       always() &&
+      needs.test.result == 'success' &&
       (
         github.event_name == 'workflow_dispatch' ||
         needs.release.outputs.released == 'true'
