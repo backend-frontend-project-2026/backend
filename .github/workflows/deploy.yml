@@ -64,6 +64,7 @@ jobs:
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
       DOCKER_IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_image_tag || format('v{0}', needs.release.outputs.version) }}
+      FRONT_IMAGE: annittabonita/roomie-match-frontend:latest
       ENV: ${{ secrets.ENV }}
 
     steps:
