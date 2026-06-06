@@ -16,6 +16,11 @@ from app.schemas.dorms import (
 
 router = APIRouter(prefix='/universities/{university_id}/dorms', tags=['Dorms'])
 
+_MOCK_DORMS: list[dict] = [
+    {'id': 1, 'uni_id': 1, 'name': 'Деревня Универсиады, корпус 3', 'city': 'Казань', 'address': 'Деревня Универсиады, корпус 3'},
+    {'id': 2, 'uni_id': 2, 'name': 'Общежитие КГЭУ №2', 'city': 'Казань', 'address': 'Общежитие КГЭУ №2'},
+]
+
 
 @router.get(
     '',
@@ -23,14 +28,28 @@ router = APIRouter(prefix='/universities/{university_id}/dorms', tags=['Dorms'])
     responses=common_error_responses,
 )
 async def list_dorms(
-    dorm_service: DormServiceDep,
+    university_id: int,
     filters: Annotated[DormFilters, Depends()],
     _current_user: UserModel = Security(
         get_current_user,
         scopes=['references:read'],
     ),
 ):
-    return await dorm_service.get_list(filters)
+    items = [d for d in _MOCK_DORMS if d['uni_id'] == university_id]
+    if filters.city is not None:
+        items = [d for d in items if d['city'] == filters.city]
+    if filters.name is not None:
+        items = [d for d in items if d['name'] == filters.name]
+
+    offset = (filters.page - 1) * filters.page_size
+    page_items = items[offset: offset + filters.page_size]
+
+    return DormListResponse(
+        items=[DormResponse(**d) for d in page_items],
+        total=len(items),
+        page=filters.page,
+        page_size=filters.page_size,
+    )
 
 
 @router.post(
