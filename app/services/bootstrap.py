@@ -458,9 +458,11 @@ async def _bootstrap_demo_reference_data(session: AsyncSession) -> None:
 
 async def _bootstrap_tags(session: AsyncSession) -> None:
     for category, value, label in DEMO_TAGS:
+        category_value = category.value
+
         result = await session.execute(
             select(TagModel).where(
-                TagModel.category == category,
+                TagModel.category == category_value,
                 TagModel.value == value,
             )
         )
@@ -469,7 +471,7 @@ async def _bootstrap_tags(session: AsyncSession) -> None:
         if tag is None:
             session.add(
                 TagModel(
-                    category=category,
+                    category=category_value,
                     value=value,
                     label=label,
                 )
