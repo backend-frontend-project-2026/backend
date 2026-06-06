@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, text
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
@@ -461,23 +461,62 @@ async def _bootstrap_tags(session: AsyncSession) -> None:
         category_value = category.value
 
         result = await session.execute(
-            select(TagModel).where(
-                TagModel.category == category_value,
-                TagModel.value == value,
-            )
+            text(
+                """
+                SELECT id, label
+                FROM tags
+                WHERE category = CAST(:category AS tagcategory)
+                  AND value = :value
+                """
+            ),
+            {
+                'category': category_value,
+                'value': value,
+            },
         )
-        tag = result.scalars().first()
+        tag_row = result.mappings().first()
 
-        if tag is None:
-            session.add(
-                TagModel(
-                    category=category_value,
-                    value=value,
-                    label=label,
-                )
+        if tag_row is None:
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO tags (
+                        created_at,
+                        updated_at,
+                        category,
+                        value,
+                        label
+                    )
+                    VALUES (
+                        NOW(),
+                        NOW(),
+                        CAST(:category AS tagcategory),
+                        :value,
+                        :label
+                    )
+                    """
+                ),
+                {
+                    'category': category_value,
+                    'value': value,
+                    'label': label,
+                },
             )
-        elif tag.label != label:
-            tag.label = label
+        elif tag_row['label'] != label:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tags
+                    SET label = :label,
+                        updated_at = NOW()
+                    WHERE id = :tag_id
+                    """
+                ),
+                {
+                    'tag_id': tag_row['id'],
+                    'label': label,
+                },
+            )
 
     await session.flush()
 
