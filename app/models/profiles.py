@@ -68,7 +68,7 @@ class ProfileBase(SchemaModel):
 
 
 class ProfileCreate(ProfileBase):
-    pass
+    user_id: Optional[int] = None
 
 
 class ProfileUpdate(SchemaModel):
