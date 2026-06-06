@@ -29,15 +29,19 @@ class ProfileSex(str, Enum):
 class ProfileBase(SchemaModel):
     user_id: int
     uni_id: int
+    faculty_id: Optional[int] = None
     neighbourhood_id: Optional[int] = None
 
     name: str = SchemaField(max_length=50)
     sex: ProfileSex
     age: int
+    course: Optional[int] = None
+    city: Optional[str] = SchemaField(default=None, max_length=100)
+    profile_description: Optional[str] = None
 
     profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
-    photo_urls: list[str] = []
+    photo_urls: list[str] = SchemaField(default_factory=list)
 
     sleep_schedule: Optional[str] = SchemaField(default=None, max_length=100)
     cleanliness: Optional[str] = SchemaField(default=None, max_length=100)
@@ -63,7 +67,7 @@ class ProfileBase(SchemaModel):
     ideal_roommate_description: Optional[str] = None
     rental_criteria: Optional[str] = None
 
-    interests: list[str] = []
+    interests: list[str] = SchemaField(default_factory=list)
 
     compatibility_note: Optional[str] = None
 
@@ -75,11 +79,15 @@ class ProfileCreate(ProfileBase):
 class ProfileUpdate(SchemaModel):
     user_id: Optional[int] = None
     uni_id: Optional[int] = None
+    faculty_id: Optional[int] = None
     neighbourhood_id: Optional[int] = None
 
     name: Optional[str] = SchemaField(default=None, max_length=50)
     sex: Optional[ProfileSex] = None
     age: Optional[int] = None
+    course: Optional[int] = None
+    city: Optional[str] = SchemaField(default=None, max_length=100)
+    profile_description: Optional[str] = None
 
     profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -122,6 +130,7 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
 
     user_id: int = Field(foreign_key='users.id', unique=True)
     uni_id: int = Field(foreign_key='universities.id')
+    faculty_id: Optional[int] = Field(default=None, foreign_key='faculties.id')
     neighbourhood_id: Optional[int] = Field(
         default=None,
         foreign_key='neighbourhoods.id',
@@ -130,6 +139,9 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
     name: str = Field(max_length=50)
     sex: ProfileSex
     age: int
+    course: Optional[int] = None
+    city: Optional[str] = Field(default=None, max_length=100)
+    profile_description: Optional[str] = None
 
     profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
