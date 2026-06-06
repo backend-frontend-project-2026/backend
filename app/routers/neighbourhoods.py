@@ -16,6 +16,13 @@ from app.schemas.neighbourhoods import (
 
 router = APIRouter(prefix='/neighbourhoods', tags=['Neighbourhoods'])
 
+_MOCK_NEIGHBOURHOODS: list[dict] = [
+    {'id': 1, 'city': 'Казань', 'district_name': 'Приволжский район'},
+    {'id': 2, 'city': 'Казань', 'district_name': 'Советский район'},
+    {'id': 3, 'city': 'Казань', 'district_name': 'Вахитовский район'},
+    {'id': 4, 'city': 'Казань', 'district_name': 'Ново-Савиновский район'},
+]
+
 
 @router.get(
     '',
@@ -23,14 +30,27 @@ router = APIRouter(prefix='/neighbourhoods', tags=['Neighbourhoods'])
     responses=common_error_responses,
 )
 async def list_neighbourhoods(
-    neighbourhood_service: NeighbourhoodServiceDep,
     filters: Annotated[NeighbourhoodFilters, Depends()],
     _current_user: UserModel = Security(
         get_current_user,
         scopes=['references:read'],
     ),
 ) -> NeighbourhoodListResponse:
-    return await neighbourhood_service.get_list(filters)
+    items = _MOCK_NEIGHBOURHOODS
+    if filters.city is not None:
+        items = [n for n in items if n['city'] == filters.city]
+    if filters.district_name is not None:
+        items = [n for n in items if n['district_name'] == filters.district_name]
+
+    offset = (filters.page - 1) * filters.page_size
+    page_items = items[offset: offset + filters.page_size]
+
+    return NeighbourhoodListResponse(
+        items=[NeighbourhoodResponse(**n) for n in page_items],
+        total=len(items),
+        page=filters.page,
+        page_size=filters.page_size,
+    )
 
 
 @router.get(
