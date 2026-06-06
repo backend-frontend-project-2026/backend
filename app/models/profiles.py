@@ -39,7 +39,6 @@ class ProfileBase(SchemaModel):
     city: Optional[str] = SchemaField(default=None, max_length=100)
     profile_description: Optional[str] = None
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: list[str] = SchemaField(default_factory=list)
 
@@ -73,7 +72,7 @@ class ProfileBase(SchemaModel):
 
 
 class ProfileCreate(ProfileBase):
-    pass
+    user_id: Optional[int] = None
 
 
 class ProfileUpdate(SchemaModel):
@@ -89,7 +88,6 @@ class ProfileUpdate(SchemaModel):
     city: Optional[str] = SchemaField(default=None, max_length=100)
     profile_description: Optional[str] = None
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: Optional[list[str]] = None
 
@@ -143,7 +141,6 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
     city: Optional[str] = Field(default=None, max_length=100)
     profile_description: Optional[str] = None
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: list[str] = Field(
         default_factory=list,
