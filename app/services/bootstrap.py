@@ -1,5 +1,4 @@
 from sqlalchemy import delete, select
-from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
@@ -486,12 +485,10 @@ async def _bootstrap_universities_and_faculties(
 ) -> None:
     for university_name, data in DEMO_UNIVERSITIES.items():
         city = str(data['city'])
-        faculty_names = list(data['faculties'])
+        faculty_names = [str(name) for name in data['faculties']]
 
         result = await session.execute(
-            select(UniversityModel)
-            .options(selectinload(UniversityModel.faculties))
-            .where(UniversityModel.name == university_name)
+            select(UniversityModel).where(UniversityModel.name == university_name)
         )
         university = result.scalars().first()
 
@@ -505,9 +502,12 @@ async def _bootstrap_universities_and_faculties(
         elif university.city != city:
             university.city = city
 
+        faculties_result = await session.execute(
+            select(FacultyModel).where(FacultyModel.uni_id == university.id)
+        )
         existing_faculty_names = {
             faculty.name
-            for faculty in university.faculties
+            for faculty in faculties_result.scalars().all()
         }
 
         for faculty_name in faculty_names:
