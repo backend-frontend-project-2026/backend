@@ -457,6 +457,37 @@ async def _bootstrap_demo_reference_data(session: AsyncSession) -> None:
 
 
 async def _bootstrap_tags(session: AsyncSession) -> None:
+    bind = session.get_bind()
+    dialect_name = bind.dialect.name if bind is not None else ''
+
+    if dialect_name == 'postgresql':
+        await _bootstrap_tags_postgresql(session)
+        return
+
+    for category, value, label in DEMO_TAGS:
+        result = await session.execute(
+            select(TagModel).where(
+                TagModel.category == category,
+                TagModel.value == value,
+            )
+        )
+        tag = result.scalars().first()
+
+        if tag is None:
+            session.add(
+                TagModel(
+                    category=category,
+                    value=value,
+                    label=label,
+                )
+            )
+        elif tag.label != label:
+            tag.label = label
+
+    await session.flush()
+
+
+async def _bootstrap_tags_postgresql(session: AsyncSession) -> None:
     for category, value, label in DEMO_TAGS:
         category_value = category.value
 
@@ -488,8 +519,8 @@ async def _bootstrap_tags(session: AsyncSession) -> None:
                         label
                     )
                     VALUES (
-                        NOW(),
-                        NOW(),
+                        CURRENT_TIMESTAMP,
+                        CURRENT_TIMESTAMP,
                         CAST(:category AS tagcategory),
                         :value,
                         :label
@@ -508,7 +539,7 @@ async def _bootstrap_tags(session: AsyncSession) -> None:
                     """
                     UPDATE tags
                     SET label = :label,
-                        updated_at = NOW()
+                        updated_at = CURRENT_TIMESTAMP
                     WHERE id = :tag_id
                     """
                 ),
