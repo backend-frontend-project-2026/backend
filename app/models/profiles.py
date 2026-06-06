@@ -35,7 +35,6 @@ class ProfileBase(SchemaModel):
     sex: ProfileSex
     age: int
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: list[str] = []
 
@@ -81,7 +80,6 @@ class ProfileUpdate(SchemaModel):
     sex: Optional[ProfileSex] = None
     age: Optional[int] = None
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: Optional[list[str]] = None
 
@@ -131,7 +129,6 @@ class ProfileModel(IDModel, TimestampedModel, table=True):
     sex: ProfileSex
     age: int
 
-    profile_picture_url: Optional[str] = None
     avatar_url: Optional[str] = None
     photo_urls: list[str] = Field(
         default_factory=list,
