@@ -12,6 +12,7 @@ from app.models.faculties import FacultyModel
 from app.models.messages import MessageModel
 from app.models.neighbourhoods import NeighbourhoodModel
 from app.models.profiles import ProfileModel
+from app.models.media import MediaModel
 from app.models.reactions import ReactionModel
 from app.models.tags import TagModel
 from app.models.universities import UniversityModel
@@ -85,6 +86,10 @@ def get_reaction_repository(session: SessionDep) -> Repository[ReactionModel]:
     return Repository[ReactionModel](session)
 
 
+def get_media_repository(session: SessionDep) -> Repository[MediaModel]:
+    return Repository[MediaModel](session)
+
+
 def get_role_repository(session: SessionDep) -> RoleRepository:
     return RoleRepository(session)
 
@@ -111,6 +116,7 @@ type DormRepository = Repository[DormModel]
 type NeighbourhoodRepository = Repository[NeighbourhoodModel]
 type TagRepository = Repository[TagModel]
 type ReactionRepository = Repository[ReactionModel]
+type MediaRepository = Repository[MediaModel]
 
 
 UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
@@ -146,6 +152,7 @@ NeighbourhoodRepositoryDep = Annotated[
 ]
 TagRepositoryDep = Annotated[TagRepository, Depends(get_tag_repository)]
 ReactionRepositoryDep = Annotated[ReactionRepository, Depends(get_reaction_repository)]
+MediaRepositoryDep = Annotated[MediaRepository, Depends(get_media_repository)]
 EmailNotificationRepositoryDep = Annotated[
     EmailNotificationRepositoryType,
     Depends(get_email_notification_repository),

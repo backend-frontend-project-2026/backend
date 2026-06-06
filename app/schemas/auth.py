@@ -8,6 +8,11 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class ConfirmAccountRequest(BaseModel):
     user_id: int
     code: str = Field(min_length=1, max_length=64)

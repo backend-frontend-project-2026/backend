@@ -1,5 +1,5 @@
 x-back-image: &back-image "{{ docker_user }}/{{ docker_image_name }}:{{ docker_image_tag }}"
-x-front-image: &front-image "{{ front_image | default('ceoceo/roomie-match-frontend:latest') }}"
+x-front-image: &front-image "{{ front_image | default('annittabonita/roomie-match-frontend:latest', true) }}"
 
 x-backend-common: &backend-common
   image: *back-image
