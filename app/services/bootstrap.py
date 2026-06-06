@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, text
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.settings import settings
@@ -457,12 +457,17 @@ async def _bootstrap_demo_reference_data(session: AsyncSession) -> None:
 
 
 async def _bootstrap_tags(session: AsyncSession) -> None:
-    for category, value, label in DEMO_TAGS:
-        category_value = category.value
+    bind = session.get_bind()
+    dialect_name = bind.dialect.name if bind is not None else ''
 
+    if dialect_name == 'postgresql':
+        await _bootstrap_tags_postgresql(session)
+        return
+
+    for category, value, label in DEMO_TAGS:
         result = await session.execute(
             select(TagModel).where(
-                TagModel.category == category_value,
+                TagModel.category == category,
                 TagModel.value == value,
             )
         )
@@ -471,13 +476,78 @@ async def _bootstrap_tags(session: AsyncSession) -> None:
         if tag is None:
             session.add(
                 TagModel(
-                    category=category_value,
+                    category=category,
                     value=value,
                     label=label,
                 )
             )
         elif tag.label != label:
             tag.label = label
+
+    await session.flush()
+
+
+async def _bootstrap_tags_postgresql(session: AsyncSession) -> None:
+    for category, value, label in DEMO_TAGS:
+        category_value = category.value
+
+        result = await session.execute(
+            text(
+                """
+                SELECT id, label
+                FROM tags
+                WHERE category = CAST(:category AS tagcategory)
+                  AND value = :value
+                """
+            ),
+            {
+                'category': category_value,
+                'value': value,
+            },
+        )
+        tag_row = result.mappings().first()
+
+        if tag_row is None:
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO tags (
+                        created_at,
+                        updated_at,
+                        category,
+                        value,
+                        label
+                    )
+                    VALUES (
+                        CURRENT_TIMESTAMP,
+                        CURRENT_TIMESTAMP,
+                        CAST(:category AS tagcategory),
+                        :value,
+                        :label
+                    )
+                    """
+                ),
+                {
+                    'category': category_value,
+                    'value': value,
+                    'label': label,
+                },
+            )
+        elif tag_row['label'] != label:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tags
+                    SET label = :label,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :tag_id
+                    """
+                ),
+                {
+                    'tag_id': tag_row['id'],
+                    'label': label,
+                },
+            )
 
     await session.flush()
 
