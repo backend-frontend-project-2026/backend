@@ -26,6 +26,10 @@ class Repository[Model: BaseModel]:
             self._model = get_filled_type(self, Repository, 0)
         return self._model
 
+    @property
+    def session(self) -> AsyncSession:
+        return self._session
+
     def __init__(self, session: SessionDep):
         self._session = session
 

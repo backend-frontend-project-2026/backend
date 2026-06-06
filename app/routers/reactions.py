@@ -9,6 +9,7 @@ from app.exceptions.responses import common_error_responses, create_error_respon
 from app.models.reactions import ReactionCreate
 from app.models.users import UserModel
 from app.schemas.reactions import (
+    ReactionCreateResponse,
     ReactionFilters,
     ReactionListResponse,
     ReactionResponse,
@@ -35,7 +36,7 @@ async def list_reactions(
 
 @router.post(
     '',
-    response_model=ReactionResponse,
+    response_model=ReactionCreateResponse,
     responses=create_error_responses,
 )
 async def create_reaction(
