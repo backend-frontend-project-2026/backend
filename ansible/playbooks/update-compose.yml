@@ -44,6 +44,14 @@
         dest: "{{ app_dir }}/.env"
         mode: "0600"
 
+    - name: Create media directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}/media"
+        state: directory
+        owner: "1000"
+        group: "1000"
+        mode: "0755"
+
     - name: Render production compose file
       ansible.builtin.template:
         src: "{{ ansible_root_dir }}/templates/docker-compose.prod.yml.j2"

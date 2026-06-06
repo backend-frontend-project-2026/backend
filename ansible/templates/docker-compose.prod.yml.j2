@@ -6,6 +6,8 @@ x-backend-common: &backend-common
   env_file: .env
   environment:
     DB_HOST: db
+  volumes:
+    - ./media:/app/media
 
 services:
   db:
