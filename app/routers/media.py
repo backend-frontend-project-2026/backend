@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Security, UploadFile
+from fastapi import APIRouter, Form, Security, UploadFile
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import MediaServiceDep
@@ -20,7 +20,7 @@ router = APIRouter(prefix='/media', tags=['Media'])
 async def upload_media(
     file: UploadFile,
     media_service: MediaServiceDep,
-    kind: Optional[MediaKind] = None,
+    kind: Optional[MediaKind] = Form(default=None),
     _current_user: UserModel = Security(get_current_user, scopes=['media:upload']),
 ):
     return await media_service.upload(file, kind)
