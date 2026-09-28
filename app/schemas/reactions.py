@@ -13,6 +13,10 @@ class ReactionResponse(ApiResponseModel, ReactionPublic):
     pass
 
 
+class ReactionCreateResponse(ReactionResponse):
+    mutual: bool
+
+
 class ReactionListResponse(PaginatedResponse[ReactionResponse]):
     pass
 
