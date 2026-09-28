@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: roomie-match
+data:
+  DB_SCHEME: postgresql+asyncpg
+  DB_HOST: postgres-0.postgres.roomie-match.svc.cluster.local
+  DB_PORT: "5432"
+
+  JWT_ALGORITHM: HS256
+
+  FRONTEND_BASE_URL: http://127.0.0.1:13000
+
+  CORS_ALLOW_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://localhost:13000,http://127.0.0.1:13000
+  CORS_ALLOW_CREDENTIALS: "true"
+  CORS_ALLOW_METHODS: "*"
+  CORS_ALLOW_HEADERS: "*"
+
+  SMTP_HOST: smtp.yandex.ru
+  SMTP_PORT: "587"
+  SMTP_FROM_EMAIL: no-reply@example.com
+  SMTP_FROM_NAME: Roomie Match
+  SMTP_STARTTLS: "true"
+  SMTP_SSL_TLS: "false"
+
+  EMAIL_NOTIFICATIONS_ENABLED: "false"
+  EMAIL_CONFIRMATION_CODE_EXPIRE_MINUTES: "15"
