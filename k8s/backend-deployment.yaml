@@ -17,6 +17,12 @@ spec:
         app: backend
 
     spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:18
+          command: [sh, -c, 'until pg_isready -h postgres -p 5432; do sleep 2; done']
       containers:
         - name: backend
           image: roomie-match-backend:local
@@ -25,6 +31,18 @@ spec:
           ports:
             - containerPort: 8000
 
+          startupProbe:
+            httpGet:
+              path: /openapi.json
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /openapi.json
+              port: 8000
+            periodSeconds: 10
+
           envFrom:
             - configMapRef:
                 name: backend-config
@@ -32,6 +50,8 @@ spec:
                 name: backend-secret
 
           volumeMounts:
+            - name: backend-media
+              mountPath: /app/media
             - name: backend-logs
               mountPath: /app/logs
 
@@ -46,5 +66,8 @@ spec:
               exec gunicorn -c gunicorn.conf.py app.main:app
 
       volumes:
+        - name: backend-media
+          persistentVolumeClaim:
+            claimName: backend-media
         - name: backend-logs
           emptyDir: {}

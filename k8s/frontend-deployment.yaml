@@ -25,12 +25,24 @@ spec:
           ports:
             - containerPort: 80
 
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+
           volumeMounts:
+            - name: backend-media
+              mountPath: /media
+              readOnly: true
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
 
       volumes:
+        - name: backend-media
+          persistentVolumeClaim:
+            claimName: backend-media
         - name: nginx-config
           configMap:
             name: frontend-nginx-config

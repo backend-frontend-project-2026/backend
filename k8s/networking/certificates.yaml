@@ -1,0 +1,41 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: frontend-tls
+  namespace: roomie-match
+spec:
+  secretName: frontend-tls
+  commonName: roomie.test
+  subject:
+    organizations:
+      - Roomie Match Homework
+  dnsNames:
+    - roomie.test
+  issuerRef:
+    name: selfsigned
+    kind: Issuer
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: backend-tls
+  namespace: roomie-match
+spec:
+  secretName: backend-tls
+  commonName: api.roomie.test
+  subject:
+    organizations:
+      - Roomie Match Homework
+  dnsNames:
+    - api.roomie.test
+  issuerRef:
+    name: selfsigned
+    kind: Issuer
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
