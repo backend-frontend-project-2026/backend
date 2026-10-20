@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  namespace: roomie-match
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - roomie.test
+      secretName: frontend-tls
+  rules:
+    - host: roomie.test
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend
+  namespace: roomie-match
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.roomie.test
+      secretName: backend-tls
+  rules:
+    - host: api.roomie.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8000

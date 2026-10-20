@@ -365,3 +365,7 @@ $RECYCLE.BIN/
 *.db
 ansible/inventories.ini
 deploy/.env
+
+# Local Kubernetes tools, credentials and verification output
+.local-k8s/
+k8s/*.secret.env

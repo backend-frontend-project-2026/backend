@@ -12,6 +12,10 @@ data:
       root /usr/share/nginx/html;
       index index.html;
 
+      location /media/ {
+        alias /media/;
+      }
+
       location / {
         try_files $uri $uri/ /index.html;
       }
