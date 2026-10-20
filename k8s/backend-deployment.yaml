@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: roomie-match
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+        - name: backend
+          image: roomie-match-backend:local
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8000
+
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+
+          volumeMounts:
+            - name: backend-logs
+              mountPath: /app/logs
+
+          command:
+            - /bin/sh
+            - -c
+
+          args:
+            - |
+              alembic upgrade head &&
+              python scripts/bootstrap_rbac.py &&
+              exec gunicorn -c gunicorn.conf.py app.main:app
+
+      volumes:
+        - name: backend-logs
+          emptyDir: {}
