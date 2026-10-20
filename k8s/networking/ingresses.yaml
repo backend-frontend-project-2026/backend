@@ -13,7 +13,6 @@ spec:
     - host: roomie.test
       http:
         paths:
-          # Keep API requests on the frontend origin; do not strip /api.
           - path: /api
             pathType: Prefix
             backend:
