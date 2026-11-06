@@ -22,26 +22,38 @@ spec:
         runAsNonRoot: true
         runAsUser: 101
         runAsGroup: 101
-        fsGroup: 101
+        fsGroup: 1000
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: frontend
-          image: roomie-match-frontend:security
-          imagePullPolicy: IfNotPresent
-
           securityContext:
             allowPrivilegeEscalation: false
             capabilities: {drop: [ALL]}
+          image: roomie-match-frontend:local
+          imagePullPolicy: IfNotPresent
+
           ports:
             - containerPort: 8080
 
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 5
+
           command: [nginx, '-g', 'daemon off;']
           volumeMounts:
+            - name: backend-media
+              mountPath: /media
+              readOnly: true
             - name: nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
 
       volumes:
+        - name: backend-media
+          persistentVolumeClaim:
+            claimName: backend-media
         - name: nginx-config
           configMap:
             name: frontend-nginx-config

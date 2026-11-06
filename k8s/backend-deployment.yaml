@@ -24,16 +24,35 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         seccompProfile: {type: RuntimeDefault}
-      containers:
-        - name: backend
-          image: roomie-match-backend:local
-          imagePullPolicy: IfNotPresent
-
+      initContainers:
+        - name: wait-for-postgres
           securityContext:
             allowPrivilegeEscalation: false
             capabilities: {drop: [ALL]}
+          image: postgres:18
+          command: [sh, -c, 'until pg_isready -h postgres -p 5432; do sleep 2; done']
+      containers:
+        - name: backend
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          image: roomie-match-backend:local
+          imagePullPolicy: IfNotPresent
+
           ports:
             - containerPort: 8000
+
+          startupProbe:
+            httpGet:
+              path: /openapi.json
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /openapi.json
+              port: 8000
+            periodSeconds: 10
 
           envFrom:
             - configMapRef:
@@ -42,6 +61,8 @@ spec:
                 name: backend-secret
 
           volumeMounts:
+            - name: backend-media
+              mountPath: /app/media
             - name: backend-logs
               mountPath: /app/logs
 
@@ -56,5 +77,8 @@ spec:
               exec gunicorn -c gunicorn.conf.py app.main:app
 
       volumes:
+        - name: backend-media
+          persistentVolumeClaim:
+            claimName: backend-media
         - name: backend-logs
           emptyDir: {}

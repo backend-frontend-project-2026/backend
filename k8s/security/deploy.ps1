@@ -7,7 +7,10 @@ function Kube {
 }
 $root = Split-Path $PSScriptRoot
 Kube apply -f "$root/namespace.yaml"
-Get-ChildItem $root -Filter '*.yaml' | Where-Object Name -notin 'namespace.yaml','nginx-pod.yaml' | ForEach-Object { Kube apply -f $_.FullName }
+Kube apply -f "$root/backend-configmap.yaml"
+Kube -n roomie-match patch configmap backend-config --type merge -p '{"data":{"FRONTEND_BASE_URL":"http://127.0.0.1:13000","MEDIA_BASE_URL":"http://127.0.0.1:13000/media"}}'
+Get-ChildItem $root -Filter '*.yaml' | Where-Object Name -notin 'namespace.yaml','backend-configmap.yaml','nginx-pod.yaml','kustomization.yaml' | ForEach-Object { Kube apply -f $_.FullName }
+Kube -n roomie-match set image deployment/frontend frontend=roomie-match-frontend:security
 $existing = Kube -n roomie-match get secret ntfy-topic --ignore-not-found -o name
 if (!$existing) {
     $topic = [guid]::NewGuid().ToString('N')

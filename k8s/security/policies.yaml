@@ -26,6 +26,12 @@ spec:
   ingress:
   - from: [{podSelector: {matchLabels: {app: frontend}}}]
     ports: [{port: 8000}]
+  - from:
+    - namespaceSelector:
+        matchLabels: {kubernetes.io/metadata.name: ingress-system}
+      podSelector:
+        matchLabels: {app.kubernetes.io/name: traefik}
+    ports: [{port: 8000}]
   egress:
   - to: [{podSelector: {matchLabels: {app: postgres}}}]
     ports: [{port: 5432}]
