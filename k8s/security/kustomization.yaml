@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: roomie-match
+resources: [rbac.yaml, monitoring.yaml, policies.yaml]
+configMapGenerator:
+- name: watcher-code
+  files: [watcher.py]
