@@ -365,3 +365,5 @@ $RECYCLE.BIN/
 *.db
 ansible/inventories.ini
 deploy/.env
+/k8s/backend-secret.yaml
+/k8s/postgres-secret.yaml

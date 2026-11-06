@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: pod-watcher}
+spec:
+  selector: {matchLabels: {app: pod-watcher}}
+  template:
+    metadata: {labels: {app: pod-watcher}}
+    spec:
+      serviceAccountName: pod-watcher
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: pod-watcher
+        image: python:3.13-alpine
+        command: ["python", "-B", "/code/watcher.py"]
+        env:
+        - name: NTFY_TOPIC
+          valueFrom: {secretKeyRef: {name: ntfy-topic, key: topic}}
+        volumeMounts:
+        - {name: code, mountPath: /code, readOnly: true}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: {drop: ["ALL"]}
+      volumes:
+      - name: code
+        configMap: {name: watcher-code}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ntfy}
+spec:
+  selector: {matchLabels: {app: ntfy}}
+  template:
+    metadata: {labels: {app: ntfy}}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: ntfy
+        image: binwiederhier/ntfy:v2.11.0
+        args: ["serve", "--listen-http", ":8080"]
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: {drop: ["ALL"]}
+
+---
+apiVersion: v1
+kind: Service
+metadata: {name: ntfy}
+spec:
+  selector: {app: ntfy}
+  ports: [{port: 8080}]

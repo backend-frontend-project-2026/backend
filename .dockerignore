@@ -15,3 +15,4 @@ docker-compose*.yml
 Dockerfile*
 nginx/
 .dockerignore
+k8s/
